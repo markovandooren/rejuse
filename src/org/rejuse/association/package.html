@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
+the people and entities mentioned after the "@author" tags above, on 
+behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
+after the "@date" tags above. All rights reserved.
+This software is published under the terms of the JUTIL.ORG Software
+License version 1.1 or later, a copy of which has been included with
+this distribution in the LICENSE file, which can also be found at
+http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
+License for more details.
+For more information, please see http://org-jutil.sourceforge.net/</copyright>*/
+-->
+</head>
+<body bgcolor="white">
+
+Provides for component to set up all kinds of bi-directional bindings between objects. 
+
+<h2>Class Diagram</h2>
+ <center><img src="doc-files/relations.png"/></center>
+
+<h2>Relation components in a nutshell</h2>
+
+ <p>Instead of implementing bi-directional bindings yourself, you can add an instance of a
+ subclass to your class that will take care of the binding. This will save you the trouble 
+ of keeping the binding consistent. However, you still have to write the specification if you
+ don't want to make the <code>Relation</code> components visible for outsiders.</p>
+ 
+ <p>If you do make them visible, you can reuse the specification of the components. You can
+ do this because the state of a component is completely determined by the bindings it has. 
+ All components have a <a href="Relation.html#registered(java.util.List, org.rejuse.relation.Relation)"><code>registered(List oldConnections, Relation registered)</code></a> method which returns true if the current
+ state of the component is one that could be reached by connecting with <code>registered</code> in a state
+ where the component is connected to all <a href="Relation.html"><code>Relation</code></a> objects
+ in <code>oldConnections</code>. Additionally, the have an <a href="package.html#unregisterd(java.util.List, org.rejuse.relation.Relation)"><code>unregistered(List oldConnections, Relation unregistered)</code></a> method which returns <code>true</code> if the current state of the component was reached by disconnecting from <code>unregistered</code> when being connected to all components in <code>unregistered</code>.</p>
+
+<h2>Example</h2>
+
+ <p>E.g. you make an 1-N binding between classes A and B, and the components are visible. The UML diagram looks like this:</p>
+
+ <center><img src="doc-files/reference_1-n_uml.png"/></center>
+ <p>With the components of this package, we can build this binding as follows:</p>
+ <center><img src="doc-files/reference_1-n_java.png"/></center>
+ <p>The code for classes <code>A</code> and <code>B</code> is shown below.</p>
+
+<pre><code>
+public class A {
+
+ /*o
+   o public behavior
+   o*/
+  public A() {
+    _BLink = new Reference(this);
+  }
+
+ /*o
+   o public behavior
+   o
+   o post \result == getBLink().getOtherEnd();
+   o*/
+  public B getB() {
+    return (B)_BLink.getOtherEnd();
+  }
+
+ /*o
+   o public behavior
+   o
+   o post getBLink().registered(new Singleton(\old(getB())), b.getALink());
+   o*/
+  public void setB(B b) {
+    _BLink.connectTo(b == null ? null : b.getALink());
+  }
+
+ /*o
+   o public behavior
+   o
+   o post \result != null;
+   o post \result.getObject() == this;
+   o*/
+  public Reference getBLink() {
+    return _BLink;
+  }
+
+ /*o 
+   o private invariant _BLink != null;
+   o*/
+  private Reference _BLink;
+}
+
+public class B {
+
+ /*o
+   o public behavior
+   o*/
+  public B() {
+    _elements = new ReferenceSet(this);
+  }
+
+ /*o
+   o public behavior
+   o
+   o post \result == getBLink().getOtherEnd();
+   o*/
+  public List getAs() {
+    return _elements.getOtherEnds();
+  }
+
+ /*o
+   o public behavior
+   o
+   o pre a != null;
+   o
+   o post getReference().registered(\old(getAs()), a.getBLink());
+   o*/
+  public void addA(A a) {
+    _elements.add(a.getBLink());
+  }
+
+ /*o
+   o public behavior
+   o
+   o pre a != null;
+   o
+   o post getALink().unregistered(other);
+   o post a.getBLink().unregistered(getALink());
+   o*/
+  public void removeA(A a) {
+    _elements.remove(a.getBLink());
+  }
+
+ /*o
+   o public behavior
+   o
+   o post \result != null;
+   o post \result.getObject() == this;
+   o*/
+  public ReferenceSet getALink() {
+    return _elements;
+  }
+
+ /*o 
+   o private invariant _elements != null;
+   o*/
+  private Reference _elements;
+}
+</code></pre>
+
+<p>If you don't want to make the components publically visible, you will have to write the full
+specifications of the double binding, which is a pretty hard thing to do. If you don't believe it, take a look at page 597 of Object Oriented Software Construction by Bertrand Meyer. Even he writes a specification (and implementation) that is not correct. If you put a cell 3 to the right of a cell 1, which is already connected to cell 2, cell 2 will still refer to cell 1, but cell 1 will not point back, and thus the class invariant is violated.</p>
+
+
+<h2>Other bindings</h2>
+<p>In the same manner as above, you can also make 1-1 and N-N bindings. If you want to, you can even make hybrid bindings, just make the side where both <code>Reference</code> and <code>ReferenceSet</code> return a <code>Relation</code> a its link.</p>
+
+<h2>Multiple bindings</h2>
+<p>Of course, if a class has bindings with a number of other classes, you just add a component for each binding.</p>
+</body>
+</html>

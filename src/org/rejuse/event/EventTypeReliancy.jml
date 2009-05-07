@@ -1,0 +1,68 @@
+package org.jutil.event;
+
+
+import java.util.EventObject;
+
+
+/**
+ * <p>This model type extends the Notifier contract, stating that only
+ *   non-null events of type {@link eventType} are considered
+ *   valid.</p>
+ * <p>If your notifier only accepts non-null events of type
+ *   {@link eventType} as valid events, you can simply model implement
+ *   this type to inherit that contract. The implementation of
+ *   {@link Notifier#notifyListner(EventListener, EventObject)} then can
+ *   depend on the fact that it's event argument will be non-null and of
+ *   type {@link eventType}, because this method is used as an
+ *   abstract precondition.</p>
+ These extra contracts only make sense if they introduce an implication
+ if the form \result <== something (or a fortiori, an equivalence).
+ We need to prove in the use of the actual notifyListener method,
+ i.e., in the fireEvent method, that we adhere to the preconditions, i.e.,
+ that this model methode returns true. An implication of the form
+ \result ==> something leaves room for strengthening in subclasses,
+ but we can only proof that the method returns false in some conditions.
+ We cannot proof that the method will return true ever.
+ * @path    $Source$
+ * @version $Revision$
+ * @date    $Date$
+ * @state   $State$
+ * @author  Jan Dockx
+ * @release $Name$
+ */
+public interface EventTypeReliancy extends Notifier {
+
+  public invariant eventType != null;
+  public invariant Class.forName("java.util.EventObject").isAssignableFrom(eventType);
+
+  public model instance Class eventType;
+
+  /**
+   * Asserts that <formal-arg>event</formal-arg> is of type
+   * <formal-arg>eventType</formal-arg>. Subtypes cannot demand more.
+   */
+ /*@
+   @ also public behavior
+   @
+   @ post \result <==> eventType.isInstance(event);
+   @                        // false when event is null
+   @*/
+  public pure model boolean isValidEvent(EventObject event);
+    // final because the contract states an equivalence
+    // FIXME
+
+}
+/*
+ * <copyright>Copyright (C) 1997-2001. This software is copyrighted by 
+ * the people and entities mentioned after the "@author" tags above, on 
+ * behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
+ * after the "@date" tags above. All rights reserved.
+ * This software is published under the terms of the JUTIL.ORG Software
+ * License version 1.1 or later, a copy of which has been included with
+ * this distribution in the LICENSE file, which can also be found at
+ * http://org-jutil.sourceforge.net/LICENSE. This software is distributed 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ * See the JUTIL.ORG Software License for more details. For more information,
+ * please see http://org-jutil.sourceforge.net/</copyright>/
+ */

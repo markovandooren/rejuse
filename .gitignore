@@ -1,0 +1,7 @@
+dist
+tmp
+.uml
+build
+.project
+.classpath
+Export.jardesc

@@ -1,0 +1,59 @@
+package org.jutil.event;
+
+
+import java.util.EventObject;
+
+
+/**
+ * <p>This model type extends the Notifier contract, stating that only
+ *   <code>null</code> is valid as event.</p>
+ * <p>If your notifier only accepts <code>null</code> as valid events,
+ *   you can simply model implement this type to inherit that contract.
+ *   The implementation of {@link Notifier#notifyListner(EventListener,
+ *   EventObject)} then can depend on the fact that it's event argument
+ *   will be <code>null</code>, because this method is used as an abstract
+ *   precondition.
+ This extra contract will never be used, because a notifier that knows the
+ event will be null, will never use the argument anyway, and thus does not
+ rely on the actual value of the formal argument <code>event</code>. Any
+ extra information about it is irrelevant.
+ * @path    $Source$
+ * @version $Revision$
+ * @date    $Date$
+ * @state   $State$
+ * @author  Jan Dockx
+ * @release $Name$
+ */
+public interface NullEventReliancy extends Notifier {
+
+	/* The revision of this class */
+	public final static String CVS_REVISION ="$Revision$";
+
+  /**
+   * If <formal_argument>event</formal_argument> is not null, this
+   * method will return false. If <formal_argument>event</formal_argument>
+   * is null, this method will return true. There is nothing more regarding
+   * the event that subtypes can demand.
+   */
+ /*@
+   @ also public behavior
+   @
+   @ post \result <==> (event == null);
+   @*/
+  public pure model boolean isValidEvent(EventObject event);
+
+}
+/*
+ * <copyright>Copyright (C) 1997-2001. This software is copyrighted by 
+ * the people and entities mentioned after the "@author" tags above, on 
+ * behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
+ * after the "@date" tags above. All rights reserved.
+ * This software is published under the terms of the JUTIL.ORG Software
+ * License version 1.1 or later, a copy of which has been included with
+ * this distribution in the LICENSE file, which can also be found at
+ * http://org-jutil.sourceforge.net/LICENSE. This software is distributed 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ * See the JUTIL.ORG Software License for more details. For more information,
+ * please see http://org-jutil.sourceforge.net/</copyright>/
+ */

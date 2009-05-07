@@ -1,0 +1,66 @@
+package org.jutil.event;
+
+
+import java.util.EventListener;
+
+
+/**
+ * <p>This model type introduces a model method which can be used to
+ *   describe the validity of EventListener instances in a class.</p>
+ *
+ * @path    $Source$
+ * @version $Revision$
+ * @date    $Date$
+ * @state   $State$
+ * @author  Jan Dockx
+ * @release $Name$
+ */
+public interface ListenerValidity {
+
+	/* The revision of this class */
+	public final static String CVS_REVISION ="$Revision$";
+
+  /**
+   * <p>This model inspector can be used as an abstract precondition in
+   *   methods using EventLister arguments, limiting which instances are
+   *   acceptable.</p>
+   * <p>It can be used to transport information about listeners from
+   *   the type invariants to the implementation of the method that
+   *   uses it as a precondition.</p>
+// JDJDJD
+// Adding listener != null here would result in \result <== listener != null;,
+// because the postcondition needs to be open for strengthening in subtypes.
+// This extra information doesn't help us.
+   * <p>A typical subtype specification would say that the listener is
+   *   of a given subtype of java.util.EventListener. E.g.:</p>
+   * <pre>
+   * ...
+   * /*@
+   *   @ also
+   *   @   public behavior
+   *   @     pre listener != null;
+   *   @     post \result <==> listener instanceof <var>EventName</var>Listener;
+   *   @ public pure model boolean isValidListener(EventListener listener);
+   *   @/
+   * ...
+   * </pre>
+   *
+   */
+  public behavior
+    pre listener != null;
+  public pure model boolean isValidListener(EventListener listener);
+
+}
+
+/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
+the people and entities mentioned after the "@author" tags above, on 
+behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
+after the "@date" tags above. All rights reserved.
+This software is published under the terms of the JUTIL.ORG Software
+License version 1.1 or later, a copy of which has been included with
+this distribution in the LICENSE file, which can also be found at
+http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
+License for more details.
+For more information, please see http://org-jutil.sourceforge.net/</copyright>*/

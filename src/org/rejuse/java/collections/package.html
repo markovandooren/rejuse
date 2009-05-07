@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
+the people and entities mentioned after the "@author" tags above, on 
+behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
+after the "@date" tags above. All rights reserved.
+This software is published under the terms of the JUTIL.ORG Software
+License version 1.1 or later, a copy of which has been included with
+this distribution in the LICENSE file, which can also be found at
+http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
+License for more details.
+For more information, please see http://org-jutil.sourceforge.net/</copyright>*/
+-->
+</head>
+<body bgcolor="white">
+<p>Provides for operations on collections. These operations can be seen as software theorems. Instead of writing the same error-prone iterations over and over again, the classes of this package can be used. Using these classes will make iterations much easier to read and a lot easier to prove.</p>
+<p>A manual for each of the classes follows below.</p>
+
+<h2><a href="CollectionOperator.html">CollectionOperator</a></h2>
+<p><code>CollectionOperator</code> is the toplevel interface for operations on collections. It only contains a model method (a specification-only method) <code>isValidElement(Object element)</code>. This method is needed in order to prove the correctness of subclasses.</p>
+
+<p>Set operations are the one and only reason for the creation an the success of for example SQL. You can perform very complex operations with a very easy syntax. In traditional object-oriented programs, they are still the most complex constructions because they require loops to be written, which are difficult to write (how many times did you write a loop correct from the first time ?). Another drawback is that these loops, for example to check whether all elements of a collection satisfy some criterion, have to be written over and over again because they are always implemented with low-level constructions (for, while) which are not reusable.</p>
+
+<p>With the classes in this package, the same functionality can be added to object-oriented programs. Using <em>internal iterators</em>, they provide set operations which can easily be adapted to perform specific things by subclassing them. The documentation of the classes explains how to do that.</p>
+
+<p>As a result of the use of internal iterators, complex nested iterations can be replaced by a declarative implementation that is both very easy to read and write.</p>
+
+<h1>Visitors</h1>
+<p>Visitors are object that can perform a certain action on all element of an object structure.</p>
+<h2>Class Diagram</h2>
+<center>
+ 	<img src="doc-files/visitors.png"/>
+</center>
+
+<h2><a href="Visitor.html">Visitor</a></h2>
+<p>The Visitor class is a replacement for the <code>java.util.Iterator</code> class that allows a programmer to perform a certain action on all elements of a collection.
+
+<h2><a href="MapVisitor.html">MapVisitor</a></h2>
+
+<p>The MapVisitor class is similar to the Visitor class, but it operates on maps instead of collections. The only difference between the two classes is an additional argument in the visit method.</p>
+
+<h2><a href="RobustVisitor.html">RobustVisitor</a></h2>
+
+<p>Of course, sometimes exceptions can be thrown during a visit. The default behaviour when an exception occurs, is to undo all changes that were made and throw an exception to the caller of the method. This means that the actions that were performed on elements visited before the element that caused the exception, have to be undone. The RobustVisitor class adds support for handling exceptions to the Visitor class.</p>
+
+<h2><a href="RobustMapVisitor.html">RobustMapVisitor</a></h2>
+<p>As with the normal visitor, an additional class <code>RobustMapVisitor</code> is made for visiting maps when exceptions can occur.</p>
+
+<h1>Accumulators</h1>
+<p>An accumulator acts like a visitor, but passes an argument from each visit to the next. Because we cannot write code that works for both Object types and primitive types, we have separate accumulators for <code>Object</code>, and each primitive type (currently only <code>int</code> and <code>boolean</code>). Wrapping primitive values in their wrapper class is annoying to work with, and causes an unnecessary performance penalty.</p>
+<h2>Class Diagram</h2>
+<center>
+ 	<img src="doc-files/accumulators.png"/>
+</center>
+
+<h2><a href="Accumulator.html">Accumulator</a></h2>
+<p>The base class of objects that use an <code>Object</code> as accumulator.</p>
+
+<h1>Boolean Accumulators</h1>
+<h2>Class Diagram</h2>
+<center>
+	<img src="doc-files/boolean-accumulators.png"/>
+</center>
+
+<h2><a href="BooleanAccumulator.html">BooleanAccumulator</a></h2>
+<p>The <code>BooleanAccumulator</code> class is almost identical to <code>Accumulator</code>. The return types have been changed to <code>boolean</code>, and the <code><a href="Accumulator.html#accumulate(java.util.Collection)">accumulate</a></code> has been renamed to <code><a href="BooleanAccumulator.html#in(java.util.Collection)">in</a></code>.</p>
+
+<h2><a href="ForAll.html">ForAll</a></h2>
+<p>The boolean accumulator <code>ForAll</code> checks whether some boolean criterion is satisfied by all elements in a collection.</p>
+
+<h2><a href="Exists.html">Exists</a></h2>
+<p>The boolean accumulator <code>Exists</code> checks whether some boolean criterion is satisfied by at least one element in a collection.</p>
+
+<h1>Integer Accumulators</h1>
+<h2>Class Diagram</h2>
+<center>
+	<img src="doc-files/integer-accumulators.png"/>
+</center>
+
+<h2><a href="Counter.html">Counter</a></h2>
+<p>A <code><a href="Counter.html">Counter</a></code> is an integer accumulator that counts how many object in a given collection satisfy some criterion.</p>
+
+<h1>Filters</h1>
+<p>Filters are collection operators that filter certain objects out of a collection. Given a criterion, a filter can discard or retain the objects satisfying that criterion.</p>
+<h2>Class Diagram</h2>
+<center>
+	<img src="doc-files/filters.png"/>
+</center>
+
+<h2><a href="Filter.html">Filter</a></h2>
+<p><code>Filter</code> is the top class of the filters that operate on collections. It implements the retain and discard methods. The criterion must be defined by subclasses.</p>
+
+<h2><a href="TypeFilter.html">TypeFilter</a></h2>
+<p><code>TypeFilter</code> is a special filter that uses the type of the object in the collection as criterion.</p>
+
+<h2><a href="AndFilter.html">AndFilter</a></h2>
+<p><code>AndFilter</code> is a special filter that acts like a filter with a criterion that is the "and" of the criteria of the filters it is composed of.</p>
+
+<h1>Fifo queues</h1>
+<p>Fifo queues are first-in-first-out queues.</p>
+<h2>Class Diagram</h2>
+<center>
+	<img src="doc-files/fifos.png"/>
+</center>
+
+<h2><a href="Fifo.html">Fifo</a></h2>
+<p><code>Fifo</code> is the top interface of all Fifo queues.</p>
+
+<h2><a href="FifoList.html">FifoList</a></h2>
+<p><code>FifoList</code> is an implementation of the <a href="Fifo.html"><code>Fifo</code></a> interface.</p>
+
+<h2><a href="SynchronizedFifoList.html">SynchronizedFifoList</a></h2>
+<p><code>FifoList</code> is a synchronized subclass of <a href="FifoList.html"><code>FifoList</code></a>.</p>
+
+<h2><a href="BlockingFifoList.html">BlockingFifoList</a></h2>
+<p><code>FifoList</code> is a subclass of <a href="FifoList.html"><code>FifoList</code></a> that is synchronized, and
+blocks <a href="Fifo.html#pop()"><code>pop()</code></a> requests when it is empty until an item is available.</p>
+
+
+
+
+<!--
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+</ul>
+-->
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
