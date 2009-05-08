@@ -38,12 +38,12 @@ public abstract class StrictPartialOrder<E> extends PartialOrder<E> {
 
       @Override
       public boolean contains(E first, E second) throws Exception {
-        return contains(first,second) || equal(first,second);
+        return StrictPartialOrder.this.contains(first,second) || StrictPartialOrder.this.equal(first,second);
       }
 
       @Override
       public boolean equal(E first, E second) throws Exception {
-        return equal(first,second);
+        return StrictPartialOrder.this.equal(first,second);
       }
     };
   }

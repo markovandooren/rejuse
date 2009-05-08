@@ -42,7 +42,7 @@ public abstract class PartialOrder<E> extends Relation<E> {
   public void removeBiggerElements(Collection<E> collection) throws Exception {
     new Relation<E>() {
       public boolean contains(E first, E second) throws Exception {
-        return contains(second,first) && (! contains(first,second));
+        return PartialOrder.this.contains(second,first) && (! PartialOrder.this.contains(first,second));
       }
     }.removeLeftOperands(collection);
   }
@@ -54,7 +54,7 @@ public abstract class PartialOrder<E> extends Relation<E> {
   public void removeSmallerElements(Collection<E> collection) throws Exception {
     new Relation<E>() {
       public boolean contains(E first, E second) throws Exception {
-            return contains(first,second) && (! contains(second,first));
+            return PartialOrder.this.contains(first,second) && (! PartialOrder.this.contains(second,first));
       }
     }.removeLeftOperands(collection);
   }

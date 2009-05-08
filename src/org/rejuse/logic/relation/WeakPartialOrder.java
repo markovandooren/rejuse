@@ -44,12 +44,12 @@ public abstract class WeakPartialOrder<E> extends PartialOrder<E> {
 
       @Override
       public boolean contains(E first, E second) throws Exception {
-        return contains(first,second) && (! contains(second,first));
+        return WeakPartialOrder.this.contains(first,second) && (! WeakPartialOrder.this.contains(second,first));
       }
 
       @Override
       public boolean equal(E first, E second) throws Exception {
-        return equal(first,second);
+        return WeakPartialOrder.this.equal(first,second);
       }
     };
   }
