@@ -18,6 +18,56 @@ import org.rejuse.predicate.PrimitiveTotalPredicate;
  */
 public class PropertySet<E> {
 
+	/**
+	 * Create an empty property set.
+	 */
+	public PropertySet() {
+		
+	}
+	
+	/**
+	 * Create a new property set that contains the given properties
+	 * @param properties
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre properties != null;
+   @
+   @ post containsAll(properties); 
+   @*/
+	public PropertySet(Collection<Property<E>> properties) {
+		addAll(properties);
+	}
+	
+	/**
+	 * Check if the given property is in this property set.
+	 * @param property
+	 * @return
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post \result == properties().contains(property);
+   @*/
+	public boolean contains(Property<E> property) {
+		return _properties.contains(property);
+	}
+	
+	/**
+	 * Check if all of the given properties are in this property set.
+	 * @param property
+	 * @return
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post \result == properties().containsAll(properties);
+   @*/
+	public boolean containsAll(Collection<Property<E>> properties) {
+		return _properties.containsAll(properties);
+	}
+	
   /**
    * Add the given property to the property set.
    * @param p
@@ -105,6 +155,21 @@ public class PropertySet<E> {
     }
   }
   
+  /**
+   * Add the given properties to the property set.
+   * @param p
+   *        The collection containing the properties to be added.
+   */
+ /*@
+   @ behavior
+   @
+   @ pre properties != null;
+   @
+   @ post properties().containsAll(properties);
+  */
+  public void addAll(PropertySet<E> properties) {
+    addAll(properties.properties());
+  }
 
   
   /**
