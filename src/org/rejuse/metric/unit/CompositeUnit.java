@@ -1,16 +1,17 @@
 package org.rejuse.metric.unit;
 
-import java.util.Set;
-import java.util.Map;
 import java.util.HashMap;
-import org.rejuse.java.collections.DoubleAccumulator;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
-import org.rejuse.metric.Prefix;
-import org.rejuse.metric.dimension.Dimension;
+import java.util.Map;
+import java.util.Set;
+
 import org.rejuse.InitializationException;
-import org.rejuse.java.collections.Accumulator;
+import org.rejuse.java.SafeAccumulator;
+import org.rejuse.java.collections.DoubleAccumulator;
 import org.rejuse.java.collections.MapAccumulator;
 import org.rejuse.java.collections.Visitor;
+import org.rejuse.metric.Prefix;
+import org.rejuse.metric.dimension.Dimension;
+import org.rejuse.predicate.PrimitiveTotalPredicate;
 
 /**
  * @version $Revision$
@@ -443,7 +444,7 @@ public class CompositeUnit extends Unit {
    * @see Unit.getStandardUnit()
    */
   public /*@ pure @*/ Unit getBaseUnit() throws InitializationException {
-    return (Unit) new Accumulator() {
+    return (Unit) new SafeAccumulator() {
           /*@
             @ also public behavior
             @

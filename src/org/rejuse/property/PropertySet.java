@@ -242,7 +242,7 @@ public class PropertySet<E> {
   /**
    * Check if the properties in this property set imply a given property.
    * 
-   * Let IMPLYING be the set of properties that imply the given properties.
+   * Let IMPLYING be the set of properties that imply the given property.
    * Let IMPLYING_INTERSECT be the set of properties in IMPLYING that are part
    * of this property set. Let IMPLYING_INTERSECT_CON be the set of properties in
    * IMPLYING_INTERSECT that are internally consistent in this property set.
@@ -272,6 +272,7 @@ public class PropertySet<E> {
     PrimitiveTotalPredicate<Property<E>> propertyFilter = new PrimitiveTotalPredicate<Property<E>>() {
       @Override
       public boolean eval(Property<E> property) {
+      	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
         return properties().contains(property) && internallyConsistent(property);
       }
     };
@@ -289,6 +290,46 @@ public class PropertySet<E> {
       return Ternary.UNKNOWN; 
     }
     
+  }
+  
+  /** 
+   * Check if the properties in this property set contradict the given property.
+   * The result is the negation of the implies method.
+   * 
+   * @param property
+   * @return
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result == implies(property).not();
+   @*/
+  public Ternary contradicts(Property<E> property) {
+  	return implies(property).not();
+  }
+  
+ /*@
+   @ public behavior
+   @
+   @ post (\forall Property<E> p; contains(p); set.contradicts(p) != Ternary.TRUE);
+   @*/
+  public void removeContradictingProperties(PropertySet<E> set) {
+  	for(Property<E> p : properties()) {
+  		if(set.contradicts(p) == Ternary.TRUE) {
+  			removeProperty(p);
+  		}
+  	}
+  }
+  
+ /*@
+   @ public behavior
+   @
+   @ post (\forall Property<E> p; contains(p); set.contradicts(p) != TRUE == \result.contains(p));
+   @*/
+  public PropertySet<E> withoutContradictingProperties(PropertySet<E> set) {
+  	PropertySet<E> result = clone();
+  	result.removeContradictingProperties(set);
+  	return result;
   }
   
   private Set<Property<E>> _properties = new HashSet<Property<E>>();

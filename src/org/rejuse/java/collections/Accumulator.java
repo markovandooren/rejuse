@@ -132,38 +132,7 @@ public abstract class Accumulator<E,A> implements CollectionOperator {
 	 @
    @ pre isValidElement(element);
    @*/
-  public abstract /*@ pure @*/ A accumulate(E element, A acc);
-  
-//   /**
-//    * <p>Perform the accumulation defined in
-//    * <code>public Object accumulate(Object element, Object acc)</code> for each
-//    * element of <code>set<code>. For the first element, the object returned by
-//    * <code>public Object initialAccumulator()</code> is used as accumulator.
-//    * For the other elements, the result of the application of
-//    * <code>public Object accumulate(Object element, Object acc)</code> on the
-//    * previous element is used as accumulator.</p>
-//    * <p>The contents of <code>set</code> is not changed.</p>
-//    * <p>The result of this method is the object returned by the application of
-//    * <code>public Object accumulate(Object element, Object acc)</code> on the
-//    * last element of the collection to be processed.</p>
-//    *
-//    * @param  set
-//    *         The set to perform this accumulation on. It will not be changed.
-//    *         This can be null, in which the initial accumulator is returned.
-//    * @result The accumulator returned by the final call of accumulate.
-//    */
-//   //MvDMvDMvD: can the Iterator throw ConcurrentModificationException ?
-//   //MvDMvDMvD: why a Set and not a Collection ?
-//   public final Object accumulate(Set set) {
-//     Object acc = initialAccumulator();
-//     if (set != null) {
-//       Iterator iter = set.iterator();
-//       while (iter.hasNext()) {
-//         acc = accumulate(iter.next(), acc);
-//       }
-//     }
-//     return acc;
-//   }
+  public abstract /*@ pure @*/ A accumulate(E element, A acc) throws Exception;
   
 
   /**
@@ -194,7 +163,7 @@ public abstract class Accumulator<E,A> implements CollectionOperator {
 	 @
 	 @ signals (ConcurrentModificationException) (* The collection was modified while accumulating *);
    @*/
-  public final /*@ pure @*/ A accumulate(Collection<E> collection) throws ConcurrentModificationException {
+  public /*@ pure @*/ A accumulate(Collection<E> collection) throws ConcurrentModificationException, Exception {
     A acc = initialAccumulator();
     if (collection != null) {
       Iterator<E> iter = collection.iterator();

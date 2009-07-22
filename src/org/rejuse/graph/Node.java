@@ -8,8 +8,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.rejuse.java.collections.Mapping;
+import org.rejuse.java.collections.SafeTransitiveClosure;
 import org.rejuse.java.collections.SkipList;
-import org.rejuse.java.collections.TransitiveClosure;
 import org.rejuse.java.collections.Visitor;
 import org.rejuse.java.comparator.ComparableComparator;
 
@@ -206,7 +206,7 @@ public class Node {
    @*/ 
   public boolean canReach(Node other) {
     //TODO inefficient, but it works
-    return new TransitiveClosure() {
+    return new SafeTransitiveClosure() {
       public Set getConnectedNodes(Object node) {
         return ((Node)node).getDirectlyConnectedNodes();
       }

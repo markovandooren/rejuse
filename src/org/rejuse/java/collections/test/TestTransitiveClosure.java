@@ -2,7 +2,7 @@ package org.rejuse.java.collections.test;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.java.collections.TransitiveClosure;
+import org.rejuse.java.collections.SafeTransitiveClosure;
 import org.rejuse.junit.CVSRevision;
 import org.rejuse.junit.JutilTest;
 
@@ -30,7 +30,7 @@ public class TestTransitiveClosure extends JutilTest {
   Reference $H;
   Reference $I;
   Reference $J;
-  TransitiveClosure $closure;
+  SafeTransitiveClosure $closure;
   
   public void setUp() {
     $A = new Reference();
@@ -66,7 +66,7 @@ public class TestTransitiveClosure extends JutilTest {
     $I.add($H);
     $I.add($J);
     
-    $closure = new TransitiveClosure() {
+    $closure = new SafeTransitiveClosure() {
                                   public Set getConnectedNodes(Object node) {
                                     return ((Reference) node).getReferences();
                                   }

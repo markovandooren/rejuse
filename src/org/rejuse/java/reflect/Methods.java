@@ -1,10 +1,14 @@
 package org.rejuse.java.reflect;
 
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Filter;
-import org.rejuse.java.collections.Accumulator;
 
 
 /**
@@ -45,7 +49,7 @@ public class Methods {
    @*/
   //MvDMvDMvD : ask Jan what this should do. I think it behaves weird.
   static public /*@ pure @*/ Set getAllApplicableMethods(Class clazz) {
-    return (Set)new Accumulator() {
+    return (Set)new SafeAccumulator() {
                       public Object initialAccumulator() {
                         return new HashSet();
                       }

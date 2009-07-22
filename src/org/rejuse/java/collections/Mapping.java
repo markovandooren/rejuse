@@ -44,7 +44,7 @@ import java.util.*;
  * @author  Marko van Dooren 
  * @release $Name$
  */
-public abstract class Mapping implements CollectionOperator {
+public abstract class Mapping<FROM,TO> implements CollectionOperator {
 
   //MvDMvDMvD : make separate methods for lists and ordered sets,...
     
@@ -66,7 +66,7 @@ public abstract class Mapping implements CollectionOperator {
    @        (\forall Object o2; (o2 != null) && o2.equals(o1);
    @             mapping(o1).equals(mapping(o2))));
    @*/
-  public abstract /*@ pure @*/ Object mapping(Object element);
+  public abstract /*@ pure @*/ TO mapping(FROM element);
   
   /**
    * <p>Perform the mapping defined in <code>public Object mapping(Object)</code>
@@ -100,17 +100,17 @@ public abstract class Mapping implements CollectionOperator {
 	 @
 	 @ signals (ConcurrentModificationException) (* The collection was modified while mapping *);
    @*/
-  public final /*@ pure @*/ Collection applyTo(Collection collection) throws ConcurrentModificationException {
+  public final /*@ pure @*/ Collection<TO> applyTo(Collection<FROM> collection) throws ConcurrentModificationException {
     if (collection != null) {
-      ArrayList acc = new ArrayList();
-      Iterator iter = collection.iterator(); // iterate over a safe set
+      ArrayList<TO> acc = new ArrayList<TO>();
+      Iterator<FROM> iter = collection.iterator(); // iterate over a safe set
       while (iter.hasNext()) {
         acc.add(mapping(iter.next()));
       }
-      collection.clear();
-      collection.addAll(acc);
+      return acc;
+    } else {
+    	return null;
     }
-    return collection;
   }
 
 //   /**
@@ -185,10 +185,10 @@ public abstract class Mapping implements CollectionOperator {
 	 @
 	 @ signals (ConcurrentModificationException) (* The collection was modified while mapping *);
    @*/
-  public final /*@ pure @*/ Collection applyFromTo(Collection fromCollection, Collection toCollection) throws ConcurrentModificationException {
+  public final /*@ pure @*/ Collection<TO> applyFromTo(Collection<FROM> fromCollection, Collection<TO> toCollection) throws ConcurrentModificationException {
     if ((fromCollection != null) && (toCollection != null)) {
       toCollection.clear();
-      Iterator iter = fromCollection.iterator();
+      Iterator<FROM> iter = fromCollection.iterator();
       while (iter.hasNext()) {
         toCollection.add(mapping(iter.next()));
       }

@@ -101,12 +101,12 @@ final public class Singleton extends AbstractList implements Set {
 
   public class SingletonIterator implements Iterator {
   
-    /*@
-      @ public model boolean onlyElementNotReturnedYet;
-      @ //FIXME initially onlyElementNotReturnedYet == true;
-			@ depends onlyElementNotReturnedYet <- _calledOnce;
-			@ represents onlyElementNotReturnedYet <- ! _calledOnce;
-      @*/
+    /*
+       public model boolean onlyElementNotReturnedYet;
+       initially onlyElementNotReturnedYet == true;
+ depends onlyElementNotReturnedYet <- _calledOnce;
+			 represents onlyElementNotReturnedYet <- ! _calledOnce;
+      */
   
 		/**
 		 * A boolean indicating whether or not the only element in an Singleton

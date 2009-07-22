@@ -2,7 +2,7 @@ package org.rejuse.java.collections.test;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.java.collections.Accumulator;
+import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Collections;
 import org.rejuse.junit.CVSRevision;
 import org.rejuse.junit.JutilTest;
@@ -37,7 +37,7 @@ public class TestAccumulator extends JutilTest {
   }
   public void testAccumulateSet() {
     Set clone = new HashSet($set);
-    Integer sum = (Integer) new Accumulator() {
+    Integer sum = (Integer) new SafeAccumulator() {
                               public Object initialAccumulator() {
                                 return new Integer(0);
                               }

@@ -41,7 +41,7 @@ public abstract class TransitiveClosure<T> {
    @ // Never contains null.
    @ post (\forall Object o; \result.contains(o); o != null);
    @*/
-  public abstract /*@ pure @*/ Set<T> getConnectedNodes(T node);
+  public abstract /*@ pure @*/ Set<T> getConnectedNodes(T node) throws Exception;
   
   /**
    * Transitive closure is a recursive definition. The recursive post condition below
@@ -61,7 +61,7 @@ public abstract class TransitiveClosure<T> {
     @                       (\exists Set ccn; isNaiveClosure(getConnectedNodes(o), ccn);
     @                             naiveClosureSet.containsAll(ccn))));
     @*/
-  final public /*@ pure @*/ boolean isNaiveClosure(Set<T> startSet, Set<T> naiveClosureSet) {
+  public /*@ pure @*/ boolean isNaiveClosure(Set<T> startSet, Set<T> naiveClosureSet) throws Exception {
     return naiveClosureSet.containsAll(closureFromAll(startSet));
   } 
 
@@ -72,6 +72,7 @@ public abstract class TransitiveClosure<T> {
    * @param  startSet
    *         The set of nodes to start the transitive closure from.
    *         This set is not changed.
+   * @throws Exception 
    */
  /*@
    @ // The given set may not be null
@@ -95,7 +96,7 @@ public abstract class TransitiveClosure<T> {
 	 @ signals (ConcurrentModificationException)
 	 @         (* The collection was modified while calculating the transitive closure. *);
    @*/
-  final public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) throws ConcurrentModificationException {
+  public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) throws Exception {
     Set<T> result = new HashSet<T>();
     Set<T> newNodes = startSet;
     while (! newNodes.isEmpty()) {
@@ -106,7 +107,7 @@ public abstract class TransitiveClosure<T> {
                             public Set<T> initialAccumulator() {
                               return new HashSet<T>();
                             }
-                            public Set<T> accumulate(T element, Set<T> acc) {
+                            public Set<T> accumulate(T element, Set<T> acc) throws Exception {
                               acc.addAll(getConnectedNodes(element));
                               return acc;
                             }
@@ -132,7 +133,7 @@ public abstract class TransitiveClosure<T> {
 	 @ signals (ConcurrentModificationException) 
 	 @         (* The collection was modified while calculating the transitive closure. *);
 	 @*/
-  final public /*@ pure @*/ Set<T> closure(T startNode) throws ConcurrentModificationException {
+  public /*@ pure @*/ Set<T> closure(T startNode) throws ConcurrentModificationException, Exception {
     Set<T> singleton = new HashSet<T>();
     singleton.add(startNode);
     return closureFromAll(singleton);

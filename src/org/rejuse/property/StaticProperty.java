@@ -3,6 +3,8 @@ package org.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.rejuse.logic.ternary.Ternary;
+
 public class StaticProperty<E> extends Property<E> {
   
   private final class InverseProperty extends StaticProperty<E> {
@@ -111,7 +113,7 @@ public class StaticProperty<E> extends Property<E> {
   }
   
   /**
-   * A static property does not apply to any element based on the
+   * A static property does not know if it applies to any element based on the
    * state of that element.
    */
  /*@
@@ -119,8 +121,8 @@ public class StaticProperty<E> extends Property<E> {
    @
    @ post \result == false;
    @*/
-  public boolean appliesTo(E element) {
-    return false;
+  public Ternary appliesTo(E element) {
+    return Ternary.UNKNOWN;
   }
 
 }

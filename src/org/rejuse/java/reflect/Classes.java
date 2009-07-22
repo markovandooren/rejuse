@@ -10,7 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.rejuse.java.collections.Filter;
-import org.rejuse.java.collections.TransitiveClosure;
+import org.rejuse.java.collections.SafeTransitiveClosure;
 
 /**
  * Utility methods for class reflection.
@@ -94,7 +94,7 @@ public class Classes {
 //    @ post (\forall Class c; c.isAssignableFrom(clazz) ; \result.contains(c));
 
   static public /*@ pure @*/ Set getSuperTypes(Class clazz) {
-    return new TransitiveClosure() {
+    return new SafeTransitiveClosure() {
                   public Set getConnectedNodes(Object node) {
                     return getImmediateSuperTypes((Class)node);
                   }

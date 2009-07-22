@@ -3,6 +3,8 @@ package org.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.rejuse.logic.ternary.Ternary;
+
 
 
 /**
@@ -24,8 +26,8 @@ public abstract class DynamicProperty<E> extends Property<E> {
   protected void createInverse(String name, PropertyUniverse<E> universe) {
     new DynamicProperty<E>("not "+name, universe, mutex(), this) {
       @Override
-      public boolean appliesTo(E element) {
-        return ! inverse().appliesTo(element);
+      public Ternary appliesTo(E element) {
+        return inverse().appliesTo(element).not();
       }
     	public Set<Property<E>> implicitlyContradictedProperties() {
     		Set<Property<E>> result = new HashSet<Property<E>>();

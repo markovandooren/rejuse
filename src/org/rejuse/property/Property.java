@@ -5,8 +5,10 @@ import java.util.Set;
 
 import org.rejuse.association.Reference;
 import org.rejuse.association.ReferenceSet;
+import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Accumulator;
-import org.rejuse.java.collections.TransitiveClosure;
+import org.rejuse.java.collections.SafeTransitiveClosure;
+import org.rejuse.logic.ternary.Ternary;
 
 /**
  * <p>A class representing properties of model elements. Properties can be explicitly assigned to objects by in
@@ -72,7 +74,7 @@ public abstract class Property<E> {
    * 
    * @param element
    */
-  public abstract boolean appliesTo(E element);
+  public abstract Ternary appliesTo(E element);
 
 
   protected abstract void createInverse(String name, PropertyUniverse<E> universe);
@@ -86,8 +88,8 @@ public abstract class Property<E> {
  /*@
    @ behavior
    @
-   @ name() == name;
-   @ universe() == universe;
+   @ post name() == name;
+   @ post  universe() == universe;
    @*/
   private void init(String name, PropertyUniverse<E> universe) {
     setName(name);
@@ -198,7 +200,7 @@ public abstract class Property<E> {
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
 	public Set<Property<E>> impliedProperties() {
-		return new TransitiveClosure<Property<E>>() {
+		return new SafeTransitiveClosure<Property<E>>() {
 			public Set<Property<E>> getConnectedNodes(Property<E> p) {
 				return p.directlyImpliedProperties();
 			}
@@ -289,7 +291,7 @@ public abstract class Property<E> {
 	}
 	
 	/**
-	 * Return the set of all properties that imply this property
+	 * Return the set of all properties that imply this property both directly and indirectly.
 	 */
  /*@
    @ public behavior
@@ -300,7 +302,7 @@ public abstract class Property<E> {
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
 	public Set<Property<E>> impliedByProperties() {
-		return new TransitiveClosure<Property<E>>() {
+		return new SafeTransitiveClosure<Property<E>>() {
 			public Set<Property<E>> getConnectedNodes(Property<E> p) {
 				return p.directlyImpliedByProperties();
 			}
@@ -368,7 +370,7 @@ public abstract class Property<E> {
 		// 1) all implied properties including the current property
     Set<Property<E>> implied = impliedProperties();
     // 2) all properties directly contradicting these properties
-    final Set<Property<E>> directlyContradicted = new Accumulator<Property<E>, Set<Property<E>>>() {
+    final Set<Property<E>> directlyContradicted = new SafeAccumulator<Property<E>, Set<Property<E>>>() {
 
       @Override
       public Set<Property<E>> accumulate(Property<E> element, Set<Property<E>> acc) {
@@ -384,7 +386,7 @@ public abstract class Property<E> {
     }.accumulate(implied);
 
     // 3) add all properties implying the properties in directlyContradicted
-    return new Accumulator<Property<E>, Set<Property<E>>>() {
+    return new SafeAccumulator<Property<E>, Set<Property<E>>>() {
 
       @Override
       public Set<Property<E>> accumulate(Property<E> element, Set<Property<E>> acc) {
