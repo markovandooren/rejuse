@@ -5,8 +5,8 @@ import java.util.Set;
 
 import org.rejuse.association.Reference;
 import org.rejuse.association.ReferenceSet;
-import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Accumulator;
+import org.rejuse.java.collections.SafeAccumulator;
 import org.rejuse.java.collections.SafeTransitiveClosure;
 import org.rejuse.logic.ternary.Ternary;
 

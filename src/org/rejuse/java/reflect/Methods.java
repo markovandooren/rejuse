@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Filter;
+import org.rejuse.java.collections.SafeAccumulator;
 
 
 /**

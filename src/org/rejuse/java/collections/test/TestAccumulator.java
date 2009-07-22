@@ -2,8 +2,8 @@ package org.rejuse.java.collections.test;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.java.SafeAccumulator;
 import org.rejuse.java.collections.Collections;
+import org.rejuse.java.collections.SafeAccumulator;
 import org.rejuse.junit.CVSRevision;
 import org.rejuse.junit.JutilTest;
 
