@@ -54,7 +54,7 @@ import java.util.ConcurrentModificationException;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public abstract class Filter implements CollectionOperator {
+public abstract class Filter<T> implements CollectionOperator {
   
  	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";
@@ -72,7 +72,7 @@ public abstract class Filter implements CollectionOperator {
 	 @
 	 @ pre isValidElement(element);
    @*/
-  public abstract /*@ pure @*/ boolean criterion(Object element);
+  public abstract /*@ pure @*/ boolean criterion(T element);
   
   /**
    * <p>Perform the filtering defined in <code>public boolean criterion(Object)</code>
@@ -96,9 +96,9 @@ public abstract class Filter implements CollectionOperator {
 	 @
 	 @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
    @*/
-  public final Collection retain(Collection collection) throws ConcurrentModificationException {
+  public final <C extends Collection<T>> C retain(C collection) throws ConcurrentModificationException {
     if (collection != null) {
-      Iterator iter = collection.iterator();
+      Iterator<T> iter = collection.iterator();
       while (iter.hasNext()) {
         if (! criterion(iter.next())) {
           iter.remove();
@@ -167,9 +167,9 @@ public abstract class Filter implements CollectionOperator {
 	 @
 	 @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
    @*/
-  public final Collection discard(Collection collection) throws ConcurrentModificationException {
+  public final <C extends Collection<T>>C discard(C collection) throws ConcurrentModificationException {
     if (collection != null) {
-      Iterator iter = collection.iterator();
+      Iterator<T> iter = collection.iterator();
       while (iter.hasNext()) {
         if (criterion(iter.next())) {
           iter.remove();
@@ -179,40 +179,4 @@ public abstract class Filter implements CollectionOperator {
     return collection;
   }
   
-//   /**
-//    * @see discard(Collection).
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final Set discardSet(Set collection) {
-//     return (Set)discard((Collection)collection);
-//   }
-//   
-//   /**
-//    * @see discard(Collection).
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final SortedSet discardSortedSet(SortedSet collection) {
-//     return (SortedSet)discard((Collection)collection);
-//   }
-//   
-//   /**
-//    * @see discard(Collection).
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final List discardList(List collection) {
-//     return (List)discard((Collection)collection);
-//   }
-
 }
-/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
-the people and entities mentioned after the "@author" tags above, on 
-behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
-after the "@date" tags above. All rights reserved.
-This software is published under the terms of the JUTIL.ORG Software
-License version 1.1 or later, a copy of which has been included with
-this distribution in the LICENSE file, which can also be found at
-http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
-License for more details.
-For more information, please see http://org-jutil.sourceforge.net/</copyright>*/

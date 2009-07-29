@@ -55,20 +55,20 @@ public class TypePredicate<T,C extends T> extends PrimitiveTotalPredicate<T> {
      *
      * @param name The name of the type.
      */
-    /*@
-      @ public behavior
-      @
-    @ pre name != null;
-    @ pre (* <name> must be a valid classname *);
-    @
-    @ // The type of this TypeFilter is set to the type
-    @ // with the given name.
-    @ post getType() == Class.forName(name);
-      @
-      @ signals (LinkageError) (* something went wrong *);
-      @ signals (ExceptionInInitializerError) (* something went wrong *);
-      @ signals (IllegalArgumentException) (* Illegal Class Name *);
-    @*/
+   /*@
+     @ public behavior
+     @
+     @ pre name != null;
+     @ pre (* <name> must be a valid classname *);
+     @
+     @ // The type of this TypeFilter is set to the type
+     @ // with the given name.
+     @ post getType() == Class.forName(name);
+     @
+     @ signals (LinkageError) (* something went wrong *);
+     @ signals (ExceptionInInitializerError) (* something went wrong *);
+     @ signals (IllegalArgumentException) (* Illegal Class Name *);
+     @*/
     public TypePredicate(String name) throws LinkageError, ExceptionInInitializerError, IllegalArgumentException {
         try {
             _type = (Class<C>)Class.forName(name);
@@ -107,7 +107,7 @@ public class TypePredicate<T,C extends T> extends PrimitiveTotalPredicate<T> {
     private Class<C> _type;
 
 
-    public <L extends Collection<C>,K extends Collection<T>> L filterReturn(K collection) {
+    public <L extends Collection<C>,K extends Collection<? extends T>> L filterReturn(K collection) {
         super.filter((K)collection);
         return (L)collection;
     }
