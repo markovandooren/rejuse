@@ -28,7 +28,7 @@ import java.util.Collection;
  * @state $State$
  * @release $Name$
  */
-public class TypePredicate<T,C extends T> extends PrimitiveTotalPredicate<T> {
+public class TypePredicate<T,C extends T> extends SafePredicate<T> {
 
     /* The revision of this class */
     public static final String CVS_REVISION = "$Revision$";

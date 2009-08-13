@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.rejuse.java.collections.Visitor;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * <p>A class of Relation components for implementing a binding in which the object of
@@ -231,7 +231,7 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
   public /*@ pure @*/ boolean registered(List<Relation<? extends TO,? super FROM>> oldConnections, Relation<? extends TO,? super FROM> registered) {
     return (oldConnections != null) &&
            (contains(registered)) &&
-           new PrimitiveTotalPredicate<Relation<? extends TO,? super FROM>>() {
+           new SafePredicate<Relation<? extends TO,? super FROM>>() {
              public boolean eval(Relation<? extends TO,? super FROM> o) {
                return ReferenceSet.this.contains(o);
              }
@@ -252,7 +252,7 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    return (oldConnections != null) &&
           (oldConnections.contains(unregistered)) &&
           (! contains(unregistered)) &&
-          new PrimitiveTotalPredicate<Relation<? extends TO,? super FROM>>() {
+          new SafePredicate<Relation<? extends TO,? super FROM>>() {
             public boolean eval(Relation<? extends TO,? super FROM> o) {
               return (o == unregistered) || contains(o);
             }

@@ -10,7 +10,7 @@ import org.rejuse.java.collections.RobustVisitor;
 import org.rejuse.java.collections.Visitor;
 import org.rejuse.predicate.Or;
 import org.rejuse.predicate.Predicate;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 /*@ model import org.jutil.predicate.TypePredicate; @*/
 /*@ model import org.jutil.java.collections.Collections; @*/
 
@@ -130,7 +130,7 @@ public class FileSet {
 	private /*@ pure @*/ List getFiles(final File directory) throws Exception {
 		ArrayList list = new ArrayList();
     // Check whether or not some predicate wants to enter this directory or not.
-    boolean process = new PrimitiveTotalPredicate() {
+    boolean process = new SafePredicate() {
                         public boolean eval(Object o) {
                           return ((FileSetPredicate)o).enterDirectory(directory);
                         }

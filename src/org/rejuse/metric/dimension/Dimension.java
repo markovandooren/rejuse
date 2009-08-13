@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 import org.rejuse.java.collections.Visitor;
 /*@ import org.jutil.java.collections.Collections; @*/
 
@@ -662,7 +662,7 @@ public abstract class Dimension {
       return false;
     }
     Set entries = map.entrySet();
-    return new PrimitiveTotalPredicate() {
+    return new SafePredicate() {
       public boolean eval(Object o) {
         return (o instanceof Map.Entry) &&
                (((Map.Entry)o).getKey() instanceof BaseDimension) &&

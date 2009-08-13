@@ -2,7 +2,7 @@ package org.rejuse.metric.dimension;
 
 import java.util.Set;
 import java.util.TreeSet;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * A class representing the dimensionless dimension.
@@ -45,7 +45,7 @@ public final class Dimensionless extends BasicDimension {
            (
             (other != null) &&
             (other instanceof Dimension) &&
-             new PrimitiveTotalPredicate() {
+             new SafePredicate() {
                public boolean eval(Object o) {
                  return ((Dimension)other).getExponent((BaseDimension)o) == 0;
                }

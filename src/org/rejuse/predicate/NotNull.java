@@ -13,7 +13,7 @@ package org.rejuse.predicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class NotNull<T> extends PrimitiveTotalPredicate<T> {
+public class NotNull<T> extends SafePredicate<T> {
 
   /* The revision of this class */
     public final static String CVS_REVISION ="$Revision$";

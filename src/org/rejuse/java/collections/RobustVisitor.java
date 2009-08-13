@@ -214,7 +214,7 @@ public abstract class RobustVisitor<T> implements CollectionOperator {
   
   /**
    * <p>Perform the visitation defined in <code>public void visit(Object)</code>
-   * on <array>. The contents of <array> is not changed.</p>
+   * on array. The contents of array is not changed.</p>
    * <p>The array is returned, so that further operations
    * can be applied to it inline.</p>
    *
@@ -227,7 +227,7 @@ public abstract class RobustVisitor<T> implements CollectionOperator {
    @ // which is returned afterwards
    @ post \result == array;
    @ // public void visit(Object) is called for all
-   @ // elements of <array>.
+   @ // elements of array.
    @ post (* for all e in collection: visit(e) *);
    @
    @ signals (Exception)

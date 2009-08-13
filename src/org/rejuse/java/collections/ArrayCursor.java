@@ -56,13 +56,13 @@ public class ArrayCursor {
    *           Arrays.getArrayDimensions(array)[i] == 0);
    */
  /*@
-   @ // <array> may not be null.
+   @ // array may not be null.
    @ pre array != null;
    @
    @ // The dimensions of the new ArrayCursor are set to the
    @ // dimensions of <theArray>.
    @ post getDimensions().equals(Arrays.getArrayDimensions(theArray));
-   @ // The array of this ArrayCursor is set to <array>
+   @ // The array of this ArrayCursor is set to array
    @ post array == theArray;
    @*/
   public ArrayCursor(Object[] theArray) throws ZeroDimensionException {

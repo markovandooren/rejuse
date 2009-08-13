@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * @author Marko van Dooren
@@ -227,7 +227,7 @@ public class Graph {
    @*/
   public Set getLeaves() {
     Set result = getNodes();
-    new PrimitiveTotalPredicate() {
+    new SafePredicate() {
       public boolean eval(Object o) {
         return ((Node)o).isLeaf();
       }

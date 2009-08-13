@@ -137,7 +137,7 @@ public abstract class Visitor<T> implements CollectionOperator {
 
   /**
    * <p>Perform the visit defined in <code>public void visit(Object)</code>
-   * on the multi-dimensional object array <array>. The contents of <array> is not changed.</p>
+   * on the multi-dimensional object array array. The contents of array is not changed.</p>
    * <p>The array is returned, so
    * that further operations can be applied to it inline.</p>
    * <p>The elements are visited in depth-first order.</p>

@@ -26,10 +26,10 @@ public class ZeroDimensionException extends RuntimeException {
    * Initialize a new ZeroDimensionException with the given array.
    */
  /*@
-   @ // <array> may not be null
+   @ // array may not be null
    @ pre array != null;
    @
-   @ // The array of this ZeroDimensionException is set to <array>.
+   @ // The array of this ZeroDimensionException is set to array.
    @ post getArray() == array;
    @*/  
   public ZeroDimensionException(Object[] array) {
@@ -41,10 +41,10 @@ public class ZeroDimensionException extends RuntimeException {
    * and message.
    */
  /*@
-   @ // <array> may not be null
+   @ // array may not be null
    @ pre array != null;
    @
-   @ // The array of this ZeroDimensionException is set to <array>.
+   @ // The array of this ZeroDimensionException is set to array.
    @ post getArray() == array;
    @ // The message of this ZeroDimensionException is set to <msg>.
    @ post getMessage() == msg;

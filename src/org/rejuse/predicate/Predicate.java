@@ -240,7 +240,7 @@ public interface Predicate<T> extends CollectionOperator {
     @ // There may be no loops
       @ post ! \result.contains(this);
       @*/
-    public /*@ pure @*/ List<Predicate<T>> getSubPredicates();
+//    public /*@ pure @*/ List<Predicate<T>> getSubPredicates();
 
     /**
      * Check whether or not this Predicate equals another object
@@ -265,7 +265,7 @@ public interface Predicate<T> extends CollectionOperator {
       @
       @ post \result == getSubPredicates().size();
       @*/
-    public /*@ pure @*/ int nbSubPredicates();
+//    public /*@ pure @*/ int nbSubPredicates();
 }
 /*
  * <copyright>Copyright (C) 1997-2001. This software is copyrighted by

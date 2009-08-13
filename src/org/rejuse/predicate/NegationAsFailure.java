@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class NegationAsFailure<T> extends TotalPredicate<T> {
+public class NegationAsFailure<T> extends SafePredicate<T> {
 	
   /* The revision of this class */
     public final static String CVS_REVISION ="$Revision$";

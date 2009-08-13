@@ -5,7 +5,7 @@ import org.rejuse.metric.dimension.Dimension;
 import org.rejuse.metric.dimension.BasicDimension;
 import org.rejuse.metric.dimension.Dimensionless;
 import org.rejuse.java.collections.Visitor;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 import org.rejuse.java.collections.MapAccumulator;
 import org.rejuse.InitializationException;
 import java.util.Set;
@@ -1118,7 +1118,7 @@ public /*@ pure @*/ abstract class Unit {
       return false;
     }
     Set entries = map.entrySet();
-    return new PrimitiveTotalPredicate() {
+    return new SafePredicate() {
       public boolean eval(Object o) {
         return (o instanceof Map.Entry) &&
                (((Map.Entry)o).getKey() instanceof SpecialUnit) &&
@@ -1151,7 +1151,7 @@ public /*@ pure @*/ abstract class Unit {
    * A class of predicate that evaluate to <code>true</code> when
    * the given object is a unit that converts isomorph to this unit.
    */
-  public static class ConvertsIsomorphTo extends PrimitiveTotalPredicate {
+  public static class ConvertsIsomorphTo extends SafePredicate {
 
     /**
      * Initialize a new ConvertsIsomorphTo with the given unit

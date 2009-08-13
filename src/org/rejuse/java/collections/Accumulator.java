@@ -113,7 +113,7 @@ public abstract class Accumulator<E,A> implements CollectionOperator {
   /**
    * <p>This method is called for each element in the collection we are accumulating.
    * Subclasses should implement this method to process <element> and accumulate
-   * the result in <acc>.</p>
+   * the result in acc.</p>
    * <p>The result is the accumulator that will be used for the next element of the
    * collection to process.</p>.
    *

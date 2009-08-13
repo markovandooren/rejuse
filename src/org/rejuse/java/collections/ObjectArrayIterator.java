@@ -46,10 +46,10 @@ public class ObjectArrayIterator<T> {
    *           Arrays.getArrayDimensions(array)[i] == 0);
    */
  /*@
-   @ // <arra> may not be null.
+   @ // array may not be null.
    @ pre array != null;
    @
-   @ // The array of this ObjectArrayIterator will be set to <array>
+   @ // The array of this ObjectArrayIterator will be set to array
    @ post getArray() == array;
    @ // The iterator will be positioned at the start of the array.
    @ post atStart() == true;

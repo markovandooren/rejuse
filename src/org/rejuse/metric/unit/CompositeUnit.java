@@ -11,7 +11,7 @@ import org.rejuse.java.collections.SafeAccumulator;
 import org.rejuse.java.collections.Visitor;
 import org.rejuse.metric.Prefix;
 import org.rejuse.metric.dimension.Dimension;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * @version $Revision$
@@ -362,7 +362,7 @@ public class CompositeUnit extends Unit {
            (
             (other instanceof Unit) &&
             (baseUnits.size() == ((Unit)other).getSpecialUnits().size()) &&
-            (new PrimitiveTotalPredicate() {
+            (new SafePredicate() {
               public boolean eval(Object o) {
                 SpecialUnit base = (SpecialUnit)o;
                 return getExponent(base) == ((Unit)other).getExponent(base);
@@ -387,7 +387,7 @@ public class CompositeUnit extends Unit {
    @                     s.convertsIsomorphToBaseUnit());
    @*/
   public /*@ pure @*/ boolean convertsIsomorphToBaseUnit() {
-    return new PrimitiveTotalPredicate() {
+    return new SafePredicate() {
              public /*@ pure @*/ boolean eval(Object o) {
                return ((Unit)o).convertsIsomorphToBaseUnit();
              }

@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import org.rejuse.java.collections.MapAccumulator;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * @version $Revision$
@@ -293,7 +293,7 @@ public class CompositeDimension extends Dimension {
            (
             (other instanceof Dimension) &&
             (baseDimensions.size() == ((Dimension)other).getBaseDimensions().size()) &&
-            (new PrimitiveTotalPredicate() {
+            (new SafePredicate() {
               public /*@ pure @*/ boolean eval(Object o) {
                 BaseDimension base = (BaseDimension)o;
                 return getExponent(base) == ((Dimension)other).getExponent(base);

@@ -1,11 +1,10 @@
 package org.rejuse.predicate.test;
-import org.rejuse.junit.JutilTest;
 import org.rejuse.junit.CVSRevision;
+import org.rejuse.junit.JutilTest;
 import org.rejuse.predicate.Implication;
-import org.rejuse.predicate.Predicate;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
-import org.rejuse.predicate.TotalPredicate;
 import org.rejuse.predicate.NegationAsFailure;
+import org.rejuse.predicate.Predicate;
+import org.rejuse.predicate.SafePredicate;
 
 public class TestImplication extends JutilTest {
 
@@ -16,7 +15,7 @@ public class TestImplication extends JutilTest {
   public void setup() {
   }
 
-  private Predicate _greaterThan5 = new PrimitiveTotalPredicate() {
+  private Predicate _greaterThan5 = new SafePredicate() {
     public boolean eval(Object o) {
       if(!(o instanceof Integer)) {
         return false;
@@ -27,7 +26,7 @@ public class TestImplication extends JutilTest {
     }
   };
 
-  private Predicate _smallerThan5 = new PrimitiveTotalPredicate() {
+  private Predicate _smallerThan5 = new SafePredicate() {
     public boolean eval(Object o) {
       if(!(o instanceof Integer)) {
         return false;
@@ -38,7 +37,7 @@ public class TestImplication extends JutilTest {
     }
   };
 
-  private Predicate _equalTo5 = new PrimitiveTotalPredicate() {
+  private Predicate _equalTo5 = new SafePredicate() {
     public boolean eval(Object o) {
       if(!(o instanceof Integer)) {
         return false;
@@ -49,7 +48,7 @@ public class TestImplication extends JutilTest {
     }
   };
 
-  private TotalPredicate wrap(Predicate predicate) {
+  private SafePredicate wrap(Predicate predicate) {
     return new NegationAsFailure(predicate);
   }
 

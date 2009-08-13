@@ -33,14 +33,14 @@ public abstract class Arrays {
  /*@
    @ public behavior
    @
-   @ // <array> may not be null
+   @ // array may not be null
    @ pre array != null;
    @
    @ // The returned array is not null
    @ post \result != null;
-   @ // The returned array has the same type as <array>.
+   @ // The returned array has the same type as array.
    @ post getArrayType(\result) == getArrayType(array);
-   @ // The returned array has the same dimensions as <array>.
+   @ // The returned array has the same dimensions as array.
    @ post (\forall int i; i >= 0 && i < getArrayDimensions(array).length;
    @         getArrayDimensions(\result)[i] == getArrayDimensions(array)[i]);
    @*/
@@ -66,7 +66,7 @@ public abstract class Arrays {
  /*@
    @ public behavior
    @
-   @ // <array> may not be null.
+   @ // array may not be null.
    @ pre array != null;
    @*/
   public static /*@ pure @*/ int[] getArrayDimensions(Object[] array) throws ZeroDimensionException {
@@ -106,9 +106,9 @@ public abstract class Arrays {
  /*@
    @ public behavior
    @
-   @ // <array> may not be null.
+   @ // array may not be null.
    @ pre array != null;
-   @ // <array> must be an array.
+   @ // array must be an array.
    @ pre array.getClass().isArray();
    @*/
   public static /*@ pure @*/ Class getArrayType(Object array){

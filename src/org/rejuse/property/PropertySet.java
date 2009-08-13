@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.rejuse.logic.ternary.Ternary;
-import org.rejuse.predicate.PrimitiveTotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 /**
  * A class of sets of properties. A property set offer functionality to compute
@@ -212,7 +212,7 @@ public class PropertySet<E> {
    @                   ! p1.contradicts(p2));
    @*/
   public boolean consistent() {
-    return new PrimitiveTotalPredicate<Property<E>>() {
+    return new SafePredicate<Property<E>>() {
       @Override
       public boolean eval(final Property<E> p1) {
         return internallyConsistent(p1);
@@ -231,7 +231,7 @@ public class PropertySet<E> {
    @                   ! property.contradicts(p));
    @*/
   public boolean internallyConsistent(final Property<E> property) {
-    return new PrimitiveTotalPredicate<Property<E>>() {
+    return new SafePredicate<Property<E>>() {
       @Override
       public boolean eval(Property<E> p2) {
         return ! property.contradicts(p2);
@@ -269,7 +269,7 @@ public class PropertySet<E> {
    @
    @*/
   public Ternary implies(Property<E> property) {
-    PrimitiveTotalPredicate<Property<E>> propertyFilter = new PrimitiveTotalPredicate<Property<E>>() {
+    SafePredicate<Property<E>> propertyFilter = new SafePredicate<Property<E>>() {
       @Override
       public boolean eval(Property<E> property) {
       	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.

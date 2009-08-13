@@ -1,10 +1,10 @@
 package org.rejuse.predicate.test;
 import org.rejuse.junit.CVSRevision;
 import org.rejuse.junit.JutilTest;
+import org.rejuse.predicate.AbstractPredicate;
 import org.rejuse.predicate.NegationAsFailure;
 import org.rejuse.predicate.Predicate;
-import org.rejuse.predicate.PrimitivePredicate;
-import org.rejuse.predicate.TotalPredicate;
+import org.rejuse.predicate.SafePredicate;
 
 public class TestNegationAsFailure extends JutilTest {
 
@@ -15,25 +15,25 @@ public class TestNegationAsFailure extends JutilTest {
   public void setup() {
   }
 
-  private Predicate _greaterThan5 = new PrimitivePredicate() {
+  private Predicate _greaterThan5 = new AbstractPredicate() {
     public boolean eval(Object o) {
       return ((Integer)o).intValue() > 5;
     }
   };
 
-  private Predicate _smallerThan5 = new PrimitivePredicate() {
+  private Predicate _smallerThan5 = new AbstractPredicate() {
     public boolean eval(Object o) {
       return ((Integer)o).intValue() < 5;
     }
   };
 
-  private Predicate _equalTo5 = new PrimitivePredicate() {
+  private Predicate _equalTo5 = new AbstractPredicate() {
     public boolean eval(Object o) {
       return ((Integer)o).intValue() == 5;
     }
   };
 
-  private TotalPredicate wrap(Predicate predicate) {
+  private SafePredicate wrap(Predicate predicate) {
     return new NegationAsFailure(predicate);
   }
 
