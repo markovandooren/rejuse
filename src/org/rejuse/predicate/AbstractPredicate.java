@@ -39,13 +39,6 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
     /**
      * See superclass
      */
-    public /*@ pure @*/ boolean forall(Collection<T> collection) throws ConcurrentModificationException, Exception {
-        return forAll(collection);
-    }
-
-    /**
-     * See superclass
-     */
     public /*@ pure @*/ boolean forAll(Collection<T> collection) throws ConcurrentModificationException, Exception {
         boolean acc = true;
         if (collection!=null) {
@@ -80,7 +73,7 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
     /**
      * See superclass
      */
-    public void filter(Collection<? extends T> collection) throws ConcurrentModificationException, Exception {
+    public <X extends T> void filter(Collection<X> collection) throws ConcurrentModificationException, Exception {
         if (collection!=null) {
             // Make a backup, just in case something goes wrong
             List backup = new ArrayList<T>(collection);
@@ -94,12 +87,12 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
             } catch (Exception exc) {
                 // clear whatever is left in the collection
 //                collection.clear();
-//                Iterator<T> iter = backup.iterator();
-//                while (iter.hasNext()) {
-//                	collection.add((T)iter.next());
-//                }
-//                //collection.addAll(backup);
-//                throw exc;
+                Iterator<X> iter = backup.iterator();
+                while (iter.hasNext()) {
+                	collection.add(iter.next());
+                }
+                //collection.addAll(backup);
+                throw exc;
             }
         }
     }

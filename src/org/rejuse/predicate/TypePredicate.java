@@ -107,7 +107,7 @@ public class TypePredicate<T,C extends T> extends SafePredicate<T> {
     private Class<C> _type;
 
 
-    public <L extends Collection<C>,K extends Collection<? extends T>> L filterReturn(K collection) {
+    public <X extends T, L extends Collection<C>,K extends Collection<X>> L filterReturn(K collection) {
         super.filter((K)collection);
         return (L)collection;
     }

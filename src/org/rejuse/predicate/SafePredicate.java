@@ -118,7 +118,7 @@ public abstract class SafePredicate<T> extends AbstractPredicate<T> {
     @ // No Exception can be thrown
     @ signals (Exception) false;
     @*/
-  @Override public void filter(Collection<? extends T> collection) {
+  @Override public <X extends T> void filter(Collection<X> collection) {
       // The backup costs too much, we don't want to do that here.
       if (collection!=null) {
           Iterator<? extends T> iter = collection.iterator();

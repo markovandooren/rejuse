@@ -123,30 +123,6 @@ public interface Predicate<T> extends CollectionOperator {
      *
      * @param collection The collection of which one wants to know if all object
      *                   evaluate to <code>true</code> for this Predicate.
-     * @deprecated
-     */
-    /*@
-    @ public behavior
-    @
-    @ post collection != null ==> \result == (\forall Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
-    @ post collection == null ==> \result == true;
-    @
-    @ signals (ConcurrentModificationException)
-    @         (* The collection was modified while accumulating *);
-      @ signals (Exception) (collection != null) &&
-    @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
-    @*/
-    @Deprecated public /*@ pure @*/ boolean forall(Collection<T> collection) throws ConcurrentModificationException, Exception;
-
-    /**
-     * Check wether or not this Predicate evaluates to <code>true</code>
-     * for all object in the given collection.
-     *
-     * @param collection The collection of which one wants to know if all object
-     *                   evaluate to <code>true</code> for this Predicate.
      */
     /*@
     @ public behavior
@@ -226,7 +202,7 @@ public interface Predicate<T> extends CollectionOperator {
       @                        Collections.containsExplicitly(collection, o);
       @                          ! isValidElement(o));
     @*/
-    public void filter(Collection<? extends T> collection) throws ConcurrentModificationException, Exception;
+    public <X extends T> void filter(Collection<X> collection) throws ConcurrentModificationException, Exception;
 
 
     /**
