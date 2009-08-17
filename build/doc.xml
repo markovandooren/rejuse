@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<project name="jutil.org" default="error" basedir=".">
+	
+	<!-- The directory where the javadoc files are copied before substituting /*@ for /** -->
+	<property name="doc.tmp" value="${tmp}/${doc.rel}"/>
+  <!-- The color of the keyword in the javadoc, must be a valid HTML color -->
+	<property name="keyword-color" value="green"/>
+
+	<!-- The classpath used for the regexp substitution -->
+	<path id="classpath.regex">
+		<fileset dir="${lib.tools}">
+			<include name="regexpreplacer.jar"/>
+		</fileset>
+		<fileset dir="${lib}">
+			<include name="jregex1.2_00.jar"/>
+		</fileset>
+	</path>
+
+	<!-- Put the regexpreplacer jar in the lib path of the taskdef -->
+	<!--<taskdef name="regexpreplace" 
+					 classname="regexp.RegexpReplacer"
+					 classpathref="classpath.regex"
+	/> -->
+	<taskdef name="regexpreplace" 
+					 classname="org.apache.tools.ant.taskdefs.optional.RegexReplacer"
+					 classpathref="classpath.regex"
+	/>
+
+	<target name="regexp">
+		<delete dir="${doc.tmp}"/>
+		<mkdir dir="${doc.tmp}"/>
+		<copy todir="${doc.tmp}">
+			<fileset dir="${src}"/>
+		</copy>
+					
+		<!-- You gotta love this one :) -->
+		<!-- switch javadoc and JML specs -->
+		<!--                                                 (      java doc spec $$1$$2$$4             )($$5  )( JML spec $$6$$7$$9                     ) -->
+		<!-- <regexpreplace dotall="true" verbose="true" pattern="(/\*\*[\s]*)((^[\s]*\*[^\n]*$$)*)([\s]*\*/)([\s]*)(/\*@[\s]*)((^[\s]*@[^\n]*$$)*)([\s]*@\*/)" replace="$$6$$7$$9$$5$$1$$2$$4">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace> -->
+
+		<regexpreplace pattern="(/\*\*[\s]*)((^[\s]*\*[^\n@]*\n)*)((^[\s]*\*[^\n]*\n)*)([\s]*\*/)([\s]*)((/\*@[\s]*)((^[\s]*@[^\n]*\n)*)([\s]*@\*/))" replace="$$1$$2$$6&#xA;$$8$$7$$1$$4$$6">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<regexpreplace pattern="^(\s)*/\*@" replace="/*@&lt;pre&gt;">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<regexpreplace pattern="^(\s)*@\*/" replace="@ &lt;/pre&gt;&#xA;@*/">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<!-- remove @*/    /* so we get a single block-->
+		<regexpreplace pattern="\n((\s)*)@\*/(\s)*/\*" replace="&#xA;$$1\*&#xA;$$1">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<regexpreplace pattern="\*/(\s)*/\*@" replace="*">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<!-- make the following words appear in bold -->
+		<regexpreplace pattern="@((\s)*)(post|pre|also public behavior|public behavior|also|and public behavior|and|assignable|signals)" replace="@$$1&lt;b&gt;$$3&lt;/b&gt;">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<!-- color keyword in ${keyword-color} -->
+		<regexpreplace pattern="\\(result|forall|exists|sum|num_of)" replace="&lt;font color=&quot;${keyword-color}&quot;&gt;\\$$1&lt;/font&gt;">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+
+		<!-- Replace the top /*@ by /** -->
+		<regexpreplace pattern="/\*@" replace=" /**">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace> 
+					
+		<!-- Replace @*/ that were not part of a javadoc-JML combination
+		     by */. The top parts of such a block were already treated by 
+				 the /*@ -> /** conversion. -->
+		<regexpreplace pattern="@\*/" replace=" */">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace> 
+
+		<!-- Added <BR> tag at the end of every non-empty line in a JML block. -->
+		<!-- <regexpreplace pattern="^([\s]*@[^\n]*)$$" replace="$$1&lt;br&gt;&#xA;">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace> -->
+		
+		<!-- Replace "@\s" by "*\s" --> 
+		<regexpreplace pattern="@(\s)" replace="*$$1">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace>
+		
+		<!-- Replace "@<BR>" by "*<BR>" -->
+		<!-- <regexpreplace pattern="@&lt;br&gt;" replace="*&lt;br&gt;">
+			<fileset dir="${doc.tmp}" includes="**/*.java"/>
+		</regexpreplace> -->
+	</target>
+
+	<!-- Perform the regexp substitution on ${doc.tmp} and generate
+			 javadocs from it into ${doc} -->
+	<target name="doc" depends="regexp">
+		<mkdir dir="${doc}"/>
+		<javadoc packagenames="org.rejuse.*"
+						 sourcepath="${doc.tmp}"
+						 destdir="${doc}"/>
+	</target>
+
+</project>

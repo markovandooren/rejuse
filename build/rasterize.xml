@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<project name="rejuse.org" default="rasterize" basedir=".">
+
+	<path id="classpath.rasterize">
+	<fileset dir="${lib.tools}">
+		<include name="batik-all.jar"/>
+		<include name="RasterizerTask.jar"/>
+	</fileset>
+	</path>
+
+
+        <taskdef resource="net/sf/antcontrib/antlib.xml" />
+
+
+	<taskdef name="rasterize" classname="org.apache.tools.ant.taskdefs.optional.RasterizerTask">
+          <classpath>
+            <pathelement location="${lib.tools}/*.jar"/>
+          </classpath>
+        </taskdef>
+
+	<target name="rasterize">
+          <for param="file">
+            <path>
+			<fileset dir="${doc}">
+				<include name="**/*.svg" />
+			</fileset>
+            </path>
+          <sequential>
+            <rasterize result="image/png" src="@{file}" dest="@{file}.png"/> 
+            <!-- <echo>"@{file}" to "@{file}.png"</echo> -->
+          </sequential>
+          </for>
+          <move todir="${doc}" includeemptydirs="false">
+             <fileset dir="${doc}">
+                 <include name="**/*.svg.png"/>
+             </fileset>
+             <mapper type="glob" from="*.svg.png" to="*.png"/>
+          </move>
+
+        </target>
+
+	<target name="rasterizer">
+		<rasterize result="image/png" destdir="${doc}">
+			<fileset dir="${doc}">
+				<include name="**/*.svg" />
+			</fileset>
+		</rasterize>
+	</target>
+
+</project>
