@@ -191,6 +191,11 @@ public abstract class Relation<FROM,TO> {
    */
   private FROM _object;
 
+  /**
+   * Replace the connection with the first relation by a connection with the second relation.
+   * @param element
+   * @param newElement
+   */
 	public abstract void replace(Relation<? extends TO,? super FROM> element, Relation<? extends TO,? super FROM> newElement);
 }
 /*
