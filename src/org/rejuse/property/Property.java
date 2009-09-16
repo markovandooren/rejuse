@@ -3,8 +3,8 @@ package org.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.association.Reference;
-import org.rejuse.association.ReferenceSet;
+import org.rejuse.association.SingleAssociation;
+import org.rejuse.association.MultiAssociation;
 import org.rejuse.java.collections.Accumulator;
 import org.rejuse.java.collections.SafeAccumulator;
 import org.rejuse.java.collections.SafeTransitiveClosure;
@@ -138,7 +138,7 @@ public abstract class Property<E> {
     return _universe.getOtherEnd();
   }
   
-  private Reference<Property<E>, PropertyUniverse<E>> _universe = new Reference<Property<E>, PropertyUniverse<E>>(this);
+  private SingleAssociation<Property<E>, PropertyUniverse<E>> _universe = new SingleAssociation<Property<E>, PropertyUniverse<E>>(this);
   
   /**
    * Return the inverse of this property.
@@ -153,7 +153,7 @@ public abstract class Property<E> {
     return _inverse.getOtherEnd();
   }
   
-  private Reference<Property<E>, Property<E>> _inverse = new Reference<Property<E>,Property<E>>(this);
+  private SingleAssociation<Property<E>, Property<E>> _inverse = new SingleAssociation<Property<E>,Property<E>>(this);
 
   public PropertyMutex<E> mutex() {
   	return _family.getOtherEnd();
@@ -165,7 +165,7 @@ public abstract class Property<E> {
   	}
   }
   
-  private Reference<Property<E>, PropertyMutex<E>> _family = new Reference<Property<E>,PropertyMutex<E>>(this);
+  private SingleAssociation<Property<E>, PropertyMutex<E>> _family = new SingleAssociation<Property<E>,PropertyMutex<E>>(this);
   
   /**
    * Check whether this property implies the given property.
@@ -465,10 +465,10 @@ public abstract class Property<E> {
     }
   }
 
-	private ReferenceSet<Property<E>,Property<E>> _contradicted = new ReferenceSet<Property<E>,Property<E>>(this); 
+	private MultiAssociation<Property<E>,Property<E>> _contradicted = new MultiAssociation<Property<E>,Property<E>>(this); 
 	
-	private ReferenceSet<Property<E>,Property<E>> _implied = new ReferenceSet<Property<E>,Property<E>>(this); 
+	private MultiAssociation<Property<E>,Property<E>> _implied = new MultiAssociation<Property<E>,Property<E>>(this); 
 	
-	private ReferenceSet<Property<E>,Property<E>> _impliedBy = new ReferenceSet<Property<E>,Property<E>>(this);
+	private MultiAssociation<Property<E>,Property<E>> _impliedBy = new MultiAssociation<Property<E>,Property<E>>(this);
 	
 }

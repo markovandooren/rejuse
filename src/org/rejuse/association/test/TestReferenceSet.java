@@ -1,7 +1,7 @@
 package org.rejuse.association.test;
 import org.rejuse.junit.JutilTest;
 import org.rejuse.junit.CVSRevision;
-import org.rejuse.association.ReferenceSet;
+import org.rejuse.association.MultiAssociation;
 import org.rejuse.java.collections.Visitor;
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class TestReferenceSet extends JutilTest {
 
 private class A {
   public A(String name) {
-    _a = new ReferenceSet(this);
+    _a = new MultiAssociation(this);
     _name = name;
   }
 
@@ -83,7 +83,7 @@ private class A {
     _a.remove(other.getALink());
   }
 
-  ReferenceSet getBLink() {
+  MultiAssociation getBLink() {
     return _a;
   }
 
@@ -101,13 +101,13 @@ private class A {
     return result.toString();
   }
 
-  private ReferenceSet _a;
+  private MultiAssociation _a;
   private String _name;
 }
 
 private class B {
   public B(String name) {
-    _b = new ReferenceSet(this);
+    _b = new MultiAssociation(this);
     _name = name;
   }
 
@@ -123,7 +123,7 @@ private class B {
     _b.remove(other.getBLink());
   }
 
-  ReferenceSet getALink() {
+  MultiAssociation getALink() {
     return _b;
   }
 
@@ -141,7 +141,7 @@ private class B {
     return result.toString();
   }
 
-  private ReferenceSet _b;
+  private MultiAssociation _b;
   private String _name;
 }
 }

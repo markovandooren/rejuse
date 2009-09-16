@@ -74,7 +74,7 @@ import org.rejuse.predicate.SafePredicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
+public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
   
     /* The revision of this class */
     public final static String CVS_REVISION ="$Revision$";
@@ -101,9 +101,9 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post getObject() == object;
    @ post (\forall Relation r;; !contains(r));
    @*/
-  public OrderedReferenceSet(FROM object) {
+  public OrderedMultiAssociation(FROM object) {
     super(object);
-    _elements = new ArrayList<Relation<? extends TO,? super FROM>>();
+    _elements = new ArrayList<Association<? extends TO,? super FROM>>();
   }
   
   /**
@@ -120,18 +120,25 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post unregistered(\old(getOtherRelations()), other);
    @ post other.unregistered(\old(other.getOtherRelations()), this);
    @*/  
-  public void remove(Relation<? extends TO,? super FROM> other) {
+  public void remove(Association<? extends TO,? super FROM> other) {
+  	checkLock();
+  	checkLock(other);
     if (contains(other)) {
       other.unregister(this);
-      unregister(other);
+      // Skip a redundant contains check.
+      unregisterPrivate(other);
     }
   }
   
   public void clear() {
-  	  Collection<Relation<? extends TO,? super FROM>> rels = new ArrayList<Relation<? extends TO,? super FROM>>(_elements);
-  	  for(Relation<? extends TO,? super FROM> rel : rels) {
-  	  	  remove(rel);
-  	  }
+  	checkLock();
+  	Collection<Association<? extends TO,? super FROM>> rels = new ArrayList<Association<? extends TO,? super FROM>>(_elements);
+  	for(Association<? extends TO,? super FROM> rel : rels) {
+  		checkLock(rel);
+  	}
+  	for(Association<? extends TO,? super FROM> rel : rels) {
+  		remove(rel);
+  	}
   }
 
   /**
@@ -148,10 +155,13 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post registered(\old(getOtherRelations()), element);
    @ post element.registered(\old(element.getOtherRelations()),this);
    @*/  
-  public void add(Relation<? extends TO,? super FROM> element) {
+  public void add(Association<? extends TO,? super FROM> element) {
     if(! contains(element)) {
+	  	checkLock();
+	  	checkLock(element);
       element.register(this);
-      register(element);
+      // Skip a redundant contains check.
+      registerPrivate(element);
     }
   }
   
@@ -164,16 +174,20 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ pre element != null;
    @ pre newElement != null;
    @
-   @ post replaced(\old(getOtherRelations()), element, newElement);
-   @ post element.unregistered(\old(other.getOtherRelations()), this);
-   @ post newElement.registered(\old(element.getOtherRelations()),this);
+   @ post replaced(\old(getOtherRelations()), oldAssociation, newAssociation);
+   @ post oldAssociation.unregistered(\old(other.getOtherAssociations()), this);
+   @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
    @*/
-  public void replace(Relation<? extends TO,? super FROM> element, Relation<? extends TO,? super FROM> newElement) {
-    int index = _elements.indexOf(element);
+  public void replace(Association<? extends TO,? super FROM> oldAssociation, Association<? extends TO,? super FROM> newAssociation) {
+    int index = _elements.indexOf(oldAssociation);
     if(index != -1) {
-      _elements.set(index, newElement);
-      newElement.register(this);
-      element.unregister(this);
+	  	checkLock();
+	  	checkLock(oldAssociation);
+	  	checkLock(newAssociation);
+      _elements.set(index, newAssociation);
+      newAssociation.register(this);
+      oldAssociation.unregister(this);
+      fireElementReplaced(oldAssociation.getObject(), newAssociation.getObject());
     }
   }
   
@@ -193,8 +207,8 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @*/
   public /*@ pure @*/ List<TO> getOtherEnds() {
     final List<TO> result = new ArrayList<TO>();
-    new Visitor<Relation<? extends TO,? super FROM>>() {
-      public void visit(Relation<? extends TO,? super FROM> element) {
+    new Visitor<Association<? extends TO,? super FROM>>() {
+      public void visit(Association<? extends TO,? super FROM> element) {
         result.add(element.getObject());
       }
     }.applyTo(_elements);
@@ -213,42 +227,34 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @       contains(s) <==> \result.contains(s));
    @ post \result != null;
    @*/
-  public /*@ pure @*/ List<Relation<? extends TO,? super FROM>> getOtherRelations() {
-    return new ArrayList<Relation<? extends TO,? super FROM>>(_elements);
+  public /*@ pure @*/ List<Association<? extends TO,? super FROM>> getOtherAssociations() {
+    return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
   }
   
-  /**
-   * Remove the given Relation from this ReferenceSet
-   *
-   * @param element
-   *        The element to be removed.
-   */
- /*@
-   @ also protected behavior
-   @
-   @ pre element != null;
-   @
-   @ post ! contains(element);
-   @*/
-  protected void unregister(Relation<? extends TO,? super FROM> element) {
-    _elements.remove(element);
+  @Override
+  protected void unregister(Association<? extends TO,? super FROM> association) {
+    if(! contains(association)) {
+      unregisterPrivate(association);
+    }
   }
+
+	private void unregisterPrivate(Association<? extends TO, ? super FROM> association) {
+		_elements.remove(association);
+		fireElementRemoved(association.getObject());
+	}
     
   
-  /**
-   * Add the given Relation to this ReferenceSet
-   *
-   * @param element
-   *        The element to be added.
-   */
- /*@
-   @ also protected behavior
-   @
-   @ pre element != null;
-   @*/
-  protected void register(Relation<? extends TO,? super FROM> element) {
-    _elements.add(element);
+  @Override
+  protected void register(Association<? extends TO,? super FROM> association) {
+    if(! contains(association)) {
+      registerPrivate(association);
+    }
   }
+
+	private void registerPrivate(Association<? extends TO, ? super FROM> association) {
+		_elements.add(association);
+		fireElementAdded(association.getObject());
+	}
   
 
  /*@
@@ -260,12 +266,12 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @                 );
    @ //TODO: order
    @*/
-  public /*@ pure @*/ boolean registered(List<Relation<? extends TO,? super FROM>> oldConnections, Relation<? extends TO,? super FROM> registered) {
+  public /*@ pure @*/ boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered) {
     return (oldConnections != null) &&
            (contains(registered)) &&
-           new SafePredicate<Relation<? extends TO,? super FROM>>() {
-             public boolean eval(Relation<? extends TO,? super FROM> o) {
-               return OrderedReferenceSet.this.contains(o);
+           new SafePredicate<Association<? extends TO,? super FROM>>() {
+             public boolean eval(Association<? extends TO,? super FROM> o) {
+               return OrderedMultiAssociation.this.contains(o);
              }
            }.forAll(_elements);
   }
@@ -279,13 +285,13 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @                   oldConnections.contains(r) == contains(r));
    @ // TODO: order
    @*/
-  public /*@ pure @*/ boolean unregistered(List<Relation<? extends TO,? super FROM>> oldConnections, final Relation<? extends TO,? super FROM> unregistered) {
+  public /*@ pure @*/ boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, final Association<? extends TO,? super FROM> unregistered) {
     // FIXME : implementation is not correct
    return (oldConnections != null) &&
           (oldConnections.contains(unregistered)) &&
           (! contains(unregistered)) &&
-          new SafePredicate<Relation<? extends TO,? super FROM>>() {
-            public boolean eval(Relation<? extends TO,? super FROM> o) {
+          new SafePredicate<Association<? extends TO,? super FROM>>() {
+            public boolean eval(Association<? extends TO,? super FROM> o) {
               return (o == unregistered) || contains(o);
             }
           }.forAll(oldConnections);
@@ -296,7 +302,7 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @
    @ post \result == (relation != null);
    @*/
-  protected /*@ pure @*/ boolean isValidElement(Relation<? extends TO,? super FROM> relation) {
+  protected /*@ pure @*/ boolean isValidElement(Association<? extends TO,? super FROM> relation) {
     return (relation != null);
   }
 
@@ -320,7 +326,7 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    *        The element of which one wants to know if it is in
    *        this ReferenceSet.
    */
-  public /*@ pure @*/ boolean contains(Relation<? extends TO,? super FROM> element) {
+  public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> element) {
     return _elements.contains(element);
   }
   
@@ -332,7 +338,7 @@ public class OrderedReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ private invariant (\forall Object o; _elements.contains(o);
    @                      o instanceof Relation);
    @*/
-  private ArrayList<Relation<? extends TO,? super FROM>> _elements;
+  private ArrayList<Association<? extends TO,? super FROM>> _elements;
 }
 /*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
 the people and entities mentioned after the "@author" tags above, on 

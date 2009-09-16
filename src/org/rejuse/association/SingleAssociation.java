@@ -47,25 +47,18 @@ import java.util.ArrayList;
  *}
  * </code></pre>
  *
- * <p>The other class must have a method <code>getBLink()</code>, which returns a 
- * <a href="Relation.html"><code>Relation</code></a> object that represents the other side
+ * <p>The other class must have a method <code>getBLink()</code>, which returns an 
+ * <a href="Association.html"><code>Association</code></a> object that represents the other side
  * of the bi-directional binding. In case the two classes are not in the same package that means
  * that <code>getBLink()</code> must be <code>public</code> there, but that is also the case when
  * not working with these components. Note that if the binding should not be mutable from class 
  * <code>B</code> the <code>setA()</code> may be removed. Similarly, <code>getALink()</code> may 
  * be removed if the binding is not mutable from class <code>A</code>.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class Reference<FROM,TO> extends Relation<FROM,TO> {
-
- 	/* The revision of this class */
-	public final static String CVS_REVISION ="$Revision$";
+public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 
  /*@ 
    @ public invariant getOtherRelation() != null ==>
@@ -87,20 +80,10 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @ post getObject() == object;
    @ post getOtherRelation() == null;
    @*/
-  public Reference(FROM object) {
+  public SingleAssociation(FROM object) {
     super(object);
   }
 
-  private boolean _locked = false;
-  
-  public void lock() {
-  	_locked=true;
-  }
-  
-  public boolean isLocked() {
-  	return _locked;
-  }
-  
   /**
    * Initialize a new Reference for the given object,
    * connected to the given Relation.
@@ -120,7 +103,7 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @ post other != null ==> other.contains(this);
    @ post other.registered(new ArrayList(), this);
    @*/
-  public Reference(FROM object, Relation<? extends TO,? super FROM> other) {
+  public SingleAssociation(FROM object, Association<? extends TO,? super FROM> other) {
     super(object);
     connectTo(other);
   }
@@ -173,10 +156,10 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @ post registered(\old(getOtherRelations()), other);
    @ post other != null ==> other.registered(\old(other.getOtherRelations()), this);
    @*/
-  public void connectTo(Relation<? extends TO,? super FROM> other) {
-  	if(isLocked()) {
-  		throw new IllegalArgumentException("Trying to modify locked reference.");
-  	}
+  public void connectTo(Association<? extends TO,? super FROM> other) {
+  	checkLock();
+  	checkLock(getOtherRelation());
+  	checkLock(other);
     if (other != _other) {
       register(other);
       if (other != null) {
@@ -210,7 +193,7 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @                   )
    @                 );
    @*/
-  public /*@ pure @*/ boolean registered(List<Relation<? extends TO,? super FROM>> oldConnections, Relation<? extends TO,? super FROM> registered) {
+  public /*@ pure @*/ boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered) {
     return (oldConnections != null) &&
            (contains(registered)) &&
            (
@@ -244,7 +227,7 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @                   (oldConnections.size() == 0)
    @                 );
    @*/
-  public /*@ pure @*/ boolean unregistered(List<Relation<? extends TO,? super FROM>> oldConnections, Relation<? extends TO,? super FROM> unregistered) {
+  public /*@ pure @*/ boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered) {
     return (oldConnections != null) &&
            (getOtherEnds().isEmpty()) &&
            (
@@ -262,45 +245,47 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
    @
    @ post \result == true;
    @*/
-  protected /*@ pure @*/ boolean isValidElement(Relation<? extends TO,? super FROM> relation) {
+  protected /*@ pure @*/ boolean isValidElement(Association<? extends TO,? super FROM> relation) {
     return true;
   }
 
   /**
    * See superclass
    */
-  protected void unregister(Relation<? extends TO,? super FROM> other) {
-  	if(isLocked()) {
-  		throw new IllegalArgumentException("Trying to modify locked reference. This object: "+getObject().getClass().getName()+" Other object: "+_other.getObject().getClass().getName());
+  @Override
+  protected void unregister(Association<? extends TO,? super FROM> other) {
+  	if(_other != null) {
+  		TO old = _other.getObject();
+      _other = null;
+      fireElementRemoved(old);
   	}
-    _other = null;
   }
 
-  /**
-   * See superclass
-   */
-  protected void register(Relation<? extends TO,? super FROM> other) {
-  	if(isLocked()) {
-  		throw new IllegalArgumentException("Trying to modify locked reference.");
-  	}
+  @Override
+  protected void register(Association<? extends TO,? super FROM> other) {
     if(_other != null) {
+  		TO old = _other.getObject();
       _other.unregister(this);
+      _other = other;
+      fireElementReplaced(old, _other.getObject());
+    } else {
+      _other = other;
+      fireElementAdded(_other.getObject());
     }
-    _other = other;
   }
 
   /**
    * return the Relation this Reference belongs to
    */
-  public /*@ pure @*/ Relation<? extends TO,? super FROM> getOtherRelation() {
+  public /*@ pure @*/ Association<? extends TO,? super FROM> getOtherRelation() {
     return _other;
   }
   
   /**
    * See superclass.
    */
-  public /*@ pure @*/ List<Relation<? extends TO,? super FROM>> getOtherRelations() {
-    ArrayList<Relation<? extends TO,? super FROM>> result = new ArrayList<Relation<? extends TO,? super FROM>>();
+  public /*@ pure @*/ List<Association<? extends TO,? super FROM>> getOtherAssociations() {
+    ArrayList<Association<? extends TO,? super FROM>> result = new ArrayList<Association<? extends TO,? super FROM>>();
     if(_other != null) {
       result.add(_other);
     }
@@ -310,24 +295,12 @@ public class Reference<FROM,TO> extends Relation<FROM,TO> {
   /**
    * The Relation this Reference belongs to
    */
-  private Relation<? extends TO,? super FROM> _other;
+  private Association<? extends TO,? super FROM> _other;
 
 	@Override
-	public void replace(Relation<? extends TO, ? super FROM> element, Relation<? extends TO, ? super FROM> newElement) {
+	public void replace(Association<? extends TO, ? super FROM> element, Association<? extends TO, ? super FROM> newElement) {
 		if(contains(element)) {
 			connectTo(newElement);
 		}
 	}
 }
-/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
-the people and entities mentioned after the "@author" tags above, on 
-behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
-after the "@date" tags above. All rights reserved.
-This software is published under the terms of the JUTIL.ORG Software
-License version 1.1 or later, a copy of which has been included with
-this distribution in the LICENSE file, which can also be found at
-http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
-License for more details.
-For more information, please see http://org-jutil.sourceforge.net/</copyright>*/

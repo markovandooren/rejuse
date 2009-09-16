@@ -3,7 +3,7 @@ package org.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rejuse.association.ReferenceSet;
+import org.rejuse.association.MultiAssociation;
 
 public class PropertyMutex<E> {
 
@@ -17,9 +17,9 @@ public class PropertyMutex<E> {
 		return result;
 	}
 	
-	ReferenceSet<PropertyMutex<E>, Property<E>> memberLink() {
+	MultiAssociation<PropertyMutex<E>, Property<E>> memberLink() {
 		return _members;
 	}
 	
-	private ReferenceSet<PropertyMutex<E>, Property<E>> _members = new ReferenceSet<PropertyMutex<E>, Property<E>>(this);
+	private MultiAssociation<PropertyMutex<E>, Property<E>> _members = new MultiAssociation<PropertyMutex<E>, Property<E>>(this);
 }

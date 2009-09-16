@@ -1,7 +1,7 @@
 package org.rejuse.association.test;
 import org.rejuse.junit.JutilTest;
 import org.rejuse.junit.CVSRevision;
-import org.rejuse.association.Reference;
+import org.rejuse.association.SingleAssociation;
 
 public class TestReference extends JutilTest {
 
@@ -46,7 +46,7 @@ public class TestReference extends JutilTest {
 
 private class A {
   public A(String name) {
-    _a = new Reference(this);
+    _a = new SingleAssociation(this);
     _name = name;
   }
 
@@ -63,7 +63,7 @@ private class A {
     }
   }
 
-  Reference getBLink() {
+  SingleAssociation getBLink() {
     return _a;
   }
 
@@ -71,13 +71,13 @@ private class A {
     return _name;
   }
 
-  private Reference _a;
+  private SingleAssociation _a;
   private String _name;
 }
 
 private class B {
   public B(String name) {
-    _b = new Reference(this);
+    _b = new SingleAssociation(this);
     _name = name;
   }
 
@@ -94,7 +94,7 @@ private class B {
     }
   }
 
-  Reference getALink() {
+  SingleAssociation getALink() {
     return _b;
   }
 
@@ -102,7 +102,7 @@ private class B {
     return _name;
   }
 
-  private Reference _b;
+  private SingleAssociation _b;
   private String _name;
 }
 }

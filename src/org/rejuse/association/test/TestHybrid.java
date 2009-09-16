@@ -1,16 +1,16 @@
 package org.rejuse.association.test;
 import org.rejuse.junit.JutilTest;
 import org.rejuse.junit.CVSRevision;
-import org.rejuse.association.ReferenceSet;
-import org.rejuse.association.Reference;
-import org.rejuse.association.Relation;
+import org.rejuse.association.MultiAssociation;
+import org.rejuse.association.SingleAssociation;
+import org.rejuse.association.Association;
 import org.rejuse.java.collections.Visitor;
 import java.util.List;
 
 public class TestHybrid extends JutilTest {
 
   public TestHybrid(String name) {
-    super(name, org.rejuse.association.ReferenceSet.class, new CVSRevision("1.9"));
+    super(name, org.rejuse.association.MultiAssociation.class, new CVSRevision("1.9"));
   }
 
   public void test() {
@@ -67,7 +67,7 @@ private abstract class T {
     return _name;
   }
 
-  abstract Relation getBLink();
+  abstract Association getBLink();
 
   private String _name;
 }
@@ -75,7 +75,7 @@ private abstract class T {
 private class A extends T {
   public A(String name) {
     super(name);
-    _a = new Reference(this);
+    _a = new SingleAssociation(this);
   }
 
   public B getB() {
@@ -91,17 +91,17 @@ private class A extends T {
     }
   }
 
-  Relation getBLink() {
+  Association getBLink() {
     return _a;
   }
 
-  private Reference _a;
+  private SingleAssociation _a;
 }
 
 private class C extends T {
   public C(String name) {
     super(name);
-    _c = new ReferenceSet(this);
+    _c = new MultiAssociation(this);
   }
 
   public List getB() {
@@ -116,7 +116,7 @@ private class C extends T {
     _c.remove(other.getTLink());
   }
 
-  Relation getBLink() {
+  Association getBLink() {
     return _c;
   }
 
@@ -130,12 +130,12 @@ private class C extends T {
     return result.toString();
   }
 
-  private ReferenceSet _c;
+  private MultiAssociation _c;
 }
 
 private class B {
   public B(String name) {
-    _b = new ReferenceSet(this);
+    _b = new MultiAssociation(this);
     _name = name;
   }
 
@@ -151,7 +151,7 @@ private class B {
     _b.remove(other.getBLink());
   }
 
-  ReferenceSet getTLink() {
+  MultiAssociation getTLink() {
     return _b;
   }
 
@@ -169,7 +169,7 @@ private class B {
     return result.toString();
   }
 
-  private ReferenceSet _b;
+  private MultiAssociation _b;
   private String _name;
 }
 }

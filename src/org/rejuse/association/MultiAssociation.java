@@ -67,18 +67,10 @@ import org.rejuse.predicate.SafePredicate;
  * to a new Set (e.g. TreeSet). The general method <code>getOtherEnds()</code> must return a <code>List</code>
  * because in some bindings the order may be important.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
- * @release $Name$
  */
-public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
+public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
   
-	/* The revision of this class */
-	public final static String CVS_REVISION ="$Revision$";
-
  //@ public invariant contains(null) == false;
  //@ public invariant getObject() != null;
  
@@ -101,9 +93,9 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post getObject() == object;
    @ post (\forall Relation r;; !contains(r));
    @*/
-  public ReferenceSet(FROM object) {
+  public MultiAssociation(FROM object) {
     super(object);
-    _elements = new HashSet<Relation<? extends TO,? super FROM>>();
+    _elements = new HashSet<Association<? extends TO,? super FROM>>();
   }
   
   /**
@@ -120,7 +112,9 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post unregistered(\old(getOtherRelations()), other);
    @ post other.unregistered(\old(other.getOtherRelations()), this);
    @*/  
-  public void remove(Relation<? extends TO,? super FROM> other) {
+  public void remove(Association<? extends TO,? super FROM> other) {
+  	checkLock();
+  	checkLock(other);
     if (contains(other)) {
       other.unregister(this);
       unregister(other);
@@ -141,7 +135,9 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ post registered(\old(getOtherRelations()), element);
    @ post element.registered(\old(element.getOtherRelations()),this);
    @*/  
-  public void add(Relation<? extends TO,? super FROM> element) {
+  public void add(Association<? extends TO,? super FROM> element) {
+  	checkLock();
+  	checkLock(element);
     element.register(this);
     register(element);
   }
@@ -162,8 +158,8 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @*/
   public /*@ pure @*/ List<TO> getOtherEnds() {
     final List<TO> result = new ArrayList<TO>();
-    new Visitor<Relation<? extends TO,? super FROM>>() {
-      public void visit(Relation<? extends TO,? super FROM> element) {
+    new Visitor<Association<? extends TO,? super FROM>>() {
+      public void visit(Association<? extends TO,? super FROM> element) {
         result.add(element.getObject());
       }
     }.applyTo(_elements);
@@ -182,8 +178,8 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @       contains(s) <==> \result.contains(s));
    @ post \result != null;
    @*/
-  public /*@ pure @*/ List<Relation<? extends TO,? super FROM>> getOtherRelations() {
-    return new ArrayList<Relation<? extends TO,? super FROM>>(_elements);
+  public /*@ pure @*/ List<Association<? extends TO,? super FROM>> getOtherAssociations() {
+    return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
   }
   
   /**
@@ -199,8 +195,12 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @
    @ post ! contains(element);
    @*/
-  protected void unregister(Relation<? extends TO,? super FROM> element) {
-    _elements.remove(element);
+  @Override
+  protected void unregister(Association<? extends TO,? super FROM> element) {
+    boolean removed = _elements.remove(element);
+    if(removed) {
+    	fireElementRemoved(element.getObject());
+    }
   }
     
   
@@ -215,8 +215,12 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @
    @ pre element != null;
    @*/
-  protected void register(Relation<? extends TO,? super FROM> element) {
-    _elements.add(element);
+  @Override
+  protected void register(Association<? extends TO,? super FROM> element) {
+    boolean added = _elements.add(element);
+    if(added) {
+    	fireElementAdded(element.getObject());
+    }
   }
   
 
@@ -228,12 +232,12 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @                   oldConnections.contains(r) == contains(r)
    @                 );
    @*/
-  public /*@ pure @*/ boolean registered(List<Relation<? extends TO,? super FROM>> oldConnections, Relation<? extends TO,? super FROM> registered) {
+  public /*@ pure @*/ boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered) {
     return (oldConnections != null) &&
            (contains(registered)) &&
-           new SafePredicate<Relation<? extends TO,? super FROM>>() {
-             public boolean eval(Relation<? extends TO,? super FROM> o) {
-               return ReferenceSet.this.contains(o);
+           new SafePredicate<Association<? extends TO,? super FROM>>() {
+             public boolean eval(Association<? extends TO,? super FROM> o) {
+               return MultiAssociation.this.contains(o);
              }
            }.forAll(_elements);
   }
@@ -247,13 +251,13 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @                 (\forall Relation r; r != unregistered;
    @                   oldConnections.contains(r) == contains(r));
    @*/
-  public /*@ pure @*/ boolean unregistered(List<Relation<? extends TO,? super FROM>> oldConnections, final Relation<? extends TO,? super FROM> unregistered) {
+  public /*@ pure @*/ boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, final Association<? extends TO,? super FROM> unregistered) {
     // FIXME : implementation is not correct
    return (oldConnections != null) &&
           (oldConnections.contains(unregistered)) &&
           (! contains(unregistered)) &&
-          new SafePredicate<Relation<? extends TO,? super FROM>>() {
-            public boolean eval(Relation<? extends TO,? super FROM> o) {
+          new SafePredicate<Association<? extends TO,? super FROM>>() {
+            public boolean eval(Association<? extends TO,? super FROM> o) {
               return (o == unregistered) || contains(o);
             }
           }.forAll(oldConnections);
@@ -264,7 +268,7 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @
    @ post \result == (relation != null);
    @*/
-  protected /*@ pure @*/ boolean isValidElement(Relation<? extends TO,? super FROM> relation) {
+  protected /*@ pure @*/ boolean isValidElement(Association<? extends TO,? super FROM> relation) {
     return (relation != null);
   }
 
@@ -288,7 +292,7 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    *        The element of which one wants to know if it is in
    *        this ReferenceSet.
    */
-  public /*@ pure @*/ boolean contains(Relation<? extends TO,? super FROM> element) {
+  public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> element) {
     return _elements.contains(element);
   }
   
@@ -300,25 +304,19 @@ public class ReferenceSet<FROM,TO> extends Relation<FROM,TO> {
    @ private invariant (\forall Object o; _elements.contains(o);
    @                      o instanceof Relation);
    @*/
-  private HashSet<Relation<? extends TO,? super FROM>> _elements;
+  private HashSet<Association<? extends TO,? super FROM>> _elements;
 
 	@Override
-	public void replace(Relation<? extends TO, ? super FROM> element, Relation<? extends TO, ? super FROM> newElement) {
+	public void replace(Association<? extends TO, ? super FROM> element, Association<? extends TO, ? super FROM> newElement) {
 		if(contains(element)) {
+	  	checkLock();
+	  	checkLock(element);
+	  	checkLock(newElement);
+	  	disableEvents();
 		  remove(element);
 		  add(newElement);
+		  enableEvents();
+		  fireElementReplaced(element.getObject(), newElement.getObject());
 		}
 	}
 }
-/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by 
-the people and entities mentioned after the "@author" tags above, on 
-behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
-after the "@date" tags above. All rights reserved.
-This software is published under the terms of the JUTIL.ORG Software
-License version 1.1 or later, a copy of which has been included with
-this distribution in the LICENSE file, which can also be found at
-http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT 
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software 
-License for more details.
-For more information, please see http://org-jutil.sourceforge.net/</copyright>*/
