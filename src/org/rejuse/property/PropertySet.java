@@ -1,7 +1,9 @@
 package org.rejuse.property;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.rejuse.logic.ternary.Ternary;
@@ -220,13 +222,29 @@ public class PropertySet<E> {
     }.forAll(properties());
   }
   
-  public boolean conflicts() {
-    return new SafePredicate<Property<E>>() {
-      @Override
-      public boolean eval(final Property<E> p1) {
-        return internallyConsistent(p1);
-      }
-    }.forAll(properties());
+  /**
+   * Return all conflicts in this property set.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post (\forall Property<E> first, second; ; 
+   @            first.contradicts(second) <=> (\exists Conflict<E> c; c.first()==first && c.second()==second; \result.contains(c)); 
+   @*/
+  public Collection<Conflict<E>> conflicts() {
+  	Collection<Conflict<E>> result = new ArrayList<Conflict<E>>();
+  	List<Property<E>> properties = new ArrayList<Property<E>>(_properties);
+  	int size = properties.size();
+		for(int firstIndex = 0; firstIndex < size; firstIndex++) {
+			for(int secondIndex = firstIndex+1; secondIndex < size; secondIndex++) {
+				Property<E> first = properties.get(firstIndex);
+				Property<E> second = properties.get(secondIndex);
+  			if(first.contradicts(second)) {
+  				result.add(new Conflict<E>(first,second));
+  			}
+			}
+  	}
+    return result;
   }
   
   /**
