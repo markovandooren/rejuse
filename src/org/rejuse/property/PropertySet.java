@@ -220,6 +220,15 @@ public class PropertySet<E> {
     }.forAll(properties());
   }
   
+  public boolean conflicts() {
+    return new SafePredicate<Property<E>>() {
+      @Override
+      public boolean eval(final Property<E> p1) {
+        return internallyConsistent(p1);
+      }
+    }.forAll(properties());
+  }
+  
   /**
    * Check if the given property is consistent with all other
    * properties in this property set.
