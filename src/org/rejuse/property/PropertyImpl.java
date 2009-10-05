@@ -60,7 +60,7 @@ public abstract class PropertyImpl<E> implements Property<E> {
    @ post (\exists Property p; universe.properties().contains(p);
    @       inverse() == p && p.name().equals("not "+name())) 
    @*/
-  public PropertyImpl(String name, PropertyUniverse<E, ? extends Property<E>> universe, PropertyMutex<E> family) {
+  public PropertyImpl(String name, PropertyUniverse<? extends Property<E>> universe, PropertyMutex<E> family) {
     init(name, universe);
     setFamily(family);
     // Create the inverse property
@@ -73,9 +73,9 @@ public abstract class PropertyImpl<E> implements Property<E> {
   public abstract Ternary appliesTo(E element);
 
 
-  protected abstract void createInverse(String name, PropertyUniverse<E, ? extends Property<E>> universe);
+  protected abstract void createInverse(String name, PropertyUniverse<? extends Property<E>> universe);
 
-  protected PropertyImpl(String name, PropertyUniverse<E, ? extends Property<E>> universe, PropertyMutex<E> family, Property<E> inverse) {
+  protected PropertyImpl(String name, PropertyUniverse<? extends Property<E>> universe, PropertyMutex<E> family, Property<E> inverse) {
     init(name, universe);
     _inverse.connectTo(inverse.inverseLink());
     addContradiction(inverse);
@@ -87,7 +87,7 @@ public abstract class PropertyImpl<E> implements Property<E> {
    @ post name() == name;
    @ post  universe() == universe;
    @*/
-  private void init(String name, PropertyUniverse<E, ? extends Property<E>> universe) {
+  private void init(String name, PropertyUniverse<? extends Property<E>> universe) {
     setName(name);
     _universe.connectTo(universe.propertyLink());
   }
@@ -127,11 +127,11 @@ public abstract class PropertyImpl<E> implements Property<E> {
    @
    @ post \result != null;
    @*/
-  public PropertyUniverse<E, ? extends Property<E>> universe() {
+  public PropertyUniverse<? extends Property<E>> universe() {
     return _universe.getOtherEnd();
   }
   
-  private SingleAssociation<Property<E>, PropertyUniverse<E, ? extends Property<E>>> _universe = new SingleAssociation<Property<E>, PropertyUniverse<E, ? extends Property<E>>>(this);
+  private SingleAssociation<Property<E>, PropertyUniverse<? extends Property<E>>> _universe = new SingleAssociation<Property<E>, PropertyUniverse<? extends Property<E>>>(this);
   
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#inverse()

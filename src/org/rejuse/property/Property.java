@@ -71,7 +71,7 @@ public interface Property<E> {
 	  @
 	  @ post \result != null;
 	  @*/
-	public PropertyUniverse<E,? extends Property<E>> universe();
+	public PropertyUniverse<? extends Property<E>> universe();
 
 	/**
 	 * Return the inverse of this property.
