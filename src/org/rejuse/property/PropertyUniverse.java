@@ -10,7 +10,7 @@ import org.rejuse.association.MultiAssociation;
  * 
  * @author Marko van Dooren
  */
-public interface PropertyUniverse<E> {
+public interface PropertyUniverse<E, P extends Property<E>> {
   
   /**
    * Return the object representing the association between this language and the
@@ -19,7 +19,7 @@ public interface PropertyUniverse<E> {
    * DO NOT MODIFY THE RESULTING OBJECT. IT IS ACCESSIBLE ONLY BECAUSE OF THE 
    * VERY DUMB ACCESS CONTROL IN JAVA.
    */
-  public MultiAssociation<PropertyUniverse<E>,Property<E>> propertyLink();
+  public MultiAssociation<? extends PropertyUniverse<E,P>, P> propertyLink();
   
   /**
    * Return the set of properties in this universe of properties.
@@ -30,6 +30,6 @@ public interface PropertyUniverse<E> {
    @
    @ post \result != null;
    @*/
-  public Set<Property<E>> properties();
+  public Set<P> properties();
 
 }

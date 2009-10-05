@@ -6,6 +6,29 @@ import org.rejuse.association.MultiAssociation;
 import org.rejuse.association.SingleAssociation;
 import org.rejuse.logic.ternary.Ternary;
 
+/**
+ * <p>A class representing properties of model elements. Properties can be explicitly assigned to objects by in
+ * an application specific manner, or they can apply to an object based on the state of that object.</p>
+ *  
+ * <p>The properties for a model are kept in a property universe. Relations between those properties are managed by adding
+ * implication and contradiction relations between them.</p>
+ *
+ * Examples of properties are:
+ * <ul>
+ *   <li>Being overridable (or not)</li>
+ *   <li>Being an instance (or class) member</li>
+ * </ul> 
+ * 
+ * <h3>Design rationale</h3>
+ * 
+ * <p>By separating modifiers from the properties they assign to model elements, we obtain a
+ * more extensible design.</p>
+ * <p>First of all, it allows us to detects conflicts in the models in a general way.</p>
+ * <p>Second, it allows us to create modifiers that set a number of properties, while still being able to
+ * check their presence or absence in a unique way.</p> 
+ * 
+ * @author Marko van Dooren
+ */
 public interface Property<E> {
 
 	/**
@@ -48,7 +71,7 @@ public interface Property<E> {
 	  @
 	  @ post \result != null;
 	  @*/
-	public PropertyUniverse<E> universe();
+	public PropertyUniverse<E,? extends Property<E>> universe();
 
 	/**
 	 * Return the inverse of this property.
