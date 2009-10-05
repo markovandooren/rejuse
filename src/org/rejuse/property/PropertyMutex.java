@@ -7,19 +7,19 @@ import org.rejuse.association.MultiAssociation;
 
 public class PropertyMutex<E> {
 
-	public Set<Prop<E>> members() {
-	  return new HashSet<Prop<E>>(_members.getOtherEnds());	
+	public Set<Property<E>> members() {
+	  return new HashSet<Property<E>>(_members.getOtherEnds());	
 	}
 	
-	public Set<Prop<E>> membersWithout(Prop<E> property) {
-		Set<Prop<E>> result = new HashSet<Prop<E>>(_members.getOtherEnds());
+	public Set<Property<E>> membersWithout(Property<E> property) {
+		Set<Property<E>> result = new HashSet<Property<E>>(_members.getOtherEnds());
 		result.remove(property);
 		return result;
 	}
 	
-	MultiAssociation<PropertyMutex<E>, Prop<E>> memberLink() {
+	MultiAssociation<PropertyMutex<E>, Property<E>> memberLink() {
 		return _members;
 	}
 	
-	private MultiAssociation<PropertyMutex<E>, Prop<E>> _members = new MultiAssociation<PropertyMutex<E>, Prop<E>>(this);
+	private MultiAssociation<PropertyMutex<E>, Property<E>> _members = new MultiAssociation<PropertyMutex<E>, Property<E>>(this);
 }

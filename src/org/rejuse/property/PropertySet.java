@@ -18,7 +18,7 @@ import org.rejuse.predicate.SafePredicate;
  *
  * @param <E> The type of the elements that can have properties.
  */
-public class PropertySet<E,P extends Prop<E>> {
+public class PropertySet<E,P extends Property<E>> {
 
 	/**
 	 * Create an empty property set.
@@ -233,12 +233,12 @@ public class PropertySet<E,P extends Prop<E>> {
    @*/
   public Collection<Conflict<E>> conflicts() {
   	Collection<Conflict<E>> result = new ArrayList<Conflict<E>>();
-  	List<Prop<E>> properties = new ArrayList<Prop<E>>(_properties);
+  	List<Property<E>> properties = new ArrayList<Property<E>>(_properties);
   	int size = properties.size();
 		for(int firstIndex = 0; firstIndex < size; firstIndex++) {
 			for(int secondIndex = firstIndex+1; secondIndex < size; secondIndex++) {
-				Prop<E> first = properties.get(firstIndex);
-				Prop<E> second = properties.get(secondIndex);
+				Property<E> first = properties.get(firstIndex);
+				Property<E> second = properties.get(secondIndex);
   			if(first.contradicts(second)) {
   				result.add(new Conflict<E>(first,second));
   			}
@@ -257,7 +257,7 @@ public class PropertySet<E,P extends Prop<E>> {
    @ post \result == (\forall p; properties().contains(p);
    @                   ! property.contradicts(p));
    @*/
-  public boolean internallyConsistent(final Prop<E> property) {
+  public boolean internallyConsistent(final Property<E> property) {
     return new SafePredicate<P>() {
       @Override
       public boolean eval(P p2) {
@@ -295,18 +295,18 @@ public class PropertySet<E,P extends Prop<E>> {
    @ pre property != null;
    @
    @*/
-  public Ternary implies(Prop<E> property) {
-    SafePredicate<Prop<E>> propertyFilter = new SafePredicate<Prop<E>>() {
+  public Ternary implies(Property<E> property) {
+    SafePredicate<Property<E>> propertyFilter = new SafePredicate<Property<E>>() {
       @Override
-      public boolean eval(Prop<E> property) {
+      public boolean eval(Property<E> property) {
       	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
         return properties().contains(property) && internallyConsistent(property);
       }
     };
-    Set<Prop<E>> implying = property.impliedByProperties();
+    Set<Property<E>> implying = property.impliedByProperties();
     propertyFilter.filter(implying);
     
-    Set<Prop<E>> contradicting = property.contradictedProperties();
+    Set<Property<E>> contradicting = property.contradictedProperties();
     propertyFilter.filter(contradicting);
     
     if((! implying.isEmpty()) && (contradicting.isEmpty())) {

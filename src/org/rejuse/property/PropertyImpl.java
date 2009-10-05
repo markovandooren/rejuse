@@ -33,7 +33,7 @@ import org.rejuse.logic.ternary.Ternary;
  * 
  * @author Marko van Dooren
  */
-public abstract class PropertyImpl<E> implements Prop<E> {
+public abstract class PropertyImpl<E> implements Property<E> {
   
  /*@
    @ behavior
@@ -76,7 +76,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 
   protected abstract void createInverse(String name, PropertyUniverse<E> universe);
 
-  protected PropertyImpl(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Prop<E> inverse) {
+  protected PropertyImpl(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Property<E> inverse) {
     init(name, universe);
     _inverse.connectTo(inverse.inverseLink());
     addContradiction(inverse);
@@ -132,7 +132,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
     return _universe.getOtherEnd();
   }
   
-  private SingleAssociation<Prop<E>, PropertyUniverse<E>> _universe = new SingleAssociation<Prop<E>, PropertyUniverse<E>>(this);
+  private SingleAssociation<Property<E>, PropertyUniverse<E>> _universe = new SingleAssociation<Property<E>, PropertyUniverse<E>>(this);
   
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#inverse()
@@ -143,15 +143,15 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post \result != null;
    @ post \result.contradicts(this);
    @*/
-  public Prop<E> inverse() {
+  public Property<E> inverse() {
     return _inverse.getOtherEnd();
   }
   
-  public SingleAssociation<Prop<E>, Prop<E>> inverseLink() {
+  public SingleAssociation<Property<E>, Property<E>> inverseLink() {
   	return _inverse;
   }
   
-  private SingleAssociation<Prop<E>, Prop<E>> _inverse = new SingleAssociation<Prop<E>,Prop<E>>(this);
+  private SingleAssociation<Property<E>, Property<E>> _inverse = new SingleAssociation<Property<E>,Property<E>>(this);
 
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#mutex()
@@ -166,7 +166,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
   	}
   }
   
-  private SingleAssociation<Prop<E>, PropertyMutex<E>> _family = new SingleAssociation<Prop<E>,PropertyMutex<E>>(this);
+  private SingleAssociation<Property<E>, PropertyMutex<E>> _family = new SingleAssociation<Property<E>,PropertyMutex<E>>(this);
   
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#implies(org.rejuse.property.Prop)
@@ -176,7 +176,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @
    @ post \result == impliedProperties().contains(other); 
    @*/
-	public boolean implies(Prop<?> other) {
+	public boolean implies(Property<?> other) {
 	  return impliedProperties().contains(other);
 	}
 	
@@ -191,9 +191,9 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post (\forall Property p; result.contains(p); 
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
-	public Set<Prop<E>> impliedProperties() {
-		return new SafeTransitiveClosure<Prop<E>>() {
-			public Set<Prop<E>> getConnectedNodes(Prop<E> p) {
+	public Set<Property<E>> impliedProperties() {
+		return new SafeTransitiveClosure<Property<E>>() {
+			public Set<Property<E>> getConnectedNodes(Property<E> p) {
 				return p.directlyImpliedProperties();
 			}
 		}.closure(this);
@@ -208,8 +208,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 	 @ post \result != null;
 	 @ post \result.containsAll(implicitlyImpliedProperties());
 	 @*/
-	public Set<Prop<E>> directlyImpliedProperties() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>(_implied.getOtherEnds());
+	public Set<Property<E>> directlyImpliedProperties() {
+		Set<Property<E>> result = new HashSet<Property<E>>(_implied.getOtherEnds());
 		result.addAll(implicitlyImpliedProperties());
 		return result;
 	}
@@ -223,8 +223,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 	/* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#implicitlyImpliedProperties()
 	 */
-	public Set<Prop<E>> implicitlyImpliedProperties() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>();
+	public Set<Property<E>> implicitlyImpliedProperties() {
+		Set<Property<E>> result = new HashSet<Property<E>>();
 		result.add(this);
 		result.addAll(inverseSiblings());
 		return result;
@@ -242,9 +242,9 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 	/* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#inverseSiblings()
 	 */
-	public Set<Prop<E>> inverseSiblings() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>();
-		for(Prop<E> p:siblings()) {
+	public Set<Property<E>> inverseSiblings() {
+		Set<Property<E>> result = new HashSet<Property<E>>();
+		for(Property<E> p:siblings()) {
 			result.add(p.inverse());
 		}
 		return result;
@@ -261,7 +261,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post directlyImpliedProperties().contains(p);
    @ post p.directlyImpliedByProperties().contains(this);
    @*/
-	public void addImplication(Prop<E> p) {
+	public void addImplication(Property<E> p) {
 	  if(p != null) {
 	    _implied.add(p.impliedByLink());
 	  }
@@ -275,7 +275,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @
    @ post \result == impliedProperties().contains(other); 
    @*/
-	public boolean impliedBy(Prop<E> other) {
+	public boolean impliedBy(Property<E> other) {
 	  return impliedProperties().contains(other);
 	}
 	
@@ -290,9 +290,9 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post (\forall Property p; result.contains(p); 
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
-	public Set<Prop<E>> impliedByProperties() {
-		return new SafeTransitiveClosure<Prop<E>>() {
-			public Set<Prop<E>> getConnectedNodes(Prop<E> p) {
+	public Set<Property<E>> impliedByProperties() {
+		return new SafeTransitiveClosure<Property<E>>() {
+			public Set<Property<E>> getConnectedNodes(Property<E> p) {
 				return p.directlyImpliedByProperties();
 			}
 		}.closure(this);
@@ -307,8 +307,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post \result != null;
    @ post \result.containsAll(implicitlyImpliedByProperties());
    @*/
-	public Set<Prop<E>> directlyImpliedByProperties() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>(_impliedBy.getOtherEnds());
+	public Set<Property<E>> directlyImpliedByProperties() {
+		Set<Property<E>> result = new HashSet<Property<E>>(_impliedBy.getOtherEnds());
 		result.addAll(implicitlyImpliedByProperties());
 		return result;
 	}
@@ -323,8 +323,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 	/* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#implicitlyImpliedByProperties()
 	 */
-	public Set<Prop<E>> implicitlyImpliedByProperties() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>();
+	public Set<Property<E>> implicitlyImpliedByProperties() {
+		Set<Property<E>> result = new HashSet<Property<E>>();
 		result.add(this);
 		return result;
 	}
@@ -337,44 +337,44 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @
    @ post \result == contradictedProperties().contains(other); 
    @*/
-	public boolean contradicts(Prop<E> other) {
+	public boolean contradicts(Property<E> other) {
 		return contradictedProperties().contains(other);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#contradictedProperties()
 	 */
-	public Set<Prop<E>> contradictedProperties() {
+	public Set<Property<E>> contradictedProperties() {
 		// 1) all implied properties including the current property
-    Set<Prop<E>> implied = impliedProperties();
+    Set<Property<E>> implied = impliedProperties();
     // 2) all properties directly contradicting these properties
-    final Set<Prop<E>> directlyContradicted = new SafeAccumulator<Prop<E>, Set<Prop<E>>>() {
+    final Set<Property<E>> directlyContradicted = new SafeAccumulator<Property<E>, Set<Property<E>>>() {
 
       @Override
-      public Set<Prop<E>> accumulate(Prop<E> element, Set<Prop<E>> acc) {
+      public Set<Property<E>> accumulate(Property<E> element, Set<Property<E>> acc) {
         acc.addAll(element.directlyContradictedProperties());
         return acc;
       }
 
       @Override
-      public Set<Prop<E>> initialAccumulator() {
-        return new HashSet<Prop<E>>();
+      public Set<Property<E>> initialAccumulator() {
+        return new HashSet<Property<E>>();
       }
 
     }.accumulate(implied);
 
     // 3) add all properties implying the properties in directlyContradicted
-    return new SafeAccumulator<Prop<E>, Set<Prop<E>>>() {
+    return new SafeAccumulator<Property<E>, Set<Property<E>>>() {
 
       @Override
-      public Set<Prop<E>> accumulate(Prop<E> element, Set<Prop<E>> acc) {
+      public Set<Property<E>> accumulate(Property<E> element, Set<Property<E>> acc) {
         acc.addAll(element.impliedByProperties());
         return acc;
       }
 
       @Override
-      public Set<Prop<E>> initialAccumulator() {
-        return new HashSet<Prop<E>>(directlyContradicted);
+      public Set<Property<E>> initialAccumulator() {
+        return new HashSet<Property<E>>(directlyContradicted);
       }
 
     }.accumulate(directlyContradicted);
@@ -389,8 +389,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post \result != null;
    @ post \result.containsAll(implicitlyContradictedProperties());
    @*/
-	public Set<Prop<E>> directlyContradictedProperties() {
-		Set<Prop<E>> result = new HashSet<Prop<E>>(_contradicted.getOtherEnds());
+	public Set<Property<E>> directlyContradictedProperties() {
+		Set<Property<E>> result = new HashSet<Property<E>>(_contradicted.getOtherEnds());
 		result.addAll(implicitlyContradictedProperties());
 		return result;
 	}
@@ -404,8 +404,8 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post \result != null;
    @ post \result.contains(inverse());
    @*/
-	public Set<Prop<E>> implicitlyContradictedProperties() {
-		Set<Prop<E>> result = siblings();
+	public Set<Property<E>> implicitlyContradictedProperties() {
+		Set<Property<E>> result = siblings();
 		result.add(inverse());
 		return result;
 	}
@@ -418,7 +418,7 @@ public abstract class PropertyImpl<E> implements Prop<E> {
 	/* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#siblings()
 	 */
-	public Set<Prop<E>> siblings() {
+	public Set<Property<E>> siblings() {
 		return mutex().membersWithout(this);
 	}
 	
@@ -435,28 +435,28 @@ public abstract class PropertyImpl<E> implements Prop<E> {
    @ post contradictedProperties().contains(p);
    @ post p.contradictedProperties().contains(this);
    @*/
-  public void addContradiction(Prop<E> p) {
+  public void addContradiction(Property<E> p) {
     if(p != null) {
       _contradicted.add(p.contradictedLink());
     }
   }
 
-	public MultiAssociation<Prop<E>,Prop<E>> contradictedLink() {
+	public MultiAssociation<Property<E>,Property<E>> contradictedLink() {
 		return _contradicted;
 	}
 	
-	public MultiAssociation<Prop<E>,Prop<E>> impliedLink() {
+	public MultiAssociation<Property<E>,Property<E>> impliedLink() {
 		return _implied;
 	}
 	
-	public MultiAssociation<Prop<E>,Prop<E>> impliedByLink() {
+	public MultiAssociation<Property<E>,Property<E>> impliedByLink() {
 		return _impliedBy;
 	}
 
-	private MultiAssociation<Prop<E>,Prop<E>> _contradicted = new MultiAssociation<Prop<E>,Prop<E>>(this); 
+	private MultiAssociation<Property<E>,Property<E>> _contradicted = new MultiAssociation<Property<E>,Property<E>>(this); 
 	
-	private MultiAssociation<Prop<E>,Prop<E>> _implied = new MultiAssociation<Prop<E>,Prop<E>>(this); 
+	private MultiAssociation<Property<E>,Property<E>> _implied = new MultiAssociation<Property<E>,Property<E>>(this); 
 	
-	private MultiAssociation<Prop<E>,Prop<E>> _impliedBy = new MultiAssociation<Prop<E>,Prop<E>>(this);
+	private MultiAssociation<Property<E>,Property<E>> _impliedBy = new MultiAssociation<Property<E>,Property<E>>(this);
 	
 }

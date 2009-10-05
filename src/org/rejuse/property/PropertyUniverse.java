@@ -19,7 +19,7 @@ public interface PropertyUniverse<E> {
    * DO NOT MODIFY THE RESULTING OBJECT. IT IS ACCESSIBLE ONLY BECAUSE OF THE 
    * VERY DUMB ACCESS CONTROL IN JAVA.
    */
-  public MultiAssociation<PropertyUniverse<E>,Prop<E>> propertyLink();
+  public MultiAssociation<PropertyUniverse<E>,Property<E>> propertyLink();
   
   /**
    * Return the set of properties in this universe of properties.
@@ -30,6 +30,6 @@ public interface PropertyUniverse<E> {
    @
    @ post \result != null;
    @*/
-  public Set<Prop<E>> properties();
+  public Set<Property<E>> properties();
 
 }

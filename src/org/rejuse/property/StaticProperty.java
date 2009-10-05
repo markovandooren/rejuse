@@ -9,24 +9,24 @@ public class StaticProperty<E> extends PropertyImpl<E> {
   
   private final class InverseProperty extends StaticProperty<E> {
   	
-  	private InverseProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Prop<E> inverse) {
+  	private InverseProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Property<E> inverse) {
 			super(name, universe, family, inverse);
 		}
 
-		public Set<Prop<E>> implicitlyContradictedProperties() {
-			Set<Prop<E>> result = new HashSet<Prop<E>>();
+		public Set<Property<E>> implicitlyContradictedProperties() {
+			Set<Property<E>> result = new HashSet<Property<E>>();
 			result.add(inverse());
 			return result;
 		}
 
-		public Set<Prop<E>> implicitlyImpliedByProperties() {
-			Set<Prop<E>> result = inverse().siblings();
+		public Set<Property<E>> implicitlyImpliedByProperties() {
+			Set<Property<E>> result = inverse().siblings();
 			result.add(this);
 			return result;
 		}
 
-		public Set<Prop<E>> implicitlyImpliedProperties() {
-			Set<Prop<E>> result = new HashSet<Prop<E>>();
+		public Set<Property<E>> implicitlyImpliedProperties() {
+			Set<Property<E>> result = new HashSet<Property<E>>();
 			result.add(this);
 			return result;
 		}
@@ -104,7 +104,7 @@ public class StaticProperty<E> extends PropertyImpl<E> {
    @ post universe.properties().contains(this);
    @ post inverse() == inverse;
    @*/
-  protected StaticProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Prop<E> inverse) {
+  protected StaticProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Property<E> inverse) {
     super(name, universe, family, inverse);
   }
   

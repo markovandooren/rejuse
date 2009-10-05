@@ -19,7 +19,7 @@ public abstract class DynamicProperty<E> extends PropertyImpl<E> {
     super(name, universe, mutex);
   }
   
-  protected DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex, Prop<E> inverse) {
+  protected DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex, Property<E> inverse) {
     super(name, universe, mutex, inverse);
   }
   
@@ -29,20 +29,20 @@ public abstract class DynamicProperty<E> extends PropertyImpl<E> {
       public Ternary appliesTo(E element) {
         return inverse().appliesTo(element).not();
       }
-    	public Set<Prop<E>> implicitlyContradictedProperties() {
-    		Set<Prop<E>> result = new HashSet<Prop<E>>();
+    	public Set<Property<E>> implicitlyContradictedProperties() {
+    		Set<Property<E>> result = new HashSet<Property<E>>();
     		result.add(inverse());
     		return result;
     	}
     	
-    	public Set<Prop<E>> implicitlyImpliedByProperties() {
-    		Set<Prop<E>> result = inverse().siblings();
+    	public Set<Property<E>> implicitlyImpliedByProperties() {
+    		Set<Property<E>> result = inverse().siblings();
     		result.add(this);
     		return result;
     	}
     	
-    	public Set<Prop<E>> implicitlyImpliedProperties() {
-    		Set<Prop<E>> result = new HashSet<Prop<E>>();
+    	public Set<Property<E>> implicitlyImpliedProperties() {
+    		Set<Property<E>> result = new HashSet<Property<E>>();
     		result.add(this);
     		return result;
     	}
