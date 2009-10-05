@@ -159,9 +159,11 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
     if(! contains(element)) {
 	  	checkLock();
 	  	checkLock(element);
-      element.register(this);
-      // Skip a redundant contains check.
-      registerPrivate(element);
+	  	if(element != null) {
+        element.register(this);
+        // Skip a redundant contains check.
+        registerPrivate(element);
+	  	}
     }
   }
   
@@ -233,7 +235,7 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
   
   @Override
   protected void unregister(Association<? extends TO,? super FROM> association) {
-    if(! contains(association)) {
+    if(contains(association)) {
       unregisterPrivate(association);
     }
   }

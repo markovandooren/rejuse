@@ -138,8 +138,10 @@ public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
   public void add(Association<? extends TO,? super FROM> element) {
   	checkLock();
   	checkLock(element);
-    element.register(this);
-    register(element);
+  	if(element != null) {
+      element.register(this);
+      register(element);
+  	}
   }
   
     
