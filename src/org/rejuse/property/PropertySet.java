@@ -18,7 +18,7 @@ import org.rejuse.predicate.SafePredicate;
  *
  * @param <E> The type of the elements that can have properties.
  */
-public class PropertySet<E> {
+public class PropertySet<E,P extends Prop<E>> {
 
 	/**
 	 * Create an empty property set.
@@ -38,7 +38,7 @@ public class PropertySet<E> {
    @
    @ post containsAll(properties); 
    @*/
-	public PropertySet(Collection<Property<E>> properties) {
+	public PropertySet(Collection<P> properties) {
 		addAll(properties);
 	}
 	
@@ -52,7 +52,7 @@ public class PropertySet<E> {
    @
    @ post \result == properties().contains(property);
    @*/
-	public boolean contains(Property<E> property) {
+	public boolean contains(P property) {
 		return _properties.contains(property);
 	}
 	
@@ -66,7 +66,7 @@ public class PropertySet<E> {
    @
    @ post \result == properties().containsAll(properties);
    @*/
-	public boolean containsAll(Collection<Property<E>> properties) {
+	public boolean containsAll(Collection<P> properties) {
 		return _properties.containsAll(properties);
 	}
 	
@@ -82,7 +82,7 @@ public class PropertySet<E> {
    @
    @ post properties().contains(p);
    @*/
-  public void add(Property<E> p) {
+  public void add(P p) {
     if(p != null) {
       _properties.add(p);
     } else {
@@ -101,8 +101,8 @@ public class PropertySet<E> {
    @ post \result.containsAll(properties());
    @ post \result.size() == size(); 
    @*/
-  public PropertySet<E> clone() {
-    PropertySet<E> result = new PropertySet<E>();
+  public PropertySet<E,P> clone() {
+    PropertySet<E,P> result = new PropertySet<E,P>();
     result.addAll(properties());
     return result;    
   }
@@ -122,8 +122,8 @@ public class PropertySet<E> {
    @ post properties().contains(property) ==> \result.size() == size();
    @ post ! properties().contains(property) ==> \result.size() == size() + 1;
    @*/
-  public PropertySet<E> with(Property<E> property) {
-    PropertySet<E> result = clone();
+  public PropertySet<E,P> with(P property) {
+    PropertySet<E,P> result = clone();
     result.add(property);
     return result;
   }
@@ -149,7 +149,7 @@ public class PropertySet<E> {
    @
    @ post properties().containsAll(properties);
   */
-  public void addAll(Collection<Property<E>> properties) {
+  public void addAll(Collection<P> properties) {
     if(properties != null) {
       _properties.addAll(properties);
     } else {
@@ -169,7 +169,7 @@ public class PropertySet<E> {
    @
    @ post properties().containsAll(properties);
   */
-  public void addAll(PropertySet<E> properties) {
+  public void addAll(PropertySet<E,P> properties) {
     addAll(properties.properties());
   }
 
@@ -186,7 +186,7 @@ public class PropertySet<E> {
    @
    @ post ! properties().contains(p);
   */
-  public void removeProperty(Property<E> p) {
+  public void removeProperty(P p) {
     _properties.remove(p);
   }
   
@@ -199,8 +199,8 @@ public class PropertySet<E> {
    @
    @ post \result != null;
    @*/
-  public Set<Property<E>> properties() {
-    return new HashSet<Property<E>>(_properties);
+  public Set<P> properties() {
+    return new HashSet<P>(_properties);
   }
   
   /**
@@ -214,9 +214,9 @@ public class PropertySet<E> {
    @                   ! p1.contradicts(p2));
    @*/
   public boolean consistent() {
-    return new SafePredicate<Property<E>>() {
+    return new SafePredicate<P>() {
       @Override
-      public boolean eval(final Property<E> p1) {
+      public boolean eval(final P p1) {
         return internallyConsistent(p1);
       }
     }.forAll(properties());
@@ -233,12 +233,12 @@ public class PropertySet<E> {
    @*/
   public Collection<Conflict<E>> conflicts() {
   	Collection<Conflict<E>> result = new ArrayList<Conflict<E>>();
-  	List<Property<E>> properties = new ArrayList<Property<E>>(_properties);
+  	List<Prop<E>> properties = new ArrayList<Prop<E>>(_properties);
   	int size = properties.size();
 		for(int firstIndex = 0; firstIndex < size; firstIndex++) {
 			for(int secondIndex = firstIndex+1; secondIndex < size; secondIndex++) {
-				Property<E> first = properties.get(firstIndex);
-				Property<E> second = properties.get(secondIndex);
+				Prop<E> first = properties.get(firstIndex);
+				Prop<E> second = properties.get(secondIndex);
   			if(first.contradicts(second)) {
   				result.add(new Conflict<E>(first,second));
   			}
@@ -257,10 +257,10 @@ public class PropertySet<E> {
    @ post \result == (\forall p; properties().contains(p);
    @                   ! property.contradicts(p));
    @*/
-  public boolean internallyConsistent(final Property<E> property) {
-    return new SafePredicate<Property<E>>() {
+  public boolean internallyConsistent(final Prop<E> property) {
+    return new SafePredicate<P>() {
       @Override
-      public boolean eval(Property<E> p2) {
+      public boolean eval(P p2) {
         return ! property.contradicts(p2);
       }
     }.forAll(properties());
@@ -295,18 +295,18 @@ public class PropertySet<E> {
    @ pre property != null;
    @
    @*/
-  public Ternary implies(Property<E> property) {
-    SafePredicate<Property<E>> propertyFilter = new SafePredicate<Property<E>>() {
+  public Ternary implies(Prop<E> property) {
+    SafePredicate<Prop<E>> propertyFilter = new SafePredicate<Prop<E>>() {
       @Override
-      public boolean eval(Property<E> property) {
+      public boolean eval(Prop<E> property) {
       	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
         return properties().contains(property) && internallyConsistent(property);
       }
     };
-    Set<Property<E>> implying = property.impliedByProperties();
+    Set<Prop<E>> implying = property.impliedByProperties();
     propertyFilter.filter(implying);
     
-    Set<Property<E>> contradicting = property.contradictedProperties();
+    Set<Prop<E>> contradicting = property.contradictedProperties();
     propertyFilter.filter(contradicting);
     
     if((! implying.isEmpty()) && (contradicting.isEmpty())) {
@@ -331,7 +331,7 @@ public class PropertySet<E> {
    @
    @ post \result == implies(property).not();
    @*/
-  public Ternary contradicts(Property<E> property) {
+  public Ternary contradicts(P property) {
   	return implies(property).not();
   }
   
@@ -340,8 +340,8 @@ public class PropertySet<E> {
    @
    @ post (\forall Property<E> p; contains(p); set.contradicts(p) != Ternary.TRUE);
    @*/
-  public void removeContradictingProperties(PropertySet<E> set) {
-  	for(Property<E> p : properties()) {
+  public void removeContradictingProperties(PropertySet<E,P> set) {
+  	for(P p : properties()) {
   		if(set.contradicts(p) == Ternary.TRUE) {
   			removeProperty(p);
   		}
@@ -353,11 +353,11 @@ public class PropertySet<E> {
    @
    @ post (\forall Property<E> p; contains(p); set.contradicts(p) != TRUE == \result.contains(p));
    @*/
-  public PropertySet<E> withoutContradictingProperties(PropertySet<E> set) {
-  	PropertySet<E> result = clone();
+  public PropertySet<E,P> withoutContradictingProperties(PropertySet<E,P> set) {
+  	PropertySet<E,P> result = clone();
   	result.removeContradictingProperties(set);
   	return result;
   }
   
-  private Set<Property<E>> _properties = new HashSet<Property<E>>();
+  private Set<P> _properties = new HashSet<P>();
 }

@@ -22,20 +22,20 @@ public class Conflict<E> {
    @ post first() == first;
    @ post second() == second;
    @*/
-	public Conflict(Property<E> first, Property<E> second) {
+	public Conflict(Prop<E> first, Prop<E> second) {
 		_first = first;
 		_second = second;
 	}
 
-	private Property<E> _first;
+	private Prop<E> _first;
 
-	public Property<E> first() {
+	public Prop<E> first() {
 		return _first;
 	}
 
-	private Property<E> _second;
+	private Prop<E> _second;
 
-	public Property<E> second() {
+	public Prop<E> second() {
 		return _second;
 	}
 

@@ -13,13 +13,13 @@ import org.rejuse.logic.ternary.Ternary;
  *
  * @author Marko van Dooren
  */
-public abstract class DynamicProperty<E> extends Property<E> {
+public abstract class DynamicProperty<E> extends PropertyImpl<E> {
 
   public DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex) {
     super(name, universe, mutex);
   }
   
-  protected DynamicProperty(String name, PropertyUniverse universe, PropertyMutex<E> mutex, Property inverse) {
+  protected DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex, Prop<E> inverse) {
     super(name, universe, mutex, inverse);
   }
   
@@ -29,20 +29,20 @@ public abstract class DynamicProperty<E> extends Property<E> {
       public Ternary appliesTo(E element) {
         return inverse().appliesTo(element).not();
       }
-    	public Set<Property<E>> implicitlyContradictedProperties() {
-    		Set<Property<E>> result = new HashSet<Property<E>>();
+    	public Set<Prop<E>> implicitlyContradictedProperties() {
+    		Set<Prop<E>> result = new HashSet<Prop<E>>();
     		result.add(inverse());
     		return result;
     	}
     	
-    	public Set<Property<E>> implicitlyImpliedByProperties() {
-    		Set<Property<E>> result = inverse().siblings();
+    	public Set<Prop<E>> implicitlyImpliedByProperties() {
+    		Set<Prop<E>> result = inverse().siblings();
     		result.add(this);
     		return result;
     	}
     	
-    	public Set<Property<E>> implicitlyImpliedProperties() {
-    		Set<Property<E>> result = new HashSet<Property<E>>();
+    	public Set<Prop<E>> implicitlyImpliedProperties() {
+    		Set<Prop<E>> result = new HashSet<Prop<E>>();
     		result.add(this);
     		return result;
     	}
