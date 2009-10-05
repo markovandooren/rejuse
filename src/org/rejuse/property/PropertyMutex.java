@@ -5,21 +5,21 @@ import java.util.Set;
 
 import org.rejuse.association.MultiAssociation;
 
-public class PropertyMutex<E> {
+public class PropertyMutex<F extends Property<?,F>> {
 
-	public Set<Property<E>> members() {
-	  return new HashSet<Property<E>>(_members.getOtherEnds());	
+	public Set<F> members() {
+	  return new HashSet<F>(_members.getOtherEnds());	
 	}
 	
-	public Set<Property<E>> membersWithout(Property<E> property) {
-		Set<Property<E>> result = new HashSet<Property<E>>(_members.getOtherEnds());
+	public Set<F> membersWithout(F property) {
+		Set<F> result = new HashSet<F>(_members.getOtherEnds());
 		result.remove(property);
 		return result;
 	}
 	
-	MultiAssociation<PropertyMutex<E>, Property<E>> memberLink() {
+	MultiAssociation<PropertyMutex<F>, F> memberLink() {
 		return _members;
 	}
 	
-	private MultiAssociation<PropertyMutex<E>, Property<E>> _members = new MultiAssociation<PropertyMutex<E>, Property<E>>(this);
+	private MultiAssociation<PropertyMutex<F>, F> _members = new MultiAssociation<PropertyMutex<F>, F>(this);
 }

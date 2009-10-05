@@ -7,7 +7,7 @@ package org.rejuse.property;
  *
  * @param <E>
  */
-public class Conflict<E> {
+public class Conflict<F extends Property<?,F>> {
 	
 	/**
 	 * Initialize a new conflict for the given two properties. The properties must contradict each other.
@@ -22,20 +22,20 @@ public class Conflict<E> {
    @ post first() == first;
    @ post second() == second;
    @*/
-	public Conflict(Property<E> first, Property<E> second) {
+	public Conflict(F first, F second) {
 		_first = first;
 		_second = second;
 	}
 
-	private Property<E> _first;
+	private F _first;
 
-	public Property<E> first() {
+	public F first() {
 		return _first;
 	}
 
-	private Property<E> _second;
+	private F _second;
 
-	public Property<E> second() {
+	public F second() {
 		return _second;
 	}
 

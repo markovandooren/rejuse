@@ -18,7 +18,7 @@ import org.rejuse.predicate.SafePredicate;
  *
  * @param <E> The type of the elements that can have properties.
  */
-public class PropertySet<E,P extends Property<E>> {
+public class PropertySet<E,P extends Property<E,P>> {
 
 	/**
 	 * Create an empty property set.
@@ -231,16 +231,16 @@ public class PropertySet<E,P extends Property<E>> {
    @ post (\forall Property<E> first, second; ; 
    @            first.contradicts(second) <=> (\exists Conflict<E> c; c.first()==first && c.second()==second; \result.contains(c)); 
    @*/
-  public Collection<Conflict<E>> conflicts() {
-  	Collection<Conflict<E>> result = new ArrayList<Conflict<E>>();
-  	List<Property<E>> properties = new ArrayList<Property<E>>(_properties);
+  public Collection<Conflict<P>> conflicts() {
+  	Collection<Conflict<P>> result = new ArrayList<Conflict<P>>();
+  	List<P> properties = new ArrayList<P>(_properties);
   	int size = properties.size();
 		for(int firstIndex = 0; firstIndex < size; firstIndex++) {
 			for(int secondIndex = firstIndex+1; secondIndex < size; secondIndex++) {
-				Property<E> first = properties.get(firstIndex);
-				Property<E> second = properties.get(secondIndex);
+				P first = properties.get(firstIndex);
+				P second = properties.get(secondIndex);
   			if(first.contradicts(second)) {
-  				result.add(new Conflict<E>(first,second));
+  				result.add(new Conflict<P>(first,second));
   			}
 			}
   	}
@@ -257,7 +257,7 @@ public class PropertySet<E,P extends Property<E>> {
    @ post \result == (\forall p; properties().contains(p);
    @                   ! property.contradicts(p));
    @*/
-  public boolean internallyConsistent(final Property<E> property) {
+  public boolean internallyConsistent(final Property<E,?> property) {
     return new SafePredicate<P>() {
       @Override
       public boolean eval(P p2) {
@@ -295,18 +295,18 @@ public class PropertySet<E,P extends Property<E>> {
    @ pre property != null;
    @
    @*/
-  public Ternary implies(Property<E> property) {
-    SafePredicate<Property<E>> propertyFilter = new SafePredicate<Property<E>>() {
+  public Ternary implies(Property<E,?> property) {
+    SafePredicate<Property<E,?>> propertyFilter = new SafePredicate<Property<E,?>>() {
       @Override
-      public boolean eval(Property<E> property) {
+      public boolean eval(Property<E,?> property) {
       	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
         return properties().contains(property) && internallyConsistent(property);
       }
     };
-    Set<Property<E>> implying = property.impliedByProperties();
+    Set<? extends Property<E,?>> implying = property.impliedByProperties();
     propertyFilter.filter(implying);
     
-    Set<Property<E>> contradicting = property.contradictedProperties();
+    Set<? extends Property<E,?>> contradicting = property.contradictedProperties();
     propertyFilter.filter(contradicting);
     
     if((! implying.isEmpty()) && (contradicting.isEmpty())) {

@@ -10,7 +10,7 @@ import org.rejuse.association.MultiAssociation;
  * 
  * @author Marko van Dooren
  */
-public interface PropertyUniverse<P extends Property<?>> {
+public interface PropertyUniverse<P extends Property<?,P>> {
   
   /**
    * Return the object representing the association between this language and the

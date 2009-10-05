@@ -5,29 +5,29 @@ import java.util.Set;
 
 import org.rejuse.logic.ternary.Ternary;
 
-public class StaticProperty<E> extends PropertyImpl<E> {
+public abstract class StaticProperty<E, F extends Property<E,F>> extends PropertyImpl<E,F> {
   
-  private final class InverseProperty extends StaticProperty<E> {
+  protected abstract class InverseProperty extends StaticProperty<E,F> {
   	
-  	private InverseProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Property<E> inverse) {
+  	private InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
 			super(name, universe, family, inverse);
 		}
 
-		public Set<Property<E>> implicitlyContradictedProperties() {
-			Set<Property<E>> result = new HashSet<Property<E>>();
+		public Set<F> implicitlyContradictedProperties() {
+			Set<F> result = new HashSet<F>();
 			result.add(inverse());
 			return result;
 		}
 
-		public Set<Property<E>> implicitlyImpliedByProperties() {
-			Set<Property<E>> result = inverse().siblings();
-			result.add(this);
+		public Set<F> implicitlyImpliedByProperties() {
+			Set<F> result = inverse().siblings();
+			result.add((F) this);
 			return result;
 		}
 
-		public Set<Property<E>> implicitlyImpliedProperties() {
-			Set<Property<E>> result = new HashSet<Property<E>>();
-			result.add(this);
+		public Set<F> implicitlyImpliedProperties() {
+			Set<F> result = new HashSet<F>();
+			result.add((F) this);
 			return result;
 		}
 	}
@@ -55,7 +55,7 @@ public class StaticProperty<E> extends PropertyImpl<E> {
    @ post (\exists Property p; universe.properties().contains(p);
    @       inverse() == p && p.name().equals("not "+name())) 
    @*/
-  public StaticProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex) {
+  public StaticProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex) {
     super(name, universe, mutex);
   }
 
@@ -80,8 +80,8 @@ public class StaticProperty<E> extends PropertyImpl<E> {
    @ post (\exists Property p; universe.properties().contains(p);
    @       inverse() == p && p.name().equals("not "+name())) 
    @*/
-  public StaticProperty(String name, PropertyUniverse<E> universe) {
-    super(name, universe, new PropertyMutex<E>());
+  public StaticProperty(String name, PropertyUniverse<F> universe) {
+    super(name, universe, new PropertyMutex<F>());
   }
 
   /**
@@ -104,13 +104,13 @@ public class StaticProperty<E> extends PropertyImpl<E> {
    @ post universe.properties().contains(this);
    @ post inverse() == inverse;
    @*/
-  protected StaticProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> family, Property<E> inverse) {
+  protected StaticProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
     super(name, universe, family, inverse);
   }
   
-  protected void createInverse(String name, PropertyUniverse<E> universe) {
-    new InverseProperty("not "+name, universe, mutex(), this);
-  }
+//  protected void createInverse(String name, PropertyUniverse<F> universe) {
+//    new InverseProperty("not "+name, universe, mutex(), this);
+//  }
   
   /**
    * A static property does not know if it applies to any element based on the

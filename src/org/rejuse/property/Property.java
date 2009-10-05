@@ -29,7 +29,7 @@ import org.rejuse.logic.ternary.Ternary;
  * 
  * @author Marko van Dooren
  */
-public interface Property<E> {
+public interface Property<E, F extends Property<E,F>> {
 
 	/**
 	 * Check if this property currently applies to the given element
@@ -71,7 +71,7 @@ public interface Property<E> {
 	  @
 	  @ post \result != null;
 	  @*/
-	public PropertyUniverse<? extends Property<E>> universe();
+	public PropertyUniverse<F> universe();
 
 	/**
 	 * Return the inverse of this property.
@@ -82,9 +82,9 @@ public interface Property<E> {
 	  @ post \result != null;
 	  @ post \result.contradicts(this);
 	  @*/
-	public Property<E> inverse();
+	public F inverse();
 
-	public PropertyMutex<E> mutex();
+	public PropertyMutex<F> mutex();
 
 	/**
 	 * Check whether this property implies the given property.
@@ -101,7 +101,7 @@ public interface Property<E> {
 	  @
 	  @ post \result == impliedProperties().contains(other); 
 	  @*/
-	public boolean implies(Property<?> other);
+	public boolean implies(Property<E,?> other);
 
 	/**
 	 * Return the set of properties implied by this property.
@@ -116,7 +116,7 @@ public interface Property<E> {
 	  @ post (\forall Property p; result.contains(p); 
 	  @               \result.containsAll(p.directlyImpliedProperties()));
 	  @*/
-	public Set<Property<E>> impliedProperties();
+	public Set<F> impliedProperties();
 
 	/**
 	 * Return the set of properties directly implied by this property.
@@ -128,7 +128,7 @@ public interface Property<E> {
 	 @ post \result != null;
 	 @ post \result.containsAll(implicitlyImpliedProperties());
 	 @*/
-	public Set<Property<E>> directlyImpliedProperties();
+	public Set<F> directlyImpliedProperties();
 
 	/*@
 	 @ public behavior
@@ -136,7 +136,7 @@ public interface Property<E> {
 	 @ post \result != null;
 	 @ post \result.contains(this);
 	 @*/
-	public Set<Property<E>> implicitlyImpliedProperties();
+	public Set<F> implicitlyImpliedProperties();
 
 	/*@
 	 @ public behavior
@@ -146,7 +146,7 @@ public interface Property<E> {
 	 @         \result.contains(p.inverse()));
 	 @ post \result.size() == siblings().size();
 	 @*/
-	public Set<Property<E>> inverseSiblings();
+	public Set<F> inverseSiblings();
 
 	/**
 	 * Add an implication from this property to the given property
@@ -160,7 +160,7 @@ public interface Property<E> {
 	  @ post directlyImpliedProperties().contains(p);
 	  @ post p.directlyImpliedByProperties().contains(this);
 	  @*/
-	public void addImplication(Property<E> p);
+	public void addImplication(F p);
 
 	/**
 	 * Check whether this property is implied by the given property.
@@ -177,7 +177,7 @@ public interface Property<E> {
 	  @
 	  @ post \result == impliedProperties().contains(other); 
 	  @*/
-	public boolean impliedBy(Property<E> other);
+	public boolean impliedBy(Property<E,?> other);
 
 	/**
 	 * Return the set of all properties that imply this property both directly and indirectly.
@@ -190,7 +190,7 @@ public interface Property<E> {
 	  @ post (\forall Property p; result.contains(p); 
 	  @               \result.containsAll(p.directlyImpliedProperties()));
 	  @*/
-	public Set<Property<E>> impliedByProperties();
+	public Set<F> impliedByProperties();
 
 	/**
 	 * Return the set of properties that directly imply this property.
@@ -202,7 +202,7 @@ public interface Property<E> {
 	  @ post \result != null;
 	  @ post \result.containsAll(implicitlyImpliedByProperties());
 	  @*/
-	public Set<Property<E>> directlyImpliedByProperties();
+	public Set<F> directlyImpliedByProperties();
 
 	/*@
 	 @ public behavior
@@ -210,7 +210,7 @@ public interface Property<E> {
 	 @ post \result != null;
 	 @ post \result.contains(this);
 	 @*/
-	public Set<Property<E>> implicitlyImpliedByProperties();
+	public Set<F> implicitlyImpliedByProperties();
 
 	/**
 	 * Check whether this property contradicts the given property.
@@ -227,7 +227,7 @@ public interface Property<E> {
 	  @
 	  @ post \result == contradictedProperties().contains(other); 
 	  @*/
-	public boolean contradicts(Property<E> other);
+	public boolean contradicts(Property<E,?> other);
 
 	/**
 	 * Return the properties contradicting this property.
@@ -238,7 +238,7 @@ public interface Property<E> {
 	 * this ----(implied)---> X ---(contradicts)---> Y ---(impliedBy)---> Z
 	 * @return
 	 */
-	public Set<Property<E>> contradictedProperties();
+	public Set<F> contradictedProperties();
 
 	/**
 	 * Return the set of properties directly contradicted by this property. This 
@@ -251,7 +251,7 @@ public interface Property<E> {
 	  @ post \result != null;
 	  @ post \result.containsAll(implicitlyContradictedProperties());
 	  @*/
-	public Set<Property<E>> directlyContradictedProperties();
+	public Set<F> directlyContradictedProperties();
 
 	/**
 	 * Return the properties implicitly contradicted by this property. This
@@ -264,14 +264,14 @@ public interface Property<E> {
 	  @ post \result != null;
 	  @ post \result.contains(inverse());
 	  @*/
-	public Set<Property<E>> implicitlyContradictedProperties();
+	public Set<F> implicitlyContradictedProperties();
 
 	/*@
 	 @ public behavior
 	 @
 	 @ post \result == family().membersWithout(this);
 	 @*/
-	public Set<Property<E>> siblings();
+	public Set<F> siblings();
 
 	/**
 	 * Add an contradiction from this property to the given property
@@ -285,14 +285,14 @@ public interface Property<E> {
 	  @ post contradictedProperties().contains(p);
 	  @ post p.contradictedProperties().contains(this);
 	  @*/
-	public void addContradiction(Property<E> p);
+	public void addContradiction(F p);
 
-	public MultiAssociation<Property<E>,Property<E>> contradictedLink(); 
+	public MultiAssociation<F,F> contradictedLink(); 
 	
-	public MultiAssociation<Property<E>,Property<E>> impliedLink(); 
+	public MultiAssociation<F,F> impliedLink(); 
 	
-	public MultiAssociation<Property<E>,Property<E>> impliedByLink();
+	public MultiAssociation<F,F> impliedByLink();
 
-  public SingleAssociation<Property<E>, Property<E>> inverseLink();
+  public SingleAssociation<F,F> inverseLink();
 
 }

@@ -13,40 +13,46 @@ import org.rejuse.logic.ternary.Ternary;
  *
  * @author Marko van Dooren
  */
-public abstract class DynamicProperty<E> extends PropertyImpl<E> {
+public abstract class DynamicProperty<E,F extends Property<E,F>> extends PropertyImpl<E,F> {
 
-  public DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex) {
+  protected abstract class InverseProperty extends DynamicProperty<E, F> {
+		private InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
+			super(name, universe, mutex, inverse);
+		}
+
+		@Override
+		public Ternary appliesTo(E element) {
+		  return inverse().appliesTo(element).not();
+		}
+
+		public Set<F> implicitlyContradictedProperties() {
+			Set<F> result = new HashSet<F>();
+			result.add(inverse());
+			return result;
+		}
+
+		public Set<F> implicitlyImpliedByProperties() {
+			Set<F> result = inverse().siblings();
+			result.add((F) this);
+			return result;
+		}
+
+		public Set<F> implicitlyImpliedProperties() {
+			Set<F> result = new HashSet<F>();
+			result.add((F) this);
+			return result;
+		}
+	}
+
+	public DynamicProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex) {
     super(name, universe, mutex);
   }
   
-  protected DynamicProperty(String name, PropertyUniverse<E> universe, PropertyMutex<E> mutex, Property<E> inverse) {
+  protected DynamicProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
     super(name, universe, mutex, inverse);
   }
   
-  protected void createInverse(String name, PropertyUniverse<E> universe) {
-    new DynamicProperty<E>("not "+name, universe, mutex(), this) {
-      @Override
-      public Ternary appliesTo(E element) {
-        return inverse().appliesTo(element).not();
-      }
-    	public Set<Property<E>> implicitlyContradictedProperties() {
-    		Set<Property<E>> result = new HashSet<Property<E>>();
-    		result.add(inverse());
-    		return result;
-    	}
-    	
-    	public Set<Property<E>> implicitlyImpliedByProperties() {
-    		Set<Property<E>> result = inverse().siblings();
-    		result.add(this);
-    		return result;
-    	}
-    	
-    	public Set<Property<E>> implicitlyImpliedProperties() {
-    		Set<Property<E>> result = new HashSet<Property<E>>();
-    		result.add(this);
-    		return result;
-    	}
-
-    };
-  }
+//  protected void createInverse(String name, PropertyUniverse<F> universe) {
+//    new InverseProperty("not "+name, universe, mutex(), (F)this);
+//  }
 }
