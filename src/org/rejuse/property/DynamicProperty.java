@@ -15,8 +15,8 @@ import org.rejuse.logic.ternary.Ternary;
  */
 public abstract class DynamicProperty<E,F extends Property<E,F>> extends PropertyImpl<E,F> {
 
-  protected abstract class InverseProperty extends DynamicProperty<E, F> {
-		private InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
+  protected static abstract class InverseProperty<E,F extends Property<E,F>> extends DynamicProperty<E, F> {
+		public InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
 			super(name, universe, mutex, inverse);
 		}
 
