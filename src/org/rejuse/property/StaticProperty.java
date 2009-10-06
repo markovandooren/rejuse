@@ -7,9 +7,9 @@ import org.rejuse.logic.ternary.Ternary;
 
 public abstract class StaticProperty<E, F extends Property<E,F>> extends PropertyImpl<E,F> {
   
-  protected abstract class InverseProperty extends StaticProperty<E,F> {
+  protected static abstract class InverseProperty<E, F extends Property<E,F>> extends StaticProperty<E,F> {
   	
-  	private InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
+  	public InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
 			super(name, universe, family, inverse);
 		}
 
