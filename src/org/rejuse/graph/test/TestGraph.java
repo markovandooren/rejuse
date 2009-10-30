@@ -17,10 +17,6 @@ public class TestGraph extends TestCase {
     super(string);
   }
   
-  public static void main(String[] args) {
-    junit.swingui.TestRunner.run(TestGraph.class);
-  }
-
   /*
    * @see TestCase#setUp()
    */
