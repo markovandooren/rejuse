@@ -306,4 +306,12 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 			connectTo(newElement);
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void clear() {
+		connectTo(null);
+	}
 }

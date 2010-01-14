@@ -74,7 +74,7 @@ import org.rejuse.predicate.SafePredicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
+public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO> {
   
     /* The revision of this class */
     public final static String CVS_REVISION ="$Revision$";
@@ -107,19 +107,8 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
   }
   
   /**
-   * Remove the given Relation from this ReferenceSet.
-   *
-   * @param element
-   *        The Relation to be removed.
+   * {@inheritDoc}
    */
- /*@
-   @ public behavior
-   @
-   @ pre other != null;
-   @
-   @ post unregistered(\old(getOtherRelations()), other);
-   @ post other.unregistered(\old(other.getOtherRelations()), this);
-   @*/  
   public void remove(Association<? extends TO,? super FROM> other) {
   	checkLock();
   	checkLock(other);
@@ -130,6 +119,9 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
     }
   }
   
+  /**
+   * {@inheritDoc} 
+   */
   public void clear() {
   	checkLock();
   	Collection<Association<? extends TO,? super FROM>> rels = new ArrayList<Association<? extends TO,? super FROM>>(_elements);
@@ -142,19 +134,8 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
   }
 
   /**
-   * Add the given Relation to this ReferenceSet.
-   *
-   * @param element
-   *        The Relation to be added.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre element != null;
-   @
-   @ post registered(\old(getOtherRelations()), element);
-   @ post element.registered(\old(element.getOtherRelations()),this);
-   @*/  
+   * {@inheritDoc}
+   */  
   public void add(Association<? extends TO,? super FROM> element) {
     if(! contains(element)) {
 	  	checkLock();
@@ -195,18 +176,8 @@ public class OrderedMultiAssociation<FROM,TO> extends Association<FROM,TO> {
   
     
   /**
-   * Return a set containing the objects at the
-   * n side of the 1-n binding.
+   * {@inheritDoc} 
    */
- /*@
-   @ also public behavior
-   @
-   @ post (\forall Object o;;
-   @        \result.contains(o) <==> 
-   @        (\exists Relation r; contains(r);
-   @          r.getObject().equals(o)));
-   @ post \result != null;
-   @*/
   public /*@ pure @*/ List<TO> getOtherEnds() {
     final List<TO> result = new ArrayList<TO>();
     new Visitor<Association<? extends TO,? super FROM>>() {

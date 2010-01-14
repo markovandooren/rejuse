@@ -204,6 +204,16 @@ public abstract class Association<FROM,TO> {
   /**
    * Replace the connection with the first association by a connection with the second association.
    */
+ /*@
+   @ public behavior
+   @
+   @ pre element != null;
+   @ pre newElement != null;
+   @
+   @ post replaced(\old(getOtherRelations()), oldAssociation, newAssociation);
+   @ post oldAssociation.unregistered(\old(other.getOtherAssociations()), this);
+   @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
+   @*/
 	public abstract void replace(Association<? extends TO,? super FROM> element, Association<? extends TO,? super FROM> newElement);
 	
   /*
@@ -352,5 +362,13 @@ public abstract class Association<FROM,TO> {
   protected boolean eventsBlocked() {
   	return _eventsBlocked;
   }
+
+  /**
+   * Remove all connections. An exception is thrown if either this association, or an association to which it is connected, is locked.
+   */
+ /*@
+   @ post size() == 0; 
+   @*/
+  public abstract void clear();
 
 }

@@ -1,5 +1,6 @@
 package org.rejuse.association;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -69,7 +70,7 @@ import org.rejuse.predicate.SafePredicate;
  *
  * @author  Marko van Dooren
  */
-public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
+public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO> {
   
  //@ public invariant contains(null) == false;
  //@ public invariant getObject() != null;
@@ -99,19 +100,8 @@ public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
   }
   
   /**
-   * Remove the given Relation from this ReferenceSet.
-   *
-   * @param element
-   *        The Relation to be removed.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre other != null;
-   @
-   @ post unregistered(\old(getOtherRelations()), other);
-   @ post other.unregistered(\old(other.getOtherRelations()), this);
-   @*/  
+   * {@inheritDoc}
+   */  
   public void remove(Association<? extends TO,? super FROM> other) {
   	checkLock();
   	checkLock(other);
@@ -122,19 +112,8 @@ public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
   }
 
   /**
-   * Add the given Relation to this ReferenceSet.
-   *
-   * @param element
-   *        The Relation to be added.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre element != null;
-   @
-   @ post registered(\old(getOtherRelations()), element);
-   @ post element.registered(\old(element.getOtherRelations()),this);
-   @*/  
+   * {@inheritDoc}
+   */  
   public void add(Association<? extends TO,? super FROM> element) {
   	checkLock();
   	checkLock(element);
@@ -146,18 +125,8 @@ public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
   
     
   /**
-   * Return a set containing the objects at the
-   * n side of the 1-n binding.
+   * {@inheritDoc} 
    */
- /*@
-   @ also public behavior
-   @
-   @ post (\forall Object o;;
-   @        \result.contains(o) <==> 
-   @        (\exists Relation r; contains(r);
-   @          r.getObject().equals(o)));
-   @ post \result != null;
-   @*/
   public /*@ pure @*/ List<TO> getOtherEnds() {
     final List<TO> result = new ArrayList<TO>();
     new Visitor<Association<? extends TO,? super FROM>>() {
@@ -321,4 +290,18 @@ public class MultiAssociation<FROM,TO> extends Association<FROM,TO> {
 		  fireElementReplaced(element.getObject(), newElement.getObject());
 		}
 	}
+
+  /**
+   * {@inheritDoc} 
+   */
+  public void clear() {
+  	checkLock();
+  	Collection<Association<? extends TO,? super FROM>> rels = new ArrayList<Association<? extends TO,? super FROM>>(_elements);
+  	for(Association<? extends TO,? super FROM> rel : rels) {
+  		checkLock(rel);
+  	}
+  	for(Association<? extends TO,? super FROM> rel : rels) {
+  		remove(rel);
+  	}
+  }
 }
