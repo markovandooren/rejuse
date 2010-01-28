@@ -149,6 +149,21 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   /**
+   * {@inheritDoc}
+   */  
+  public void addInFront(Association<? extends TO,? super FROM> element) {
+    if(! contains(element)) {
+	  	checkLock();
+	  	checkLock(element);
+	  	if(element != null) {
+        element.register(this);
+        // Skip a redundant contains check.
+        registerInFrontPrivate(element);
+	  	}
+    }
+  }
+  
+  /**
    * Replace the given element with a new element
    */
  /*@
@@ -231,6 +246,10 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
 		fireElementAdded(association.getObject());
 	}
   
+	private void registerInFrontPrivate(Association<? extends TO, ? super FROM> association) {
+		_elements.add(0,association);
+		fireElementAdded(association.getObject());
+	}
 
  /*@
    @ also public behavior
