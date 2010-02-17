@@ -203,6 +203,14 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
     return result;
   }
   
+  public TO lastElement() {
+  	int size = _elements.size();
+  	if(size > 0) {
+		  return _elements.get(size-1).getObject();
+  	} else {
+  		return null;
+  	}
+  }
   
   /**
    * Return a set containing the Relations at the
