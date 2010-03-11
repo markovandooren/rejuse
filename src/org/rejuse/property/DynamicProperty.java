@@ -52,6 +52,14 @@ public abstract class DynamicProperty<E,F extends Property<E,F>> extends Propert
     super(name, universe, mutex, inverse);
   }
   
+	public DynamicProperty(String name, PropertyUniverse<F> universe) {
+    super(name, universe, new PropertyMutex<F>());
+  }
+  
+  protected DynamicProperty(String name, PropertyUniverse<F> universe, F inverse) {
+    super(name, universe, new PropertyMutex<F>(), inverse);
+  }
+  
 //  protected void createInverse(String name, PropertyUniverse<F> universe) {
 //    new InverseProperty("not "+name, universe, mutex(), (F)this);
 //  }
