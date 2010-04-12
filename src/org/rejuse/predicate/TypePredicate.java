@@ -22,11 +22,6 @@ import java.util.Collection;
  *
  * @author Marko van Dooren
  * @author Jan Dockx
- * @version $Revision$
- * @path $Source$
- * @date $Date$
- * @state $State$
- * @release $Name$
  */
 public class TypePredicate<T,C extends T> extends SafePredicate<T> {
 

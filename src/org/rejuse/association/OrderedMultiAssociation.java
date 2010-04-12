@@ -213,6 +213,16 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   /**
+   * Return the index-th element of this association. The indices start at 1.
+   */
+  public TO elementAt(int index) {
+  	if(index < 1 || index > size()) {
+  		throw new IllegalArgumentException();
+  	}
+  	return _elements.get(index-1).getObject();
+  }
+  
+  /**
    * Return a set containing the Relations at the
    * other side of this binding.
    */
