@@ -223,6 +223,22 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   /**
+   * Return the index of the given element. Indices start at 1. Return -1 if the element is not present in this association.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post elementAt(\result).equals(element);
+   @*/
+  public int indexOf(TO element) {
+  	int result = _elements.indexOf(element);
+  	if(result >= 0) {
+  		result++;
+  	}
+  	return result;
+  }
+  
+  /**
    * Return a set containing the Relations at the
    * other side of this binding.
    */
