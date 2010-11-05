@@ -239,7 +239,7 @@ public class Node {
     
     while((! done.containsKey(node)) && (! adjacent.isEmpty())) {
       // search the node closest to the 'done' nodes
-      final Path closest = (Path)adjacent.getFirst();
+      final Path closest = (Path)adjacent.first();
       final Node latest = closest.getEnd();
       // Move its shortest path from 'adjacent' to 'done'      
       adjacent.remove(closest);

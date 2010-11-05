@@ -52,7 +52,7 @@ public class SkipListPQ extends AbstractPriorityQueue {
 	 * <p><b>O(1)</b></p>
 	 */
 	public /*@ pure @*/ Object min() {
-		return _list.getFirst();
+		return _list.first();
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class SkipListPQ extends AbstractPriorityQueue {
 	 * <p><b>O(1)</b></p>
 	 */
 	public Object pop() {
-		Object result = _list.getFirst();
+		Object result = _list.first();
 		_list.removeFirst();
 		return result;
 	}

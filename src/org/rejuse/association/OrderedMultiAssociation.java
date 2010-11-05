@@ -231,11 +231,14 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @ post elementAt(\result).equals(element);
    @*/
   public int indexOf(TO element) {
-  	int result = _elements.indexOf(element);
-  	if(result >= 0) {
-  		result++;
+  	int index = -1;
+  	for(int i = 0; i < _elements.size(); i++) {
+  		if(_elements.get(i).getObject().equals(element)) {
+  			index = i+1;
+  			break;
+  		}
   	}
-  	return result;
+  	return index;
   }
   
   /**

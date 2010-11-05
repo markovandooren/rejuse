@@ -234,6 +234,10 @@ public abstract class Association<FROM,TO> {
   	_locked=true;
   }
 
+  public void unlock() {
+  	_locked=false;
+  }
+
   /**
    * Check if this association end is locked.
    */

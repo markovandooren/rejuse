@@ -265,19 +265,19 @@ public class TestSkipList extends JutilTest {
 		list.add(e);
 		list.add(f);
 		list.add(min);
-		assertTrue(list.getFirst() == min);
+		assertTrue(list.first() == min);
 		list.removeFirst();
-		assertTrue(list.getFirst() == a);
+		assertTrue(list.first() == a);
 		list.removeFirst();
-		assertTrue(list.getFirst() == b);
+		assertTrue(list.first() == b);
 		list.removeFirst();
-		assertTrue(list.getFirst() == c);
+		assertTrue(list.first() == c);
 		list.removeFirst();
-		assertTrue(list.getFirst() == d);
+		assertTrue(list.first() == d);
 		list.removeFirst();
-		assertTrue(list.getFirst() == e);
+		assertTrue(list.first() == e);
 		list.removeFirst();
-		assertTrue(list.getFirst() == f);
+		assertTrue(list.first() == f);
 	}
 	public void testGetFirst() {
 		SkipList list = new SkipList(getComparator());
@@ -289,7 +289,7 @@ public class TestSkipList extends JutilTest {
 		list.add(new Integer(-93431));
 		list.add(new Integer(8457));
 		list.add(min);
-		assertTrue(list.getFirst() == min);
+		assertTrue(list.first() == min);
 	}
 }
 /*

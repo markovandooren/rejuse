@@ -2,12 +2,12 @@ package org.rejuse.java.collections;
 
 
 import java.util.AbstractCollection;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-import java.util.Iterator;
-import java.util.ConcurrentModificationException;
-import java.util.Random;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Random;
 
 
 /**
@@ -29,7 +29,7 @@ import java.util.Arrays;
  * &gt;= i, thus <em>skipping</em> a number of elements with level &lt;i. 
  * An example a skiplist is shown in the figure below.
  * The left cell is the header of the skiplist which contains 
- * <a href="SkipList.html#getMaxLeve()"><code>getMaxLevel()</code></a> forward
+ * <a href="SkipList.html#getMaxLevel()"><code>getMaxLevel()</code></a> forward
  * pointers (but is not included in the level count for the list). 
  * The crossed arrows point to the end of the list, indicating there is no 
  * next cell of level i. The light grey field at the bottom of each cell is a 
@@ -75,7 +75,7 @@ import java.util.Arrays;
  * @author  Tom Schrijvers
  * @release $Name$
  */
-public class SkipList extends AbstractCollection {
+public class SkipList<E> extends AbstractCollection<E> {
 
 	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";
@@ -103,7 +103,7 @@ public class SkipList extends AbstractCollection {
 	 @ post getProbability() == 0.25;
 	 @
 	 @*/
-	public /*@ pure @*/ SkipList(Comparator comparator) {
+	public /*@ pure @*/ SkipList(Comparator<E> comparator) {
 		this(8,comparator, 0.25f);
   }
 
@@ -137,7 +137,7 @@ public class SkipList extends AbstractCollection {
 	 @ post size() == 0;
 	 @ post getProbability() == probability;
 	 @*/
-	public /*@ pure @*/ SkipList(int maxLevel, Comparator comparator, float probability) {
+	public /*@ pure @*/ SkipList(int maxLevel, Comparator<E> comparator, float probability) {
 		_maxLevel = maxLevel;
 		_head = new Object[maxLevel+1];
 		_comparator = comparator;
@@ -202,8 +202,8 @@ public class SkipList extends AbstractCollection {
 	 @ post (\forall Object o; contains(o); 
 	 @       getComparator().compare(\result,o)<=0);
 	 @*/
-	public /*@ pure @*/ Object getFirst() {
-		return ((Object[]) _head[1])[0];
+	public /*@ pure @*/ E first() {
+		return (E) ((Object[]) _head[1])[0];
 	}
 	
 	/**
@@ -240,7 +240,7 @@ public class SkipList extends AbstractCollection {
 	 @
 	 @ post \result != null;
 	 @*/
-	public /*@ pure @*/ Comparator getComparator() {
+	public /*@ pure @*/ Comparator<E> getComparator() {
 		return _comparator;
   }
 	
@@ -307,6 +307,16 @@ public class SkipList extends AbstractCollection {
 			return x;
     }
   }
+	
+  public E higher(E element){
+    Object[] next = (Object[])search(element)[1];
+    if(next != null) {
+      return (E)next[0];
+    } else {
+  	  return null;
+    }
+  }
+
 	
 	/**
 	 * See superclass
@@ -459,7 +469,7 @@ public class SkipList extends AbstractCollection {
 	/**
 	 * See superclass
 	 */
-	public boolean remove(final Object object) {
+	public boolean remove(Object object) {
 		return remove(object, false);
   }
 	
@@ -529,7 +539,7 @@ public class SkipList extends AbstractCollection {
  /*@
 	 @ private invariant _comparator != null;
 	 @*/
-	private Comparator _comparator;
+	private Comparator<E> _comparator;
 	
 	/**
 	 * <p>The fraction of node of level i that have a level >= i.</p>
@@ -592,7 +602,7 @@ public class SkipList extends AbstractCollection {
 	/**
 	 * An iterator class for SkipLists
 	 */
-	private class SkipListIterator implements Iterator {
+	private class SkipListIterator implements Iterator<E> {
 		
 		/**
 		 * Initialize a new SkipListIterator which is set to the start of the SkipList.
@@ -631,10 +641,10 @@ public class SkipList extends AbstractCollection {
 		/**
 		 * See superclass
 		 */
-		public Object next() {
+		public E next() {
 			checkForModification();
 			try {
-				Object result = _node[0];
+				E result = (E) _node[0];
 				// advance
 				_lastRet=_node;
 				_node = (Object[]) _node[1];
@@ -677,16 +687,5 @@ public class SkipList extends AbstractCollection {
 		 */
 		private int _expectedModCount = SkipList.this._modCount;
   }
+
 }
-/*<copyright>Copyright (C) 1997-2001. This software is copyrighted by
-the people and entities mentioned after the "@author" tags above, on
-behalf of the JUTIL.ORG Project. The copyright is dated by the dates
-after the "@date" tags above. All rights reserved.
-This software is published under the terms of the JUTIL.ORG Software
-License version 1.1 or later, a copy of which has been included with
-this distribution in the LICENSE file, which can also be found at
-http://org-jutil.sourceforge.net/LICENSE. This software is distributed WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-or FITNESS FOR A PARTICULAR PURPOSE. See the JUTIL.ORG Software
-License for more details.
-For more information, please see http://org-jutil.sourceforge.net/</copyright>*/
