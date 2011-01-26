@@ -1,5 +1,6 @@
 package org.rejuse.association;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -125,24 +126,12 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
   }
 
 
- /*@
-   @ also public behavior
-   @
-   @ post \result != null;
-   @ post getOtherEnd() != null ==> (
-   @                                 \result.size() == 1 &&
-   @                                 \result.contains(getOtherEnd())
-   @                                );
-   @ post getOtherEnd() == null ==> \result.isEmpty();
-   @*/
-  public /*@ pure @*/ List<TO> getOtherEnds() {
-    ArrayList<TO> result = new ArrayList<TO>();
-    if (getOtherRelation() == null) {
-        return result;
-    }
-    result.add(getOtherRelation().getObject());
-    return result;
+  public void addOtherEndsTo(Collection<? super TO> collection) {
+	  if (getOtherRelation() == null) {
+		  collection.add(getOtherRelation().getObject());
+	  }
   }
+
 
   /**
    * Set the other side of this binding.
