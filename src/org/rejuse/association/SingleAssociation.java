@@ -127,7 +127,7 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 
 
   public void addOtherEndsTo(Collection<? super TO> collection) {
-	  if (getOtherRelation() == null) {
+	  if (getOtherRelation() != null) {
 		  collection.add(getOtherRelation().getObject());
 	  }
   }
