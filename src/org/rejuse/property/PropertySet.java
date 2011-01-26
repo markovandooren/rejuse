@@ -331,7 +331,7 @@ public class PropertySet<E,P extends Property<E,P>> {
    @
    @ post \result == implies(property).not();
    @*/
-  public Ternary contradicts(P property) {
+  public Ternary contradicts(Property<E,?> property) {
   	return implies(property).not();
   }
   
