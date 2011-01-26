@@ -1,5 +1,7 @@
 package org.rejuse.association;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -171,7 +173,14 @@ public abstract class Association<FROM,TO> {
    @        (\exists Association r; getOtherAssociations().contains(r);
    @           r.getObject() == o));
    @*/
-  public /*@ pure @*/ abstract List<TO> getOtherEnds();
+  //public /*@ pure @*/ abstract List<TO> getOtherEnds();
+  public /*@ pure @*/ List<TO> getOtherEnds() {
+	  List<TO> result = new ArrayList<TO>();
+	  addOtherEndsTo(result);
+	  return result;
+  }
+
+  public abstract void addOtherEndsTo(Collection<? super TO> collection);
 
   /**
    * Return the association on the other side of the binding.

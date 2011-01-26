@@ -123,20 +123,11 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
   	}
   }
   
-    
-  /**
-   * {@inheritDoc} 
-   */
-  public /*@ pure @*/ List<TO> getOtherEnds() {
-    final List<TO> result = new ArrayList<TO>();
-    new Visitor<Association<? extends TO,? super FROM>>() {
-      public void visit(Association<? extends TO,? super FROM> element) {
-        result.add(element.getObject());
-      }
-    }.applyTo(_elements);
-    return result;
+  public void addOtherEndsTo(Collection<? super TO> collection) {
+	  for(Association<? extends TO,? super FROM> element: _elements) {
+          collection.add(element.getObject());
+	  }
   }
-  
   
   /**
    * Return a set containing the Relations at the

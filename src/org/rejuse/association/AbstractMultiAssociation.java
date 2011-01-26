@@ -1,5 +1,8 @@
 package org.rejuse.association;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class AbstractMultiAssociation<FROM,TO> extends Association<FROM,TO> {
 
 	public AbstractMultiAssociation(FROM object) {
