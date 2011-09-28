@@ -17,12 +17,7 @@ import java.util.ArrayList;
  * and the NegationAsFailure. E.g. <code>new Not(new NegationAsFailure(predicate))</code>
  * will not always return the same value as <code>new NegationAsFailure(new Not(predicate))</code>.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
- * @release $Name$
  */
 public class NegationAsFailure<T> extends SafePredicate<T> {
 	

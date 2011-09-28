@@ -203,6 +203,16 @@ public class PropertySet<E,P extends Property<E,P>> {
     return new HashSet<P>(_properties);
   }
   
+  public boolean hasPropertyFor(PropertyMutex mutex) {
+  	boolean result = false;
+  	for(Property property: _properties) {
+  		if(property.mutex() == mutex) {
+  			result = true;
+  		}
+  	}
+  	return result;
+  }
+  
   /**
    * Check if the properties in this property set are consistent.
    * @return
