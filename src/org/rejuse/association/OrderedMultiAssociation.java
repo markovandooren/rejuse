@@ -164,6 +164,30 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   /**
+   * @element the element to be added
+   * @index the base-1 index
+   */  
+  public void addAtIndex(Association<? extends TO,? super FROM> element, int baseOneIndex) {
+    if(! contains(element)) {
+	  	checkLock();
+	  	checkLock(element);
+	  	if(element != null) {
+        element.register(this);
+        // Skip a redundant contains check.
+        registerAtIndexPrivate(element, baseOneIndex);
+	  	}
+    }
+  }
+  
+  public void addBefore(TO existing, Association<? extends TO,? super FROM> toBeAdded) {
+  	addAtIndex(toBeAdded, indexOf(existing));
+  }
+  
+  public void addAfter(TO existing, Association<? extends TO,? super FROM> toBeAdded) {
+  	addAtIndex(toBeAdded, indexOf(existing)+1);
+  }
+  
+  /**
    * Replace the given element with a new element
    */
  /*@
@@ -277,6 +301,11 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   
 	private void registerInFrontPrivate(Association<? extends TO, ? super FROM> association) {
 		_elements.add(0,association);
+		fireElementAdded(association.getObject());
+	}
+	
+	private void registerAtIndexPrivate(Association<? extends TO, ? super FROM> association,int index) {
+		_elements.add(index-1,association);
 		fireElementAdded(association.getObject());
 	}
 
