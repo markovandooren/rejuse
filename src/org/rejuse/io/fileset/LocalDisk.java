@@ -57,7 +57,7 @@ public class LocalDisk extends FilePredicate implements FileSetPredicate {
    @ // All files are on a local disk
    @ post \result == (file != null);
    @*/
-  public /*@ pure @*/ boolean evalFile(File file) {
+  public /*@ pure @*/ boolean eval(File file) {
     return (file != null);
   }
 

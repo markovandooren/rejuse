@@ -26,7 +26,7 @@ import org.rejuse.predicate.Predicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public interface FileSetPredicate extends Predicate {
+public interface FileSetPredicate extends Predicate<File> {
 
   /**  
    * <p>Suggest a list of directories which can contain files that

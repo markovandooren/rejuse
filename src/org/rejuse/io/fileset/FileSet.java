@@ -2,9 +2,9 @@ package org.rejuse.io.fileset;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.rejuse.java.collections.RobustVisitor;
 import org.rejuse.java.collections.Visitor;
@@ -32,12 +32,7 @@ import org.rejuse.predicate.SafePredicate;
  *
  * <p>This class was inspired by the fileset from <a href="http://jakarta.apache.org/ant/index.html">Ant</a>.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
- * @release $Name$
  */
 public class FileSet {
 
@@ -71,40 +66,19 @@ public class FileSet {
 	 @        (o instanceof File) && contains((File)o));
    @ post (\forall File f; contains(f); Collections.containsExplicitly(\result,f));
 	 @*/
-	public /*@ pure @*/ Set getFiles() throws Exception {
-    final List roots = new ArrayList();
+	public /*@ pure @*/ Set<File> getFiles() throws Exception {
+    List<File> roots = new ArrayList();
 
     // Ask all file predicate to suggest directories
     // in which matching files might be found
-    new Visitor() {
-      public void visit(Object o) {
-        roots.addAll(((FileSetPredicate)o).suggestDirectories());
-      }
-    }.applyTo(_includePredicates.getSubPredicates());
+    for(Predicate<File> predicate: _includePredicates.getSubPredicates()) {
+      roots.addAll(((FileSetPredicate)predicate).suggestDirectories());
+    }
 
-    List directories = roots;
-
-    // DEBUG
-//    System.out.println("##### SUGGESTED DIRECTORIES #####");
-//    new Visitor() {
-//      public void visit(Object o) {
-//        System.out.println(((File)o).getAbsolutePath());
-//      }
-//    }.applyTo(directories);
-//    System.out.println("#################################");
-
-		final Set files = new TreeSet();
-		new RobustVisitor() {
-			public Object visit(Object o) throws Exception {
-				files.addAll(getFiles((File)o));
-        // No undo data required
-        return null;
-			}
-      public void unvisit(Object element, Object undo) {
-        // Do nothing here
-      }
-		}.applyTo(directories);
-
+		final Set<File> files = new HashSet<File>();
+		for(File dir: roots) {
+			files.addAll(getFiles(dir));
+		}
 		return files;
 	}
 
@@ -390,7 +364,7 @@ public class FileSet {
 	 @ private invariant _includePredicates != null;
 	 @ private invariant new TypePredicate(FileSetPredicate.class).forall(_includePredicates.getSubPredicates());
 	 @*/
-	private Or _includePredicates;
+	private Or<File> _includePredicates;
 
 	/**
 	 * An Or predicate containing all the criteria used
@@ -401,38 +375,24 @@ public class FileSet {
 	 @ private invariant _excludePredicates != null;
 	 @ private invariant new TypePredicate(FileSetPredicate.class).forall(_excludePredicates.getSubPredicates());
 	 @*/
-	private Or _excludePredicates;
+	private Or<File> _excludePredicates;
   
-  public static void main(String[] args) throws Exception {
-    FileSet fileSet = new FileSet();
-    File parent = new File(args[0]);
-    File parentExclude = new File(args[2]);
-    PatternPredicate predicate = new PatternPredicate(parent, new FileNamePattern(args[1]));
-    PatternPredicate excludePredicate = new PatternPredicate(parent, new FileNamePattern(args[3]));
-    //System.out.println("pattern : "+predicate.getPattern().getPattern());
-    //System.out.println("regex pattern : "+predicate.getPattern().getRegexPattern());
-    //System.out.println("full regex pattern : "+predicate.getFullRegexPattern());
-    fileSet.include(predicate);
-    fileSet.exclude(excludePredicate);
-    Set files = fileSet.getFiles();
-    new Visitor() {
-      public void visit(Object o) {
-        System.out.println(o);
-      }
-    }.applyTo(files);
-  }
+//  public static void main(String[] args) throws Exception {
+//    FileSet fileSet = new FileSet();
+//    File parent = new File(args[0]);
+//    File parentExclude = new File(args[2]);
+//    PatternPredicate predicate = new PatternPredicate(parent, new FileNamePattern(args[1]));
+//    PatternPredicate excludePredicate = new PatternPredicate(parent, new FileNamePattern(args[3]));
+//    //System.out.println("pattern : "+predicate.getPattern().getPattern());
+//    //System.out.println("regex pattern : "+predicate.getPattern().getRegexPattern());
+//    //System.out.println("full regex pattern : "+predicate.getFullRegexPattern());
+//    fileSet.include(predicate);
+//    fileSet.exclude(excludePredicate);
+//    Set files = fileSet.getFiles();
+//    new Visitor() {
+//      public void visit(Object o) {
+//        System.out.println(o);
+//      }
+//    }.applyTo(files);
+//  }
 }
-/*
- * <copyright>Copyright (C) 1997-2001. This software is copyrighted by 
- * the people and entities mentioned after the "@author" tags above, on 
- * behalf of the JUTIL.ORG Project. The copyright is dated by the dates 
- * after the "@date" tags above. All rights reserved.
- * This software is published under the terms of the JUTIL.ORG Software
- * License version 1.1 or later, a copy of which has been included with
- * this distribution in the LICENSE file, which can also be found at
- * http://org-jutil.sourceforge.net/LICENSE. This software is distributed 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
- * See the JUTIL.ORG Software License for more details. For more information,
- * please see http://org-jutil.sourceforge.net/</copyright>
- */
