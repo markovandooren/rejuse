@@ -1,0 +1,9 @@
+<ivy-module version="1.0">
+  <info organisation="distrinet" module="rejuse"/>
+  <publications>
+    <artifact name="org.rejuse"/>
+  </publications>
+  <dependencies>
+    <dependency org="junit" name="junit" rev="4.10"/>
+  </dependencies>
+</ivy-module>
