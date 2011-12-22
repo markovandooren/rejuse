@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build" name="rejuse" xmlns:ivy="antlib:org.apache.ivy.ant">
-    <property file="rejuse.properties"/>
-    <property file="rejuse.default.properties"/>
+    <property file="properties"/>
+    <property file="default.properties"/>
     <path id="ivy.lib.path">
       <fileset file="${ivy.jar}"/>
       <fileset file="lib/jsch-0.1.45.jar"/>
