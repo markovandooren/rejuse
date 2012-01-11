@@ -15,15 +15,22 @@
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <property name="dist" value="dist"/>
+    <property name="dist.local" value="dist/local"/>
+    <property name="lib" value="lib"/>
     <property name="bin" value="${dist}/bin"/>
     <property name="dist.jar" value="${dist}/jar"/>
+    <property name="dist.local.jar" value="${dist.local}/jar"/>
     <property name="src" value="src"/>
+
     <path id="rejuse.classpath">
-        <pathelement location="lib/junit-4.10.jar"/>
+      <!-- <fileset dir="${lib.dir}">
+        <include name="**/*.jar"/>
+      </fileset> -->
+      <pathelement location="lib/junit-4.10.jar"/>
     </path>
 
     <target name="bootstrap">
-      <ivy:settings file="ivy/bootstrapsettings.xml"/>
+      <ivy:settings file="ivy/generic_ivy_settings.xml"/>
       <ivy:resolve file="ivy/bootstrap.xml"/>
       <ivy:retrieve/>
     </target>
@@ -32,11 +39,22 @@
       <ivy:settings file="ivy/ivysettings.xml"/>
       <ivy:resolve file="ivy/ivy.xml"/>
       <ivy:retrieve/>
+      <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse"/>
     </target>
 
-    <target name="init">
+    <target name="init-local">
+      <ivy:settings file="ivy/ivysettings.xml"/>
+      <ivy:resolve file="ivy/ivy-local.xml"/>
+      <ivy:retrieve/>
+      <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse-local" revision="0.0.0"/>
+    </target>
+
+    <target name="init" depends="init-ivy">
       <mkdir dir="${bin}"/>
+      <mkdir dir="${dist}"/>
       <mkdir dir="${dist.jar}"/>
+      <mkdir dir="${dist.local}"/>
+      <mkdir dir="${dist.local.jar}"/>
       <copy includeemptydirs="false" todir="${bin}">
         <fileset dir="${src}">
           <exclude name="**/*.launch"/>
@@ -48,7 +66,7 @@
       <delete dir="${dist}"/>
     </target>
 
-    <target name="compile" depends="init,init-ivy">
+    <target name="compile" depends="init">
       <javac debug="true" debuglevel="${debuglevel}" destdir="${bin}" source="${source}" target="${target}">
         <src path="${src}"/>
         <classpath refid="rejuse.classpath"/>
@@ -56,15 +74,21 @@
     </target>
 
     <target name="jar" depends="compile">
-      <jar jarfile="${dist.jar}/org.rejuse-1.0.jar" basedir="${bin}" includes="**"/>
+      <jar jarfile="${dist.local.jar}/rejuse-local.jar" basedir="${bin}" includes="**"/>
     </target>
 
     <target name="build" depends="jar">
       <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="publish" depends="build">
-      <ivy:publish resolver="pubchameleon" pubrevision="1.0" overwrite="true">
+    <target name="build-version" depends="compile">
+      <fail unless="version" message="You must provide a version with the command line argument -Dversion=major.minor.micro"/>
+      <jar jarfile="${dist.jar}/rejuse-${version}.jar" basedir="${bin}" includes="**"/>
+      <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="publish" depends="build-version">
+      <ivy:publish resolver="pubchameleon" pubrevision="${version}" overwrite="true">
         <artifacts pattern="${dist.jar}/[artifact]-[revision].[ext]"/>
        </ivy:publish>
     </target>
