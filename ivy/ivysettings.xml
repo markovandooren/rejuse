@@ -2,7 +2,7 @@
   <include file="generic_ivy_settings.xml"/>
   <properties file="version.properties"/>
 	<resolvers>
-      <sftp keyFile="${ssh.keyfile}" user="${pubchameleon.repository.user}" host="${pubchameleon.repository.host}" name="pubchameleon">
+      <sftp keyFile="${ssh.keyfile}" user="${pubchameleon.repository.user}" host="${pubchameleon.repository.host}" name="pubchameleon" m2compatible="true">
           <ivy pattern="${pubchameleon.repository.dir}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
           <artifact pattern="${pubchameleon.repository.dir}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
         </sftp>
