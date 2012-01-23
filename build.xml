@@ -2,14 +2,6 @@
 <project basedir="." default="build" name="rejuse" xmlns:ivy="antlib:org.apache.ivy.ant">
   <property file="properties"/>
   <property file="default.properties"/>
-  <path id="ivy.lib.path">
-    <fileset file="${ivy.jar}"/>
-    <fileset file="lib/jsch-0.1.45.jar"/>
-  </path>
-
-  <taskdef resource="org/apache/ivy/ant/antlib.xml"
-    uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
-
   <property environment="env"/>
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="target" value="1.6"/>
@@ -22,13 +14,23 @@
   <property name="dist.local.jar" value="${dist.local}/jar"/>
   <property name="src" value="src"/>
 
+  <path id="ivy.lib.path">
+    <fileset file="${ivy.jar}"/>
+    <fileset file="${lib}/jsch-0.1.45.jar"/>
+  </path>
+
+  <taskdef resource="org/apache/ivy/ant/antlib.xml"
+    uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+
   <target name="bootstrap">
+    <mkdir dir="${lib}"/>
     <ivy:settings file="ivy/generic_ivy_settings.xml"/>
     <ivy:resolve file="ivy/bootstrap.xml"/>
     <ivy:retrieve/>
   </target>
 
   <target name="init-ivy">
+    <mkdir dir="${lib}"/>
     <ivy:settings file="ivy/ivysettings.xml"/>
     <ivy:resolve file="ivy/ivy.xml"/>
     <ivy:retrieve/>
