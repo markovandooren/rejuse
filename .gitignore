@@ -1,7 +1,7 @@
 dist
 tmp
-.uml
 build
+lib
 .project
 .classpath
 properties
