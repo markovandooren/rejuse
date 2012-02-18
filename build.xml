@@ -35,6 +35,7 @@
     <ivy:resolve file="ivy/ivy.xml"/>
     <ivy:retrieve/>
     <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse"/>
+    <ivy:cachepath pathid="project.classpath" conf="default" />
   </target>
 
   <target name="init-local">
@@ -42,7 +43,6 @@
     <ivy:resolve file="ivy/ivy-local.xml"/>
     <ivy:retrieve/>
     <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse-local" revision="0.0.0"/>
-    <ivy:cachepath pathid="project.classpath" conf="default" />
   </target>
 
   <target name="init" depends="init-ivy">
