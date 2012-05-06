@@ -254,6 +254,8 @@ public abstract class Association<FROM,TO> {
   	return _locked;
   }
   
+  public abstract int size();
+  
   /**
    * Register the given association listener as an event listener to
    * this association end.

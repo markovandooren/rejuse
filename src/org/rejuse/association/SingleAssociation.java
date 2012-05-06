@@ -303,4 +303,9 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 	public void clear() {
 		connectTo(null);
 	}
+	
+	@Override
+	public int size() {
+		return _other == null ? 0 : 1;
+	}
 }
