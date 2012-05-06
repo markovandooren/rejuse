@@ -19,7 +19,7 @@ import java.util.Set;
  * 
  * @author  Marko van Dooren
  */
-public abstract class Association<FROM,TO> {
+public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   
   /**
    * Initialize a new association for the given object.
@@ -52,7 +52,8 @@ public abstract class Association<FROM,TO> {
    @
    @ post \result == getOtherAssociations().contains(association);
    @*/
-  public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> association) {
+  @Override
+	public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> association) {
     return getOtherAssociations().contains(association);
   }
 
@@ -61,7 +62,8 @@ public abstract class Association<FROM,TO> {
    @
    @ post \result == (other == this);
    @*/
-  public /*@ pure @*/ boolean equals(Object other) {
+  @Override
+	public /*@ pure @*/ boolean equals(Object other) {
     return other == this;
   }
 
@@ -136,7 +138,8 @@ public abstract class Association<FROM,TO> {
    @ post ! (\forall Association r; r != registered;
    @          oldConnections.contains(r) == contains(r)) ==> \result == false;
    @*/
-  public /*@ pure @*/ abstract boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered);
+  @Override
+	public /*@ pure @*/ abstract boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered);
 
   /**
    * Check whether or not the current state corresponds to disconnecting
@@ -159,7 +162,8 @@ public abstract class Association<FROM,TO> {
    @ post ! (\forall Association r; r != unregistered;
    @          oldConnections.contains(r) == contains(r)) ==> \result == false;
    @*/
-  public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
+  @Override
+	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
   /**
    * Return the objects on the other side of the binding.
@@ -174,13 +178,15 @@ public abstract class Association<FROM,TO> {
    @           r.getObject() == o));
    @*/
   //public /*@ pure @*/ abstract List<TO> getOtherEnds();
-  public /*@ pure @*/ List<TO> getOtherEnds() {
+  @Override
+	public /*@ pure @*/ List<TO> getOtherEnds() {
 	  List<TO> result = new ArrayList<TO>();
 	  addOtherEndsTo(result);
 	  return result;
   }
 
-  public abstract void addOtherEndsTo(Collection<? super TO> collection);
+  @Override
+	public abstract void addOtherEndsTo(Collection<? super TO> collection);
 
   /**
    * Return the association on the other side of the binding.
@@ -191,7 +197,8 @@ public abstract class Association<FROM,TO> {
    @ post \result != null;
    @ post ! \result.contains(null);
    @*/
-  public /*@ pure @*/ abstract List<Association<? extends TO,? super FROM>> getOtherAssociations();
+  @Override
+	public /*@ pure @*/ abstract List<Association<? extends TO,? super FROM>> getOtherAssociations();
 
   /**
    * Return the object on represented by this association end.
@@ -201,7 +208,8 @@ public abstract class Association<FROM,TO> {
    @
    @ post \result != null;
    @*/
-  public /*@ pure @*/ FROM getObject() {
+  @Override
+	public /*@ pure @*/ FROM getObject() {
     return _object; 
   }
   
@@ -223,6 +231,7 @@ public abstract class Association<FROM,TO> {
    @ post oldAssociation.unregistered(\old(other.getOtherAssociations()), this);
    @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
    @*/
+	@Override
 	public abstract void replace(Association<? extends TO,? super FROM> element, Association<? extends TO,? super FROM> newElement);
 	
   /*
@@ -239,22 +248,26 @@ public abstract class Association<FROM,TO> {
    @
    @ post isLocked();
    @*/
-  public void lock() {
+  @Override
+	public void lock() {
   	_locked=true;
   }
 
-  public void unlock() {
+  @Override
+	public void unlock() {
   	_locked=false;
   }
 
   /**
    * Check if this association end is locked.
    */
-  public boolean isLocked() {
+  @Override
+	public boolean isLocked() {
   	return _locked;
   }
   
-  public abstract int size();
+  @Override
+	public abstract int size();
   
   /**
    * Register the given association listener as an event listener to
@@ -269,7 +282,8 @@ public abstract class Association<FROM,TO> {
    @
    @ post listeners().contains(listener);
    @*/
-  public void addListener(AssociationListener<? super TO> listener) {
+  @Override
+	public void addListener(AssociationListener<? super TO> listener) {
   	if(listener == null) {
   		throw new IllegalArgumentException("An association listener cannot be null.");
   	}
@@ -293,7 +307,8 @@ public abstract class Association<FROM,TO> {
    @
    @ post ! listeners().contains(listener);
    @*/
-  public void removeListener(AssociationListener<? super TO> listener) {
+  @Override
+	public void removeListener(AssociationListener<? super TO> listener) {
   	if(_listeners != null) {
   		_listeners.remove(listener);
   		// clean up if there are no listeners anymore.
@@ -303,7 +318,8 @@ public abstract class Association<FROM,TO> {
   	}
   }
   
-  public Set<AssociationListener<? super TO>> listeners() {
+  @Override
+	public Set<AssociationListener<? super TO>> listeners() {
   	return new HashSet<AssociationListener<? super TO>>(_listeners);
   }
   
@@ -384,6 +400,7 @@ public abstract class Association<FROM,TO> {
  /*@
    @ post size() == 0; 
    @*/
-  public abstract void clear();
+  @Override
+	public abstract void clear();
 
 }
