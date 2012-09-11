@@ -67,8 +67,8 @@ public class TestTransitiveClosure extends JutilTest {
     $I.add($J);
     
     $closure = new SafeTransitiveClosure() {
-                                  public Set getConnectedNodes(Object node) {
-                                    return ((Reference) node).getReferences();
+                                  public void addConnectedNodes(Object node, Set acc) {
+                                    acc.addAll(((Reference) node).getReferences());
                                   }
                                 };
 

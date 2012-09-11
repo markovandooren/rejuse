@@ -95,8 +95,8 @@ public class Classes {
 
   static public /*@ pure @*/ Set getSuperTypes(Class clazz) {
     return new SafeTransitiveClosure() {
-                  public Set getConnectedNodes(Object node) {
-                    return getImmediateSuperTypes((Class)node);
+                  public void addConnectedNodes(Object node, Set accumulator) {
+                    accumulator.addAll(getImmediateSuperTypes((Class)node));
                   }
                 }.closure(clazz);
   }

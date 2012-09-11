@@ -5,7 +5,7 @@ import java.util.Set;
 public abstract class SafeTransitiveClosure<T> extends TransitiveClosure<T> {
 
 	@Override
-	public abstract Set<T> getConnectedNodes(T node);
+	public abstract void addConnectedNodes(T node, Set<T> accumulator);
 	
 	public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) {
     try {

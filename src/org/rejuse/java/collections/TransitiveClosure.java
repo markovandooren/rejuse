@@ -41,7 +41,7 @@ public abstract class TransitiveClosure<T> {
    @ // Never contains null.
    @ post (\forall Object o; \result.contains(o); o != null);
    @*/
-  public abstract /*@ pure @*/ Set<T> getConnectedNodes(T node) throws Exception;
+  public abstract void addConnectedNodes(T node, Set<T> accumulator) throws Exception;
   
   /**
    * Transitive closure is a recursive definition. The recursive post condition below
@@ -98,21 +98,21 @@ public abstract class TransitiveClosure<T> {
    @*/
   public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) throws Exception {
     Set<T> result = new HashSet<T>();
-    Set<T> newNodes = startSet;
-    while (! newNodes.isEmpty()) {
-      result.addAll(newNodes); // the new nodes need to be in the result set
+    Set<T> currentNodes = startSet;
+    Set<T> newNodes = new HashSet<T>();
+    Set<T> tmp;
+    while (! currentNodes.isEmpty()) {
+      result.addAll(currentNodes); // the new nodes need to be in the result set
       /* for each of the new nodes, collect their connected nodes, put them
           together, and find out which are new */
-      newNodes = new Accumulator<T,Set<T>>() {
-                            public Set<T> initialAccumulator() {
-                              return new HashSet<T>();
-                            }
-                            public Set<T> accumulate(T element, Set<T> acc) throws Exception {
-                              acc.addAll(getConnectedNodes(element));
-                              return acc;
-                            }
-                          }.accumulate(newNodes);
+      newNodes.clear();
+      for(T t: currentNodes) {
+      	addConnectedNodes(t,newNodes);
+      }
       newNodes.removeAll(result); // we already processed those
+      tmp = currentNodes;
+      currentNodes = newNodes;
+      newNodes = tmp;
     }    
     return result;
   }

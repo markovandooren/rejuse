@@ -192,8 +192,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @*/
 	public Set<F> impliedProperties() {
 		return new SafeTransitiveClosure<F>() {
-			public Set<F> getConnectedNodes(F p) {
-				return p.directlyImpliedProperties();
+			public void addConnectedNodes(F p, Set<F> acc) {
+				acc.addAll(p.directlyImpliedProperties());
 			}
 		}.closure((F) this);
 	}
@@ -291,8 +291,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @*/
 	public Set<F> impliedByProperties() {
 		return new SafeTransitiveClosure<F>() {
-			public Set<F> getConnectedNodes(F p) {
-				return p.directlyImpliedByProperties();
+			public void addConnectedNodes(F p, Set<F> acc) {
+				acc.addAll(p.directlyImpliedByProperties());
 			}
 		}.closure((F) this);
 	}
@@ -307,8 +307,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @ post \result.containsAll(implicitlyImpliedByProperties());
    @*/
 	public Set<F> directlyImpliedByProperties() {
-		Set<F> result = new HashSet<F>(_impliedBy.getOtherEnds());
-		result.addAll(implicitlyImpliedByProperties());
+		Set<F> result = implicitlyImpliedByProperties();
+		result.addAll(_impliedBy.getOtherEnds());
 		return result;
 	}
 

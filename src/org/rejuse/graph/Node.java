@@ -207,8 +207,8 @@ public class Node {
   public boolean canReach(Node other) {
     //TODO inefficient, but it works
     return new SafeTransitiveClosure() {
-      public Set getConnectedNodes(Object node) {
-        return ((Node)node).getDirectlyConnectedNodes();
+      public void addConnectedNodes(Object node, Set acc) {
+        acc.addAll(((Node)node).getDirectlyConnectedNodes());
       }
     }.closure(this).contains(other);
   }
