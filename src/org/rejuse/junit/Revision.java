@@ -17,7 +17,7 @@ package org.rejuse.junit;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public interface Revision {
+public interface Revision extends Comparable<Revision> {
 
 	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";
@@ -91,6 +91,26 @@ public interface Revision {
 	 @                                        getNumber(i) == ((Revision)other).getNumber(i));
 	 @*/
 	public /*@ pure @*/ boolean equals(Object other);
+	
+	/**
+	 * Compare this revision to the other revision.
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post o == null ==> \result > 0;
+   @ post (\exists i; i > 0 & length() >= i; 
+   @        (\forall j; j > 0 & j < i; getNumber(j) == o.getNumber(j)) && 
+   @        ((o.length() < i) || (getNumber(i) > o.getNumber(i)))
+   @      ) 
+   @ ==> \result > 0;
+   @ (\exists i; i > 0 & o.length() >= i; 
+   @    (\forall j; j > 0 & j < i; getNumber(j) == o.getNumber(j)) && 
+   @    ((length() < i ) || (getNumber(i) < o.getNumber(i)))
+   @ ) 
+   @ ==> \result < 0;
+   @*/
+	public /*@ pure @*/ int compareTo(Revision o);
 }
 /*
  * <copyright>Copyright (C) 1997-2001. This software is copyrighted by 

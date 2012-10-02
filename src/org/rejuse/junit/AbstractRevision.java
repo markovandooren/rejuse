@@ -58,6 +58,28 @@ public abstract class AbstractRevision implements Revision {
 		}
 		return true;
 	}
+	
+	@Override
+	public int compareTo(Revision o) {
+		if(o == null) {
+			return +1;
+		}
+		int tmp = getMajor() - o.getMajor();
+		if(tmp != 0) {
+			return tmp;
+		}
+		
+		tmp = getMinor() - o.getMinor();
+		if(tmp != 0) {
+			return tmp;
+		}
+
+		tmp = getMicro() - o.getMicro();
+		if(tmp != 0) {
+			return tmp;
+		}
+		return 0;
+	}
 
 	/**
 	 * See superclass
