@@ -2,7 +2,9 @@ package org.rejuse.property;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -103,7 +105,7 @@ public class PropertySet<E,P extends Property<E,P>> {
    @*/
   public PropertySet<E,P> clone() {
     PropertySet<E,P> result = new PropertySet<E,P>();
-    result.addAll(properties());
+    result.addAll(unsafePropertiesView());
     return result;    
   }
   
@@ -170,9 +172,16 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ post properties().containsAll(properties);
   */
   public void addAll(PropertySet<E,P> properties) {
-    addAll(properties.properties());
+    addAll(properties.unsafePropertiesView());
   }
 
+  protected Set<P> unsafePropertiesView() {
+  	return _properties;
+  }
+  
+  protected Set<P> propertiesView() {
+  	return Collections.unmodifiableSet(_properties);
+  }
   
   /**
    * Remove the given property from the property set.
@@ -229,7 +238,7 @@ public class PropertySet<E,P extends Property<E,P>> {
       public boolean eval(final P p1) {
         return internallyConsistent(p1);
       }
-    }.forAll(properties());
+    }.forAll(unsafePropertiesView());
   }
   
   /**
@@ -273,7 +282,7 @@ public class PropertySet<E,P extends Property<E,P>> {
       public boolean eval(P p2) {
         return ! property.contradicts(p2);
       }
-    }.forAll(properties());
+    }.forAll(unsafePropertiesView());
   }
   
   /**
@@ -310,7 +319,7 @@ public class PropertySet<E,P extends Property<E,P>> {
       @Override
       public boolean eval(Property<E,?> property) {
       	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
-        return properties().contains(property) && internallyConsistent(property);
+        return unsafePropertiesView().contains(property) && internallyConsistent(property);
       }
     };
     Set<? extends Property<E,?>> implying = property.impliedByProperties();
@@ -351,9 +360,16 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ post (\forall Property<E> p; contains(p); set.contradicts(p) != Ternary.TRUE);
    @*/
   public void removeContradictingProperties(PropertySet<E,P> set) {
-  	for(P p : properties()) {
+//  	for(P p : properties()) {
+//  		if(set.contradicts(p) == Ternary.TRUE) {
+//  			removeProperty(p);
+//  		}
+//  	}
+  	Iterator<P> ps = unsafePropertiesView().iterator();
+  	while(ps.hasNext()) {
+  		P p = ps.next();
   		if(set.contradicts(p) == Ternary.TRUE) {
-  			removeProperty(p);
+  			ps.remove();
   		}
   	}
   }
