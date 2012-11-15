@@ -69,11 +69,11 @@ public class CVSRevision extends AbstractRevision {
 	/**
 	 * See superclass.
 	 */
-	public /*@ pure @*/ int getNumber(int index) {
-		if(index > length()) {
+	public /*@ pure @*/ int getNumber(int baseOneIndex) {
+		if(baseOneIndex > length()) {
 			return 0;
 		}
-		return _numbers[index-1];
+		return _numbers[baseOneIndex-1];
 	}
 
 	/**

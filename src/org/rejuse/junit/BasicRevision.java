@@ -25,8 +25,8 @@ public class BasicRevision extends AbstractRevision {
 	}
 	
 	@Override
-	public int getNumber(int index) {
-		return _numbers[index];
+	public int getNumber(int baseOneIndex) {
+		return _numbers[baseOneIndex-1];
 	}
 
 	@Override

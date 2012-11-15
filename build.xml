@@ -4,8 +4,8 @@
   <property file="default.properties"/>
   <property environment="env"/>
   <property name="debuglevel" value="source,lines,vars"/>
-  <property name="target" value="1.6"/>
-  <property name="source" value="1.6"/>
+  <property name="target" value="1.7"/>
+  <property name="source" value="1.7"/>
   <property name="dist" value="dist"/>
   <property name="dist.local" value="dist/local"/>
   <property name="lib" value="lib"/>

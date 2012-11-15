@@ -5,11 +5,14 @@ package org.rejuse.association;
  *
  * @author Marko van Dooren
  */
-public interface AssociationListener<T> {
+public abstract class AssociationListener<T> {
 
-	public void notifyElementAdded(T element);
+	public abstract void notifyElementAdded(T element);
 	
-	public void notifyElementRemoved(T element);
+	public abstract void notifyElementRemoved(T element);
 	
-	public void notifyElementReplaced(T oldElement, T newElement);
+	public void notifyElementReplaced(T oldElement, T newElement) {
+		notifyElementRemoved(oldElement);
+		notifyElementAdded(newElement);
+	}
 }
