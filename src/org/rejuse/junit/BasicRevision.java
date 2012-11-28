@@ -3,17 +3,11 @@ package org.rejuse.junit;
 public class BasicRevision extends AbstractRevision {
 
 	public BasicRevision(String text) {
-		int index = 0;
 		int nbElements = 1;
-		while(index >= 0) {
-			index = text.indexOf(".",index);
-			nbElements++;
-		}
-		_numbers = new int[nbElements];
-		index=0;
+		String[] parts = text.split(".");
+		_numbers = new int[parts.length];
 		for(int i = 0; i< nbElements; i++) {
-			int endIndex = text.indexOf(".", index+1);
-			_numbers[i] = Integer.parseInt(text.substring(index, endIndex)); 
+			_numbers[i] = Integer.parseInt(parts[i]); 
 		}
 	}
 	
