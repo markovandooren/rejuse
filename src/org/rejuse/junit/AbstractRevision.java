@@ -59,6 +59,15 @@ public abstract class AbstractRevision implements Revision {
 		return true;
 	}
 	
+	public int hashCode() {
+		int result = 0;
+		int length = length();
+		for(int i=0; i< length; i++) {
+			result += 2^(i);
+		}
+		return result;
+	}
+	
 	@Override
 	public int compareTo(Revision o) {
 		if(o == null) {
