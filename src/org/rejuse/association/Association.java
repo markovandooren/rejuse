@@ -90,7 +90,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    */
 	protected void checkLock(Association<?,?> association) {
     if(association != null && association.isLocked()) {
-  		throw new IllegalArgumentException("Trying to modify locked reference. Locked object: "+association.getObject().getClass().getName());
+  		throw new LockException("Trying to modify locked reference. Locked object: "+association.getObject().getClass().getName());
   	}
 	}
 
