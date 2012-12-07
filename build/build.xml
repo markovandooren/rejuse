@@ -1,436 +1,91 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir=".." default="build" name="rejuse" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <property file="properties"/>
+  <property file="default.properties"/>
+  <property environment="env"/>
+  <property name="debuglevel" value="source,lines,vars"/>
+  <property name="target" value="1.7"/>
+  <property name="source" value="1.7"/>
+  <property name="dist" value="dist"/>
+  <property name="dist.local" value="dist/local"/>
+  <property name="lib" value="lib"/>
+  <property name="bin" value="${dist}/bin"/>
+  <property name="dist.jar" value="${dist}/jar"/>
+  <property name="dist.local.jar" value="${dist.local}/jar"/>
+  <property name="src" value="src"/>
 
-<project name="rejuse.org" default="all" basedir=".">
+  <path id="ivy.lib.path">
+    <fileset file="${ivy.jar}"/>
+    <fileset file="${lib}/jsch-0.1.45.jar"/>
+  </path>
 
-  <!-- <path id="classpath.jmltask">
-	  <fileset dir="../../tools/lib" includes="jml.jar"/>
-	</path> -->
+  <taskdef resource="org/apache/ivy/ant/antlib.xml"
+    uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
 
-  <path id="classpath.jmltask">
-	  <fileset dir="../tools/lib" includes="mjc-for-jml.jar,jml-release.jar,jml-ant.jar"/>
-	</path>
-
-  <taskdef name="jml-check" 
-           classname="org.jmlspecs.ant.tasks.CheckTask"
-           classpathref="classpath.jmltask"/>
-
-  <taskdef name="jml-compile" 
-           classname="org.jmlspecs.ant.tasks.CompileTask"
-           classpathref="classpath.jmltask"/>
-
-  <!-- <taskdef name="jml-doc"
-           classname="jml.tasks.DocTask"
-           classpathref="classpath.jmltask"/> -->
-
-  <taskdef name="jml-doc" 
-           classname="org.jmlspecs.ant.tasks.DocTask"
-           classpathref="classpath.jmltask"/> 
-
-  <!-- <taskdef name="jml-unit" 
-           classname="org.jmlspecs.ant.tasks.UnitTask"
-           classpathref="classpath.jmltask"/> -->
-
-	<!-- Set the properties for all targets -->
-	<target name="properties">
-		<!-- The root directory -->
-		<property name="root" value=".."/>
-
-		<!-- The relative source directory -->
-		<property name="src.rel" value="src"/>
-
-		<!-- The directory containing the source files -->
-		<property name="src" value="${root}/${src.rel}"/>
-
-		<!-- The relative dist directory -->
-		<property name="dist.rel" value="dist"/>
-
-		<!-- The dist directory -->
-		<property name="dist" value="${root}/${dist.rel}"/>
-
-		<!-- The relative build directory -->
-		<property name="test.rel" value="test"/>
-
-		<!-- The directory where the test files are put -->
-		<property name="test" value="${dist}/${test.rel}"/>
-
-		<!-- The relative build directory -->
-		<property name="build.rel" value="build"/>
-
-		<!-- The directory where the build files are put -->
-		<property name="build" value="${root}/${build.rel}"/>
-
-		<!-- The relative doc directory -->
-		<property name="doc.rel" value="doc"/>
-
-		<!-- The directory where the docs are put -->
-		<property name="doc" value="${dist}/${doc.rel}"/>
-
-		<!-- The relative tools directory -->
-		<property name="tools.rel" value="tools"/>
-
-		<!-- The directory where the tools are put -->
-		<property name="tools" value="${root}/${tools.rel}"/>
-
-		<!-- The directory where the classes files are put -->
-		<property name="classes" value="${dist}/classes"/>
-
-		<!-- The directory where the classes.rac files are put -->
-		<property name="classes.rac" value="${dist}/rac"/>
-
-		<!-- The directory where the classes.rac files are put -->
-		<property name="classes.test" value="${dist}/test"/>
-
-		<!-- The relative lib directory -->
-		<property name="lib.rel" value="lib"/>
-
-		<!-- The directory where the libraries reside that are used by
-				 org.rejuse.jar -->
-		<property name="lib" value="${root}/${lib.rel}"/>
-		
-		<!-- The directory where the libraries are put -->
-		<property name="lib.dist" value="${dist}/${lib.rel}"/>
-
-		<!-- The directory where the jml libraries are put -->
-		<property name="jmldoc.dist" value="${dist}/doc"/>
-
-		<!-- The directory where the tool libraries are put -->
-		<property name="lib.tools" value="${tools}/${lib.rel}"/>
-
-		<!-- The directory where the libraries are put -->
-		<property name="tmp" value="${root}/tmp"/>
-
-		<!-- Some javac properties -->
-		<property name="debug" value="yes"/>
-		<property name="optimize" value="yes"/>
-		<property name="deprecation" value="no"/>
-
-		<!-- set the project class path -->
-		<path id="project.classpath">
-			<pathelement path="${src}"/>
-			<pathelement location="${lib}/junit.jar"/> 
-			<pathelement location="${lib}/jregex1.2_00.jar"/> 
-		</path>
-		<path id="project.jml.class.path">
-			<pathelement location="${lib.tools}/jml.jar"/> 
-		</path>
-		<!-- <path id="project.jml.class.path">
-			<pathelement location="${lib.tools}/jml-release.jar"/> 
-			<pathelement location="${lib.tools}/mjc-for-jml.jar"/> 
-			<pathelement location="${lib.tools}/jmlruntime.jar"/> 
-			<pathelement location="/usr/local/java/jml/specs"/> 
-		</path> -->
-	</target>
-
-	<!-- Create timestamp and directory structure -->
-	<target name="init" depends="properties">
-		<!-- Create the time stamp -->
-		<tstamp/>
-
-		<!-- Create the directory structure -->
-		<mkdir dir="${tmp}"/>
-		<mkdir dir="${test}"/>
-		<mkdir dir="${dist}"/>
-		<mkdir dir="${classes}"/>
-		<mkdir dir="${classes.rac}"/>
-		<mkdir dir="${classes.test}"/>
-		<mkdir dir="${lib.dist}"/>
-
-	</target>
-
-	<!-- Compile the sources in ${src} and put the class files in 
-	     the ${classes} directory. -->
-	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${classes}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" includes="**/*.java" excludes="**/*_JML_*">
-			<classpath refid="project.classpath"/>
-		</javac>
-	</target>
-
-	<!-- Compile the tests and put the class files in 
-	     the ${classes.test} directory. -->
-	<target name="compile-tests" depends="init">
-		<javac srcdir="${src}" destdir="${classes.test}" debug="${debug}" optimize="${optimize}" deprecation="${deprecation}" includes="**/*_JML_*.java">
-			<classpath refid="project.classpath"/>
-		</javac>
-	</target>
-
-	<!-- Compile the sources in ${src} and put the class files in 
-	     the ${classes} directory. -->
-	<!-- <target name="compile-rac" depends="init"> -->
-		<!-- Create the build directory structure used by compile -->
-	<!--	<jml-compile srcdir="${src}" 
-                 verbose="true"
-                 destdir="${classes.rac}">
-			<classpath refid="project.classpath"/>
-			<classpath refid="project.jml.class.path"/>
-      <fileset dir="${src}" includes="org/rejuse/**/*.java" excludes="**/*_JML_*"/>
-		</jml-compile>
-	</target> -->
-
-
-  <!-- recompile everything -->
-  <target name="recompile" depends="clean">
-		<antcall target="compile"/>
+  <target name="bootstrap">
+    <mkdir dir="${lib}"/>
+    <ivy:settings file="ivy/generic_ivy_settings.xml"/>
+    <ivy:resolve file="ivy/bootstrap.xml"/>
+    <ivy:retrieve/>
   </target>
 
-<!--  <target name="jmlcheck" depends="init">
-    <jml-check sourcepath="${src}" 
-               classpath="${lib}/jregex1.2_00.jar:${lib}/junit.jar:${lib.tools}/jml-release.jar">
-      <fileset dir="${src}" includes="org/rejuse/**/*.java" excludes="**/*_JML_*"/>
-    </jml-check>
-  </target> -->
-
-	<!-- Create the jar -->
-	<target name="jar" depends="compile">
-		<!-- include the JRegex jar and its license -->
-		<unzip src="${lib}/jregex1.2_00.jar" dest ="${classes}"/>
-		<!-- remove some JRegex stuff: the license and manifest -->
-		<delete dir="${classes}/META-INF"/>
-		<delete dir="${classes}/docs"/>
-		<copy todir="${classes}" file="${lib}/jregex.license.txt"/>
-
-		<jar jarfile="${lib.dist}/org.rejuse.jar" basedir="${classes}" includes="**"/>
-	</target>
-
-  <!-- rebuild the jars -->
-  <target name="rejar" depends="clean">
-		<antcall target="jar"/>
+  <target name="init-ivy">
+    <mkdir dir="${lib}"/>
+    <ivy:settings file="ivy/ivysettings.xml"/>
+    <ivy:resolve file="ivy/ivy.xml"/>
+    <ivy:retrieve/>
+    <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse"/>
+    <ivy:cachepath pathid="project.classpath" conf="default" />
   </target>
 
-
-	<!-- Create 1.2+ jars for separate packages -->
-	<target name="package-jars" depends="compile">
-		<!-- include the JRegex jar and its license -->
-		<unzip src="${lib}/jregex1.2_00.jar" dest ="${classes}"/>
-		<delete dir="${classes}/META-INF"/>
-		<delete dir="${classes}/docs"/>
-		<copy todir="${classes}" file="${lib}/jregex.license.txt"/>
-		<!-- Create the jars in lib-->
-		<jar jarfile="${lib.dist}/org.rejuse.event.jar">
-		  <fileset dir="${classes}" includes="org/rejuse/event/**,org/rejuse/java/collections/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-		<jar jarfile="${lib.dist}/org.rejuse.java.collections.jar">
-			<fileset dir="${classes}" includes="org/rejuse/java/collections/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-		<jar jarfile="${lib.dist}/org.rejuse.java.reflect.jar">
-			<fileset dir="${classes}" includes="org/rejuse/java/reflect/**,org/rejuse/java/collections/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-		<jar jarfile="${lib.dist}/org.rejuse.java.throwable.jar">
-			<fileset dir="${classes}" includes="org/rejuse/java/throwable/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-		<jar jarfile="${lib.dist}/org.rejuse.math.matrix.jar">
-			<fileset dir="${classes}" includes="org/rejuse/math/matrix/**,regex/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-		<jar jarfile="${lib.dist}/org.rejuse.structure.jar">
-			<fileset dir="${classes}" includes="org/rejuse/structure/**,regex/**"/>
-			<fileset dir="${root}" includes="LICENSE.html,CONTRIBUTORS.xml"/>
-		</jar>
-	</target>
-
-
-	<!-- Make a jar dependent of the JVM that is currently used -->
-	<target name="all" depends="jar">
-	</target>
-
-	<target name="clean" depends="properties">
-			<delete dir="${tmp}"/>
-			<delete dir="${dist}"/>
-	</target>
-
-	<!-- Create the zip files that are needed for a release.
-			 Provide the quality and version parameters on the command line:
-			 ant -Dquality=x -Dversion=x 
-		-->
-	<target name="release" depends="jar,doc,test">
-		<!-- Setup the directories -->
-		<property name="release" value="org.rejuse-${quality}-${version}"/>
-		<property name="release.dir" value="${dist}/${release}"/>
-		<!-- <property name="cvs.dir" value="${tmp}/cvs}"/> -->
-		<delete dir="${release.dir}"/>
-		<mkdir dir="${release.dir}"/>
-
-		<!-- ${releaseroot} is the directory that contains the files that must
-		     be put in the release.
-				 In order to prevent user stuff ending up in a release, it should be
-				 a cvs checkout from which all CVS directories and other cvs stuf 
-				 has been removed. -->
-		<property name="releaseroot" value="${root}"/>
-
-		<!-- Get the CVS -->
-		<!-- <cvs cvsroot=":pserver:anonymous@cvs.org-rejuse.sourceforge.net:/cvsroot/org-rejuse" command="checkout" dest="${releaseroot}" package="rejuse.org"/> -->
-
-		<!-- BINARIES -->
-		<zip zipfile="${release.dir}/org.rejuse-${quality}-${version}.zip">
-			<zipfileset dir="${releaseroot}" includes="LICENSE.html" fullpath="${release}/LICENSE.html"/>
-			<zipfileset dir="${releaseroot}" includes="CONTRIBUTORS.xml" fullpath="${release}/CONTRIBUTORS.xml"/>
-			<zipfileset dir="${releaseroot}" includes="${dist.rel}/${lib.rel}/org.rejuse.jar" fullpath="${release}/org.rejuse-${quality}.jar"/>
-		</zip>
-		
-		<!-- SOURCE -->
-		<zip zipfile="${release.dir}/org.rejuse-${quality}-src-${version}.zip">
-			<zipfileset dir="${releaseroot}/${build.rel}" prefix="${release}/${build.rel}"/>
-			<zipfileset dir="${releaseroot}/${lib.rel}" prefix="${release}/${lib.rel}"/>
-			<zipfileset dir="${releaseroot}/${src.rel}" prefix="${release}/${src.rel}"/>
-			<zipfileset dir="${releaseroot}/${tools.rel}" prefix="${release}/${tools.rel}"/>
-			<zipfileset dir="${releaseroot}" includes="LICENSE.html,README.html,CONTRIBUTORS.xml,taghistory.xml,releases.xml" prefix="org.rejuse-${quality}-${version}/"/>
-		</zip>
-		
-		<!-- DOC -->
-		<zip zipfile="${release.dir}/org.rejuse-${quality}-javadoc-${version}.zip">
-			<zipfileset dir="${releaseroot}/${dist.rel}/${doc.rel}" prefix="${release}/${doc.rel}"/>
-			<zipfileset dir="${releaseroot}" includes="LICENSE.html,CONTRIBUTORS.xml" prefix="${release}/"/>
-		</zip>
-		
-		
-		<!-- Test whether the source compiles if that compile fails, the entire build
-		     will fail. -->
-		<property name="testdir" value="${tmp}/test-release"/>
-		<!-- Remove previous test dir, and create a new one -->
-		<delete dir="${testdir}"/>
-		<mkdir dir="${testdir}"/>
-		<!-- Unpack the generated source zip -->
-		<unzip src="${release.dir}/org.rejuse-${quality}-src-${version}.zip" dest="${testdir}" />
-		<!-- Run ant on the buildfile from the extracted source zip -->
-		<ant dir="${testdir}/org.rejuse-${quality}-${version}/${build.rel}/ant"/>
-		<!-- Clean up -->
-		<delete dir="${testdir}"/>
-		
-	</target>
-
-  <!-- <target name="jmlunit" depends="init">
-    <jml-unit verbose="true" 
-              generateTestCases="true"
-              sourcePath="${src}" 
-              destdir="/home/marko/cvs/unit/src"
-              packageName="+test">
-			<classpath refid="project.classpath"/>
-      <fileset dir="${src}" includes="org/rejuse/**/*.java" excludes="**/*_JML_*"/>
-    </jml-unit>
-  </target> -->
-
-  <target name="jmldoc" depends="init">
-		<delete dir="${jmldoc.dist}"/>
-		<mkdir dir="${jmldoc.dist}"/>
-    <jml-doc destination="${jmldoc.dist}" 
-             classpath="${src}:${lib}/jregex1.2_00.jar:${lib}/junit.jar:${lib.tools}/jml-release.jar"
-             recursive="false">
-             <package name="org"/>
-             <package name="org.rejuse"/>
-             <package name="org.rejuse.event"/>
-             <package name="org.rejuse.io"/>
-             <package Name="org.rejuse.io.fileset"/>
-             <package name="org.rejuse.java"/>
-             <package name="org.rejuse.java.collections"/>
-             <package name="org.rejuse.java.comparator"/>
-             <package name="org.rejuse.java.io"/>
-             <package name="org.rejuse.java.reflect"/>
-             <package name="org.rejuse.java.regex"/>
-             <package name="org.rejuse.java.swing"/>
-             <package name="org.rejuse.java.throwable"/>
-             <package name="org.rejuse.javax"/>
-             <package name="org.rejuse.javax.swing"/>
-             <package name="org.rejuse.jregex"/>
-             <package name="org.rejuse.junit"/>
-             <package name="org.rejuse.math"/>
-             <package name="org.rejuse.math.matrix"/>
-             <package name="org.rejuse.predicate"/>
-             <package name="org.rejuse.relation"/>
-             <package name="org.rejuse.si"/>
-             <package name="org.rejuse.structure"/>
-    </jml-doc>
+  <target name="init-local">
+    <ivy:settings file="ivy/ivysettings.xml"/>
+    <ivy:resolve file="ivy/ivy-local.xml"/>
+    <ivy:retrieve/>
+    <ivy:buildnumber organisation="distrinet.cs.kuleuven.be" module="rejuse-local" revision="0.0.0"/>
   </target>
 
-	<target name="javadoc" depends="init">
-		<ant antfile="doc.xml" target="doc"/>
-		<antcall target="rasterize"/>
-	</target>
-
-	<target name="regex" depends="init">
-		<ant antfile="doc.xml" target="regexp"/>
-	</target>
-
-	<target name="doc" depends="init">
-		<antcall target="jmldoc"/>
-		<antcall target="rasterize"/>
-	</target>
-
-  <target name="rasterize" depends="init,antopts">
-		<!-- Add junit.jar and org.rejuse.jar to the classpath -->
-		<property name="rasterizepath" value="${java.class.path}:${lib.tools}/crimson.jar:${lib.tools}/batik-all.jar:${lib.tools}/RasterizerTask.jar:${lib.tools}/xml-apis.jar:${lib.tools}/xml-apis-ext.jar:${lib.tools}/ant-contrib.jar"/>
-
-		<!-- Run ant again with a different target, but fork the VM so we can add jars to
-				 the classpath 
-				 
-				 See Ant documentation for reasons why it doesn't work when using <junit> directly. -->
-		<java classname="org.apache.tools.ant.Main" fork="true" classpath="${rasterizepath}">
-			<jvmarg line="-Dant.home=${ant.home} ${ANT_OPTS}"/>
-			<arg line="rasterize-secondstage"/>
-		</java>
+  <target name="init" depends="init-ivy">
+    <mkdir dir="${bin}"/>
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${dist.jar}"/>
+    <mkdir dir="${dist.local}"/>
+    <mkdir dir="${dist.local.jar}"/>
+    <copy includeemptydirs="false" todir="${bin}">
+      <fileset dir="${src}">
+        <exclude name="**/*.launch"/>
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+  <target name="clean">
+    <delete dir="${dist}"/>
   </target>
 
-	<target name="rasterize-secondstage" depends="init">
-		<ant antfile="rasterize.xml" target="rasterize"/>
-	</target>
+  <target name="compile" depends="init">
+    <javac debug="true" debuglevel="${debuglevel}" destdir="${bin}" source="${source}" target="${target}">
+      <src path="${src}"/>
+      <classpath refid="project.classpath"/>
+    </javac>
+  </target>
 
-  <!-- Set ANT_OPTS to "" if is doesn't exist yet
-	     otherwise "${ANT_OPTS}" will be given to the
-			 java VM -->
-	<target name="antopts" unless="ANT_OPTS">
-		<property name="ANT_OPTS" value=""/>
-	</target>
+  <target name="jar" depends="compile">
+    <jar jarfile="${dist.local.jar}/rejuse-local.jar" basedir="${bin}" includes="**"/>
+  </target>
 
-  <!-- Set classpath correct, fork VM and call second test stage -->
-	<target name="test" depends="antopts,init">
-		<!-- Add junit.jar and org.rejuse.jar to the classpath -->
-		<property name="testpath" value="${java.class.path}:${lib}/junit.jar:${lib.dist}/org.rejuse.jar"/>
+  <target name="build" depends="jar">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+  </target>
 
-		<!-- Run ant again with a different target, but fork the VM so we can add jars to
-				 the classpath 
-				 
-				 See Ant documentation for reasons why it doesn't work when using <junit> directly. -->
-		<java classname="org.apache.tools.ant.Main" fork="true" classpath="${testpath}">
-			<jvmarg line="-Dant.home=${ant.home} ${ANT_OPTS}"/>
-			<arg line="test-secondstage"/>
-		</java>
-	</target>
+  <target name="build-version" depends="compile">
+    <fail unless="version" message="You must provide a version with the command line argument -Dversion=major.minor.micro"/>
+    <jar jarfile="${dist.jar}/rejuse-${version}.jar" basedir="${bin}" includes="**"/>
+    <echo message="${ant.project.name}: ${ant.file}"/>
+  </target>
 
-	<!-- Run the tests. At this point the classpath should include junit.jar and org.rejuse.jar
-	     DO NOT RUN THIS TARGET DIRECTLY, IT WILL FAIL !!! -->
-	<target name="test-secondstage" depends="init">
-		<junit>
-			<formatter type="brief" usefile="false"/>
-			<classpath>
-				<path refid="project.classpath"/>
-				<pathelement path="${classes.rac}"/>
-				<pathelement path="${classes.test}"/>
-			</classpath>
-      <batchtest>
-        <fileset dir="${src}">
-          <!-- <include name="org/rejuse/**/test/*.java"/> -->
-          <include name="org/rejuse/metric/quantity/test/BaseQuantity_JML_TestCase.java"/>
-        </fileset>
-      </batchtest>
-		</junit>
-	</target>
-
-
-
-<!-- <target name="check" depends="properties">
-  <checkstyle allowTabs="no"
-                    maxLineLen="80"
-                                                        ignoreImportLen="true"
-                                                        maxMethodLen="15"
-                                                        maxConstructorLen="15"
-                                                        ignoreWhitespace="true"
-                                                        javadocScope="nothing">
-          <fileset dir="src" includes="**/*.java"/>
-                <formatter type="xml" toFile="checkstyle_errors.xml"/>
-  </checkstyle>
-</target> -->
-
-
+  <target name="publish" depends="build-version">
+    <ivy:publish resolver="pubchameleon" pubrevision="${version}" overwrite="true">
+      <artifacts pattern="${dist.jar}/[artifact]-[revision].[ext]"/>
+    </ivy:publish>
+  </target>
 </project>
