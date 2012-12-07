@@ -52,7 +52,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post \result == getOtherAssociations().contains(association);
    @*/
-  @Override
+//  @Override
 	public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> association) {
     return getOtherAssociations().contains(association);
   }
@@ -138,7 +138,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @ post ! (\forall Association r; r != registered;
    @          oldConnections.contains(r) == contains(r)) ==> \result == false;
    @*/
-  @Override
+//  @Override
 	public /*@ pure @*/ abstract boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered);
 
   /**
@@ -162,7 +162,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @ post ! (\forall Association r; r != unregistered;
    @          oldConnections.contains(r) == contains(r)) ==> \result == false;
    @*/
-  @Override
+//  @Override
 	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
   /**
@@ -178,14 +178,14 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @           r.getObject() == o));
    @*/
   //public /*@ pure @*/ abstract List<TO> getOtherEnds();
-  @Override
+//  @Override
 	public /*@ pure @*/ List<TO> getOtherEnds() {
 	  List<TO> result = new ArrayList<TO>();
 	  addOtherEndsTo(result);
 	  return result;
   }
 
-  @Override
+//  @Override
 	public abstract void addOtherEndsTo(Collection<? super TO> collection);
 
   /**
@@ -197,7 +197,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @ post \result != null;
    @ post ! \result.contains(null);
    @*/
-  @Override
+//  @Override
 	public /*@ pure @*/ abstract List<Association<? extends TO,? super FROM>> getOtherAssociations();
 
   /**
@@ -208,7 +208,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post \result != null;
    @*/
-  @Override
+//  @Override
 	public /*@ pure @*/ FROM getObject() {
     return _object; 
   }
@@ -231,7 +231,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @ post oldAssociation.unregistered(\old(other.getOtherAssociations()), this);
    @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
    @*/
-	@Override
+//	@Override
 	public abstract void replace(Association<? extends TO,? super FROM> element, Association<? extends TO,? super FROM> newElement);
 	
   /*
@@ -248,12 +248,12 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post isLocked();
    @*/
-  @Override
+//  @Override
 	public void lock() {
   	_locked=true;
   }
 
-  @Override
+//  @Override
 	public void unlock() {
   	_locked=false;
   }
@@ -261,12 +261,12 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   /**
    * Check if this association end is locked.
    */
-  @Override
+//  @Override
 	public boolean isLocked() {
   	return _locked;
   }
   
-  @Override
+//  @Override
 	public abstract int size();
   
   /**
@@ -282,7 +282,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post listeners().contains(listener);
    @*/
-  @Override
+//  @Override
 	public void addListener(AssociationListener<? super TO> listener) {
   	if(listener == null) {
   		throw new IllegalArgumentException("An association listener cannot be null.");
@@ -307,7 +307,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post ! listeners().contains(listener);
    @*/
-  @Override
+//  @Override
 	public void removeListener(AssociationListener<? super TO> listener) {
   	if(_listeners != null) {
   		_listeners.remove(listener);
@@ -318,7 +318,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   	}
   }
   
-  @Override
+//  @Override
 	public Set<AssociationListener<? super TO>> listeners() {
   	return new HashSet<AssociationListener<? super TO>>(_listeners);
   }
@@ -400,7 +400,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
  /*@
    @ post size() == 0; 
    @*/
-  @Override
+//  @Override
 	public abstract void clear();
 
 }

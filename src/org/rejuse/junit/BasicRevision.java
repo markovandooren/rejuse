@@ -18,12 +18,12 @@ public class BasicRevision extends AbstractRevision {
 		}
 	}
 	
-	@Override
+//	@Override
 	public int getNumber(int baseOneIndex) {
 		return _numbers[baseOneIndex-1];
 	}
 
-	@Override
+//	@Override
 	public int length() {
 		return _numbers.length;
 	}

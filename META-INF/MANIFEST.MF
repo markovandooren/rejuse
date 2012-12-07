@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rejuse
-Bundle-SymbolicName: rejuse;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-SymbolicName: rejuse.distrinet.cs.kuleuven.be;singleton:=true
+Bundle-Version: 1.0.10.qualifier
 Bundle-ClassPath: rejuse.jar,
  lib/junit-4.10.jar
 Export-Package: org.rejuse,
@@ -38,3 +38,4 @@ Export-Package: org.rejuse,
  org.rejuse.predicate,
  org.rejuse.predicate.test,
  org.rejuse.property
+Bundle-Vendor: distrinet.cs.kuleuven.be

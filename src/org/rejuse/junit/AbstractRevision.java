@@ -68,7 +68,7 @@ public abstract class AbstractRevision implements Revision {
 		return result;
 	}
 	
-	@Override
+//	@Override
 	public int compareTo(Revision o) {
 		if(o == null) {
 			return +1;
