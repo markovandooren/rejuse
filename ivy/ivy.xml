@@ -4,6 +4,6 @@
     <artifact name="rejuse"/>
   </publications>
   <dependencies>
-    <dependency org="junit" name="junit" rev="latest.integration"/>
+    <dependency org="junit" name="junit" rev="latest.integration" conf="*->*,!sources,!javadoc"/>
   </dependencies>
 </ivy-module>

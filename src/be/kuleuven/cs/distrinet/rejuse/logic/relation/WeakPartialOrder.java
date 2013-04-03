@@ -7,20 +7,27 @@ package be.kuleuven.cs.distrinet.rejuse.logic.relation;
  * a <= b, a = b, b <= a, or a and b are unrelated.
  * 
  * <ul>
- * <li>a <= b if and only if contains(a,b)</li> 
- * <li>a >= b if and only if contains(b,a)</li>
- * <li>a = b if and only if contains(a,b) and contains(b,a)</li>
- * <li>a and b are unrelated if not contains(a,b) and not contains(b,a).</li>
+ *   <li>a <= b if and only if contains(a,b)</li> 
+ *   <li>a >= b if and only if contains(b,a)</li>
+ *   <li>a = b if and only if contains(a,b) and contains(b,a)</li>
+ *   <li>a and b are unrelated if not contains(a,b) and not contains(b,a).</li>
  * </ul>
- * 
- * In a weak partial order, equal(a,b) <=> contains(a,b) v contains(b,a).
  * 
  * @author Marko van Dooren
  *
- * @param <E>
+ * @param <E> The type of the elements in the relation.
  */
 public abstract class WeakPartialOrder<E> extends PartialOrder<E> {
 
+	/**
+	 * Determine whether the two given objects are equal according to this
+	 * weak partial order.
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post \result == contains(first, second) && contains(second, first);
+   @*/
   public boolean equal(E first, E second) throws Exception {
     return contains(first, second) && contains(second, first);
   }
