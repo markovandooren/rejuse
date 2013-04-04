@@ -19,16 +19,38 @@ import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
  * @author Marko van Dooren
  *
  * @param <E> The type of the elements that can have properties.
+ * @param <P> The type of the properties.
  */
 public class PropertySet<E,P extends Property<E,P>> {
 
 	/**
 	 * Create an empty property set.
 	 */
+ /*@
+   @ public behavior
+   @
+   @ post isEmpty();
+   @*/
 	public PropertySet() {
-		
 	}
 	
+	/**
+	 * Create a new property set that contains the given properties
+	 * @param properties
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre properties != null;
+   @
+   @ post containsAll(properties); 
+   @*/
+	public PropertySet(P... properties) {
+		for(P p: properties){
+			add(p);
+		}
+	}
+
 	/**
 	 * Create a new property set that contains the given properties
 	 * @param properties
@@ -252,6 +274,7 @@ public class PropertySet<E,P extends Property<E,P>> {
    @*/
   public Collection<Conflict<P>> conflicts() {
   	Collection<Conflict<P>> result = new ArrayList<Conflict<P>>();
+  	// Create a list to cut the comparisons in half
   	List<P> properties = new ArrayList<P>(_properties);
   	int size = properties.size();
 		for(int firstIndex = 0; firstIndex < size; firstIndex++) {

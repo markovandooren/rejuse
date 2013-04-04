@@ -286,6 +286,8 @@ public interface Property<E, F extends Property<E,F>> {
 	  @ post p.contradictedProperties().contains(this);
 	  @*/
 	public void addContradiction(F p);
+	
+//	public PropertySet<E,F> and(Property<E,F> property);
 
 	public MultiAssociation<F,F> contradictedLink(); 
 	

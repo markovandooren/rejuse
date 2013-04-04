@@ -5,9 +5,9 @@ package be.kuleuven.cs.distrinet.rejuse.property;
  * 
  * @author Marko van Dooren
  *
- * @param <E>
+ * @param <P> The type of the properties
  */
-public class Conflict<F extends Property<?,F>> {
+public class Conflict<P extends Property<?,P>> {
 	
 	/**
 	 * Initialize a new conflict for the given two properties. The properties must contradict each other.
@@ -22,20 +22,20 @@ public class Conflict<F extends Property<?,F>> {
    @ post first() == first;
    @ post second() == second;
    @*/
-	public Conflict(F first, F second) {
+	public Conflict(P first, P second) {
 		_first = first;
 		_second = second;
 	}
 
-	private F _first;
+	private P _first;
 
-	public F first() {
+	public P first() {
 		return _first;
 	}
 
-	private F _second;
+	private P _second;
 
-	public F second() {
+	public P second() {
 		return _second;
 	}
 
