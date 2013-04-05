@@ -104,6 +104,10 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
     return _name;
   }
   
+  public String toString() {
+  	return name();
+  }
+  
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#setName(java.lang.String)
 	 */
