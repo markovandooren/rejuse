@@ -7,12 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author ?????
- * @version $Revision$
- * @path $Source$
- * @date $Date$
- * @state $State$
- * @release $Name$
+ *
  */
 public abstract class AbstractPredicate<T> implements Predicate<T> {
 
