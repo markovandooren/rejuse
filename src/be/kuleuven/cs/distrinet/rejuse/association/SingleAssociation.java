@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
+
 /**
  * <p>A class of Relation components for implementing a binding in which the object of
  * the Reference has a relation with only 1 other object.</p>
@@ -307,5 +309,12 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 	@Override
 	public int size() {
 		return _other == null ? 0 : 1;
+	}
+	
+	@Override
+	public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
+		if (_other != null) {
+			action.perform(_other.getObject());
+		}
 	}
 }

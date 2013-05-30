@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
+
 /**
  * <p>A class of objects that can be used to set up bi-directional association between objects.</p>
  *

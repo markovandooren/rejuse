@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
 
@@ -391,5 +392,12 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @                      o instanceof Relation);
    @*/
   private ArrayList<Association<? extends TO,? super FROM>> _elements;
+  
+  @Override
+	public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
+  	for(Association<? extends TO,? super FROM> element: _elements) {
+  		action.perform(element.getObject());
+  	}
+  }
 }
 

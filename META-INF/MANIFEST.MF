@@ -6,6 +6,7 @@ Bundle-Version: 1.0.11
 Bundle-ClassPath: bin/.,
  .
 Export-Package: be.kuleuven.cs.distrinet.rejuse,
+ be.kuleuven.cs.distrinet.rejuse.action,
  be.kuleuven.cs.distrinet.rejuse.association,
  be.kuleuven.cs.distrinet.rejuse.association.test,
  be.kuleuven.cs.distrinet.rejuse.debug,

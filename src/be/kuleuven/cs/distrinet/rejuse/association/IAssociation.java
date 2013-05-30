@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
+
 public interface IAssociation<FROM, TO> {
 
 	/**
@@ -187,5 +189,14 @@ public interface IAssociation<FROM, TO> {
 	  @ post size() == 0; 
 	  @*/
 	public void clear();
+
+	/**
+	 * Apply the given action to the elements in this association.
+	 * 
+	 * @param action The action to be applied.
+	 * 
+	 * @throws E Thrown when the action throws an exception.
+	 */
+	public abstract <E extends Exception> void apply(Action<? super TO,E> action) throws E;
 
 }
