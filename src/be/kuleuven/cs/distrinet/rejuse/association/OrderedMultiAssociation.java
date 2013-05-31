@@ -120,6 +120,15 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
     }
   }
   
+	@Override
+	public /*@ pure @*/ List<TO> getOtherEnds() {
+	  List<TO> result = new ArrayList<TO>();
+	  addOtherEndsTo(result);
+	  increase();
+	  return result;
+  }
+	
+
   /**
    * {@inheritDoc} 
    */

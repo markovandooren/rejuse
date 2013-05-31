@@ -1,11 +1,11 @@
 package be.kuleuven.cs.distrinet.rejuse.association.test;
+import java.util.Set;
+
 import be.kuleuven.cs.distrinet.rejuse.association.MultiAssociation;
 import be.kuleuven.cs.distrinet.rejuse.association.SingleAssociation;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.junit.CVSRevision;
 import be.kuleuven.cs.distrinet.rejuse.junit.JutilTest;
-
-import java.util.List;
 
 public class TestOneMany extends JutilTest {
 
@@ -93,7 +93,7 @@ private class B {
     _name = name;
   }
 
-  public List getA() {
+  public Set getA() {
     return _b.getOtherEnds();
   }
 

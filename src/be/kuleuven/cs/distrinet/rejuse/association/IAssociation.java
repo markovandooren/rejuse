@@ -90,7 +90,7 @@ public interface IAssociation<FROM, TO> {
 	  @           r.getObject() == o));
 	  @*/
 	//public /*@ pure @*/ abstract List<TO> getOtherEnds();
-	public/*@ pure @*/List<TO> getOtherEnds();
+	public/*@ pure @*/Collection<TO> getOtherEnds();
 
 	public void addOtherEndsTo(Collection<? super TO> collection);
 

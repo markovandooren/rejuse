@@ -3,9 +3,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
 
 /**
@@ -145,6 +145,14 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
     return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
   }
   
+	@Override
+	public /*@ pure @*/ Set<TO> getOtherEnds() {
+		Set<TO> result = new HashSet<TO>();
+	  addOtherEndsTo(result);
+	  increase();
+	  return result;
+  }
+
   /**
    * Remove the given Relation from this ReferenceSet
    *

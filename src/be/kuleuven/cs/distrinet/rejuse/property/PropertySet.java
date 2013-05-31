@@ -50,6 +50,15 @@ public class PropertySet<E,P extends Property<E,P>> {
 			add(p);
 		}
 	}
+	
+	public PropertySet(PropertySet<E, P> toBeCopied) {
+		if(toBeCopied == null) {
+			throw new IllegalArgumentException();
+		}
+		for(P p: toBeCopied._properties) {
+			add(p);
+		}
+	}
 
 	/**
 	 * Create a new property set that contains the given properties
@@ -337,29 +346,61 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ pre property != null;
    @
    @*/
+//  public Ternary implies(Property<E,?> property) {
+//  	return newImplies(property);
+//  }
+  
+//  public Ternary oldImplies(Property<E,?> property) {
+//    SafePredicate<Property<E,?>> propertyFilter = new SafePredicate<Property<E,?>>() {
+//      @Override
+//      public boolean eval(Property<E,?> property) {
+//      	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
+//        return unsafePropertiesView().contains(property) && internallyConsistent(property);
+//      }
+//    };
+//    Set<? extends Property<E,?>> implying = property.impliedByProperties();
+//    propertyFilter.filter(implying);
+//    
+//    Set<? extends Property<E,?>> contradicting = property.contradictedProperties();
+//    propertyFilter.filter(contradicting);
+//    
+//    if((! implying.isEmpty()) && (contradicting.isEmpty())) {
+//        return Ternary.TRUE;
+//    } else if ((implying.isEmpty()) && (! contradicting.isEmpty())) {
+//        return Ternary.FALSE;
+//    } else {
+//      return Ternary.UNKNOWN; 
+//    }
+//    
+//  }
+  
   public Ternary implies(Property<E,?> property) {
-    SafePredicate<Property<E,?>> propertyFilter = new SafePredicate<Property<E,?>>() {
-      @Override
-      public boolean eval(Property<E,?> property) {
-      	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
-        return unsafePropertiesView().contains(property) && internallyConsistent(property);
-      }
-    };
-    Set<? extends Property<E,?>> implying = property.impliedByProperties();
-    propertyFilter.filter(implying);
+    boolean implied = false;
+    for(Property<E,?> p : property.impliedByProperties()) {
+    	if(unsafePropertiesView().contains(p) && internallyConsistent(p)) {
+    		implied = true;
+    		break;
+    	}
+    }
     
-    Set<? extends Property<E,?>> contradicting = property.contradictedProperties();
-    propertyFilter.filter(contradicting);
-    
-    if((! implying.isEmpty()) && (contradicting.isEmpty())) {
+    boolean contradicted = false;
+    for(Property<E,?> p : property.contradictedProperties()) {
+    	if(unsafePropertiesView().contains(p) && internallyConsistent(p)) {
+    		contradicted = true;
+    		break;
+    	}
+    }
+
+    if(implied && (! contradicted)) {
         return Ternary.TRUE;
-    } else if ((implying.isEmpty()) && (! contradicting.isEmpty())) {
+    } else if ((! implied) && contradicted) {
         return Ternary.FALSE;
     } else {
       return Ternary.UNKNOWN; 
     }
     
   }
+
   
   /** 
    * Check if the properties in this property set contradict the given property.

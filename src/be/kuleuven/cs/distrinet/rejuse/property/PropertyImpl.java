@@ -212,8 +212,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
 	 @ post \result.containsAll(implicitlyImpliedProperties());
 	 @*/
 	public Set<F> directlyImpliedProperties() {
-		Set<F> result = new HashSet<F>(_implied.getOtherEnds());
-		result.addAll(implicitlyImpliedProperties());
+		Set<F> result = implicitlyImpliedProperties();
+		_implied.addOtherEndsTo(result);
 		return result;
 	}
 	
@@ -312,7 +312,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @*/
 	public Set<F> directlyImpliedByProperties() {
 		Set<F> result = implicitlyImpliedByProperties();
-		result.addAll(_impliedBy.getOtherEnds());
+//		result.addAll(_impliedBy.getOtherEnds());
+		_impliedBy.addOtherEndsTo(result);
 		return result;
 	}
 
@@ -393,8 +394,8 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @ post \result.containsAll(implicitlyContradictedProperties());
    @*/
 	public Set<F> directlyContradictedProperties() {
-		Set<F> result = new HashSet<F>(_contradicted.getOtherEnds());
-		result.addAll(implicitlyContradictedProperties());
+		Set<F> result = implicitlyContradictedProperties();
+		_contradicted.addOtherEndsTo(result);
 		return result;
 	}
 	

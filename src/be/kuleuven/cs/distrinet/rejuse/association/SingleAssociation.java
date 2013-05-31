@@ -317,4 +317,13 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 			action.perform(_other.getObject());
 		}
 	}
+	
+	@Override
+	public /*@ pure @*/ List<TO> getOtherEnds() {
+	  List<TO> result = new ArrayList<TO>();
+	  addOtherEndsTo(result);
+	  increase();
+	  return result;
+  }
+
 }
