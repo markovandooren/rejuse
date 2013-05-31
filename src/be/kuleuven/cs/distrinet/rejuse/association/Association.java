@@ -1,6 +1,5 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -167,14 +166,14 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //  @Override
 	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
-	protected void increase() {
+//	protected void increase() {
 //		Integer i = _nbTimesGetOtherEnds.get(this);
 //		if(i == null) {
 //			_nbTimesGetOtherEnds.put(this, 1);
 //		} else {
 //			_nbTimesGetOtherEnds.put(this, 1+i);
 //		}
-	}
+//	}
 	
 	public static int nbAvoidableGetOtherEnds() {
 		int count = 0;
@@ -217,7 +216,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 		return result;
 	}
 
-	private static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+	public static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
 	
 //  @Override
 	public abstract void addOtherEndsTo(Collection<? super TO> collection);
@@ -361,10 +360,13 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   
   private Set<AssociationListener<? super TO>> _listeners;
   
+  public abstract void flushCache();
+  
   /**
    * If events are enabled, send "element added" events to all listeners.
    */
   protected void fireElementAdded(TO addedElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementAdded(addedElement);
@@ -376,6 +378,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    * If events are enabled, send "element removed" events to all listeners.
    */
   protected void fireElementRemoved(TO addedElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementRemoved(addedElement);
@@ -387,6 +390,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    * If events are enabled, send "element replaced" events to all listeners.
    */
   protected void fireElementReplaced(TO oldElement, TO newElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementReplaced(oldElement, newElement);
@@ -439,4 +443,17 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //  @Override
 	public abstract void clear();
 
+	public void enableCache() {
+		_isCaching = true;
+	}
+	
+	public void disableCache() {
+		_isCaching = false;
+	}
+	
+	public boolean isCaching() {
+		return _isCaching;
+	}
+	
+	private boolean _isCaching;
 }

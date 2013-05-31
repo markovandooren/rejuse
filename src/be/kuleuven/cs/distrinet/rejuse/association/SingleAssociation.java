@@ -1,6 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -320,10 +321,30 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 	
 	@Override
 	public /*@ pure @*/ List<TO> getOtherEnds() {
-	  List<TO> result = new ArrayList<TO>();
-	  addOtherEndsTo(result);
-	  increase();
-	  return result;
-  }
+		if(isCaching()) {
+			if(_cache == null) {
+				_cache = doGetOtherEnds();
+			}
+			return _cache;
+		} else {
+			return doGetOtherEnds();
+		}
+	}
+	
+	public void flushCache() {
+		_cache = null;
+	}
+	
+	protected List<TO> doGetOtherEnds() {
+//	  increase();
+		Association<? extends TO, ? super FROM> otherRelation = getOtherRelation();
+		if(otherRelation == null) {
+			return Collections.EMPTY_LIST;
+		} else {
+			return (List<TO>) Collections.singletonList(otherRelation.getObject());
+		}
+	}
+	
+	private List<TO> _cache;
 
 }

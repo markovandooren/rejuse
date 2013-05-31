@@ -1,6 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
@@ -122,9 +123,20 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   
 	@Override
 	public /*@ pure @*/ List<TO> getOtherEnds() {
+		if(isCaching()) {
+			if(_cache == null) {
+				_cache = Collections.unmodifiableList(doGetOtherEnds());
+			}
+			return _cache;
+		} else {
+			return doGetOtherEnds();
+		}
+	}
+
+	public /*@ pure @*/ List<TO> doGetOtherEnds() {
 	  List<TO> result = new ArrayList<TO>();
 	  addOtherEndsTo(result);
-	  increase();
+//	  increase();
 	  return result;
   }
 	
@@ -408,5 +420,12 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   		action.perform(element.getObject());
   	}
   }
+
+  private List<TO> _cache;
+  
+	public void flushCache() {
+		_cache = null;
+	}
+
 }
 
