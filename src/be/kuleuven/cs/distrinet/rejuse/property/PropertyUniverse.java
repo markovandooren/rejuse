@@ -31,5 +31,14 @@ public interface PropertyUniverse<P extends Property<?,P>> {
    @ post \result != null;
    @*/
   public Set<P> properties();
+  
+  /**
+   * Flush any cache held by the properties in this property universe.
+   * This method is invoked by a property whenever one of the relations between 
+   * the properties is modified.
+   * 
+   * This normally only occurs during initialization.
+   */
+  public void flushCache();
 
 }

@@ -193,6 +193,21 @@ public interface Property<E, F extends Property<E,F>> {
 	public Set<F> impliedByProperties();
 
 	/**
+	 * Check whether this property is implied by the given set of properties.
+	 * 
+	 * @param set The set of which must be determined if it implies this property
+	 * @return
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre set != null;
+   @
+   @ post \result == (\exists p; set.contains(p);impliedByProperties().contains(p));
+   @*/
+	public boolean impliedBy(Set<F> set);
+	
+	/**
 	 * Return the set of properties that directly imply this property.
 	 * @return
 	 */
@@ -240,6 +255,22 @@ public interface Property<E, F extends Property<E,F>> {
 	 */
 	public Set<F> contradictedProperties();
 
+	
+	/**
+	 * Check whether this property is contradicted by the given set of properties.
+	 * 
+	 * @param set The set of which must be determined if it contradicts this property
+	 * @return
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre set != null;
+   @
+   @ post \result == (\exists p; set.contains(p);contradictedProperties().contains(p));
+   @*/
+	public boolean contradictedBy(Set<F> set);
+	
 	/**
 	 * Return the set of properties directly contradicted by this property. This 
 	 * includes the properties that are implicitly contradicted by this property,
@@ -296,5 +327,9 @@ public interface Property<E, F extends Property<E,F>> {
 	public MultiAssociation<F,F> impliedByLink();
 
   public SingleAssociation<F,F> inverseLink();
+  
+  public void flushCache();
+  
+  public void flushLocalCache();
 
 }

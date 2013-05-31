@@ -168,12 +168,12 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
 	protected void increase() {
-		Integer i = _nbTimesGetOtherEnds.get(this);
-		if(i == null) {
-			_nbTimesGetOtherEnds.put(this, 1);
-		} else {
-			_nbTimesGetOtherEnds.put(this, 1+i);
-		}
+//		Integer i = _nbTimesGetOtherEnds.get(this);
+//		if(i == null) {
+//			_nbTimesGetOtherEnds.put(this, 1);
+//		} else {
+//			_nbTimesGetOtherEnds.put(this, 1+i);
+//		}
 	}
 	
 	public static int nbAvoidableGetOtherEnds() {

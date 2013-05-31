@@ -136,7 +136,7 @@ public class PropertySet<E,P extends Property<E,P>> {
    @*/
   public PropertySet<E,P> clone() {
     PropertySet<E,P> result = new PropertySet<E,P>();
-    result.addAll(unsafePropertiesView());
+    result.addAll(unsafeProperties());
     return result;    
   }
   
@@ -203,15 +203,11 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ post properties().containsAll(properties);
   */
   public void addAll(PropertySet<E,P> properties) {
-    addAll(properties.unsafePropertiesView());
+    addAll(properties.unsafeProperties());
   }
 
-  protected Set<P> unsafePropertiesView() {
+  protected Set<P> unsafeProperties() {
   	return _properties;
-  }
-  
-  protected Set<P> propertiesView() {
-  	return Collections.unmodifiableSet(_properties);
   }
   
   /**
@@ -269,7 +265,7 @@ public class PropertySet<E,P extends Property<E,P>> {
       public boolean eval(final P p1) {
         return internallyConsistent(p1);
       }
-    }.forAll(unsafePropertiesView());
+    }.forAll(unsafeProperties());
   }
   
   /**
@@ -314,7 +310,7 @@ public class PropertySet<E,P extends Property<E,P>> {
       public boolean eval(P p2) {
         return ! property.contradicts(p2);
       }
-    }.forAll(unsafePropertiesView());
+    }.forAll(unsafeProperties());
   }
   
   /**
@@ -374,10 +370,37 @@ public class PropertySet<E,P extends Property<E,P>> {
 //    
 //  }
   
+  private Set<P> propertiesView() {
+  	if(_propertiesCache == null) {
+  		_propertiesCache = Collections.unmodifiableSet((Set)unsafeProperties());
+  	}
+  	return _propertiesCache;
+  }
+  
+  private Set<P> _propertiesCache;
+  
+  public Ternary newImplies(Property<E,?> property) {
+  	Set properties = propertiesView();
+		boolean implied = property.impliedBy(properties);
+  	boolean contradicted = property.contradictedBy(properties);
+  	if(implied && (! contradicted)) {
+  		return Ternary.TRUE;
+  	} else if ((! implied) && contradicted) {
+  		return Ternary.FALSE;
+  	} else {
+  		return Ternary.UNKNOWN; 
+  	}
+
+  }
+  
   public Ternary implies(Property<E,?> property) {
+  	return newImplies(property);
+  }
+  
+  public Ternary oldImplies(Property<E,?> property) {
     boolean implied = false;
     for(Property<E,?> p : property.impliedByProperties()) {
-    	if(unsafePropertiesView().contains(p) && internallyConsistent(p)) {
+    	if(unsafeProperties().contains(p) && internallyConsistent(p)) {
     		implied = true;
     		break;
     	}
@@ -385,7 +408,7 @@ public class PropertySet<E,P extends Property<E,P>> {
     
     boolean contradicted = false;
     for(Property<E,?> p : property.contradictedProperties()) {
-    	if(unsafePropertiesView().contains(p) && internallyConsistent(p)) {
+    	if(unsafeProperties().contains(p) && internallyConsistent(p)) {
     		contradicted = true;
     		break;
     	}
@@ -429,7 +452,7 @@ public class PropertySet<E,P extends Property<E,P>> {
 //  			removeProperty(p);
 //  		}
 //  	}
-  	Iterator<P> ps = unsafePropertiesView().iterator();
+  	Iterator<P> ps = unsafeProperties().iterator();
   	while(ps.hasNext()) {
   		P p = ps.next();
   		if(set.contradicts(p) == Ternary.TRUE) {

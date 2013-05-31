@@ -3,6 +3,7 @@ package be.kuleuven.cs.distrinet.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
+import be.kuleuven.cs.distrinet.rejuse.association.AssociationListener;
 import be.kuleuven.cs.distrinet.rejuse.association.MultiAssociation;
 import be.kuleuven.cs.distrinet.rejuse.association.SingleAssociation;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.SafeAccumulator;
@@ -88,6 +89,33 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @ post  universe() == universe;
    @*/
   private void init(String name, PropertyUniverse<F> universe) {
+    AssociationListener<F> listener = new AssociationListener<F>() {
+			@Override
+			public void notifyElementAdded(F element) {
+				flushCache();
+			}
+
+			@Override
+			public void notifyElementRemoved(F element) {
+				flushCache();
+			}
+		};
+		_contradicted.addListener(listener);
+		_implied.addListener(listener);
+		_inverse.addListener(listener);
+		AssociationListener<PropertyUniverse> ulistener = new AssociationListener<PropertyUniverse>() {
+				@Override
+				public void notifyElementAdded(PropertyUniverse element) {
+					element.flushCache();
+				}
+
+				@Override
+				public void notifyElementRemoved(PropertyUniverse element) {
+					element.flushCache();
+				}
+			};
+		_universe.addListener(ulistener);
+		
     setName(name);
     _universe.connectTo(universe.propertyLink());
   }
@@ -294,13 +322,52 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
 	public Set<F> impliedByProperties() {
-		return new SafeTransitiveClosure<F>() {
-			public void addConnectedNodes(F p, Set<F> acc) {
-				acc.addAll(p.directlyImpliedByProperties());
-			}
-		}.closure((F) this);
+		if(_impliedByCache == null) {
+			_impliedByCache = new SafeTransitiveClosure<F>() {
+				public void addConnectedNodes(F p, Set<F> acc) {
+					acc.addAll(p.directlyImpliedByProperties());
+				}
+			}.closure((F) this);
+		}
+		return _impliedByCache;
 	}
-
+	
+	private Set<F> _impliedByCache;
+	
+	private Set<F> _contradictedByCache;
+	
+	public void flushLocalCache() {
+		_impliedByCache = null;
+		_contradictedByCache = null;
+	}
+	
+	public void flushCache() {
+		universe().flushCache();
+	}
+	
+	public boolean contradictedBy(Set<F> set) {
+		Set<F> mine = contradictedProperties();
+		for(F f: set) {
+			if(mine.contains(f)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean impliedBy(Set<F> set) {
+		if(set.contains(this)) {
+			return true;
+		}
+		Set<F> mine = impliedByProperties();
+		for(F f: set) {
+			if(mine.contains(f)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
   /* (non-Javadoc)
 	 * @see org.rejuse.property.Prop#directlyImpliedByProperties()
 	 */
@@ -349,39 +416,42 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
 	 * @see org.rejuse.property.Prop#contradictedProperties()
 	 */
 	public Set<F> contradictedProperties() {
-		// 1) all implied properties including the current property
-    Set<F> implied = impliedProperties();
-    // 2) all properties directly contradicting these properties
-    final Set<F> directlyContradicted = new SafeAccumulator<F, Set<F>>() {
+		if(_contradictedByCache == null) {
+			// 1) all implied properties including the current property
+			Set<F> implied = impliedProperties();
+			// 2) all properties directly contradicting these properties
+			final Set<F> directlyContradicted = new SafeAccumulator<F, Set<F>>() {
 
-      @Override
-      public Set<F> accumulate(F element, Set<F> acc) {
-        acc.addAll(element.directlyContradictedProperties());
-        return acc;
-      }
+				@Override
+				public Set<F> accumulate(F element, Set<F> acc) {
+					acc.addAll(element.directlyContradictedProperties());
+					return acc;
+				}
 
-      @Override
-      public Set<F> initialAccumulator() {
-        return new HashSet<F>();
-      }
+				@Override
+				public Set<F> initialAccumulator() {
+					return new HashSet<F>();
+				}
 
-    }.accumulate(implied);
+			}.accumulate(implied);
 
-    // 3) add all properties implying the properties in directlyContradicted
-    return new SafeAccumulator<F, Set<F>>() {
+			// 3) add all properties implying the properties in directlyContradicted
+			_contradictedByCache = new SafeAccumulator<F, Set<F>>() {
 
-      @Override
-      public Set<F> accumulate(F element, Set<F> acc) {
-        acc.addAll(element.impliedByProperties());
-        return acc;
-      }
+				@Override
+				public Set<F> accumulate(F element, Set<F> acc) {
+					acc.addAll(element.impliedByProperties());
+					return acc;
+				}
 
-      @Override
-      public Set<F> initialAccumulator() {
-        return new HashSet<F>(directlyContradicted);
-      }
+				@Override
+				public Set<F> initialAccumulator() {
+					return new HashSet<F>(directlyContradicted);
+				}
 
-    }.accumulate(directlyContradicted);
+			}.accumulate(directlyContradicted);
+	}
+    return _contradictedByCache;
 	}
 	
   /* (non-Javadoc)
@@ -457,6 +527,11 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
 		return _impliedBy;
 	}
 
+	/**
+	 * (P1 => ! P2) == (P2 => ! P1), so the association is
+	 * inherently bidirectional. Therefore we only need a single
+	 * association object. There is no need to distinguish the roles. 
+	 */
 	private MultiAssociation<F,F> _contradicted = new MultiAssociation<F,F>((F) this); 
 	
 	private MultiAssociation<F,F> _implied = new MultiAssociation<F,F>((F) this); 
