@@ -175,48 +175,48 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //		}
 //	}
 	
-	public static int nbAvoidableGetOtherEnds() {
-		int count = 0;
-		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-			int intValue = entry.getValue().intValue();
-			if(intValue > 1) {
-				count += intValue - 1;
-			}
-		}
-		return count;
-	}
-
-	public static int nbWithoutAvoidableGetOtherEnds() {
-		int count = 0;
-		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-			if(entry.getValue().intValue() <= 1) {
-				count++;
-			}
-		}
-		return count;
-	}
+//	public static int nbAvoidableGetOtherEnds() {
+//		int count = 0;
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			int intValue = entry.getValue().intValue();
+//			if(intValue > 1) {
+//				count += intValue - 1;
+//			}
+//		}
+//		return count;
+//	}
+//
+//	public static int nbWithoutAvoidableGetOtherEnds() {
+//		int count = 0;
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			if(entry.getValue().intValue() <= 1) {
+//				count++;
+//			}
+//		}
+//		return count;
+//	}
 	
-	public static void cleanGetOtherEndsCache() {
-		_nbTimesGetOtherEnds = new HashMap<Association, Integer>();
-	}
-	
-	public static Map<Class,Integer> nbAvoidableGetOtherEndsPerClass() {
-		Map<Class,Integer> result = new HashMap<Class, Integer>();
-		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-			Class c = entry.getKey().getObject().getClass();
-			Integer count = entry.getValue();
-			Integer accumulated = result.get(c);
-			if(accumulated == null) {
-				accumulated = count - 1;
-			} else {
-				accumulated = accumulated + count - 1;
-			}
-			result.put(c, accumulated);
-		}
-		return result;
-	}
-
-	public static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+//	public static void cleanGetOtherEndsCache() {
+//		_nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+//	}
+//	
+//	public static Map<Class,Integer> nbAvoidableGetOtherEndsPerClass() {
+//		Map<Class,Integer> result = new HashMap<Class, Integer>();
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			Class c = entry.getKey().getObject().getClass();
+//			Integer count = entry.getValue();
+//			Integer accumulated = result.get(c);
+//			if(accumulated == null) {
+//				accumulated = count - 1;
+//			} else {
+//				accumulated = accumulated + count - 1;
+//			}
+//			result.put(c, accumulated);
+//		}
+//		return result;
+//	}
+//
+//	public static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
 	
 //  @Override
 	public abstract void addOtherEndsTo(Collection<? super TO> collection);
