@@ -149,15 +149,17 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
    @ post other != null ==> other.registered(\old(other.getOtherRelations()), this);
    @*/
   public void connectTo(Association<? extends TO,? super FROM> other) {
-  	checkLock();
-  	checkLock(getOtherRelation());
-  	checkLock(other);
-    if (other != _other) {
-      register(other);
-      if (other != null) {
-          other.register(this);
-      }
-    }
+  	if(isValidElement(other) && (other == null || other.isValidElement(this))) {
+  		checkLock();
+  		checkLock(getOtherRelation());
+  		checkLock(other);
+  		if (other != _other) {
+  			register(other);
+  			if (other != null) {
+  				other.register(this);
+  			}
+  		}
+  	}
   }
 
  /*@
