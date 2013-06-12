@@ -1,12 +1,13 @@
 package be.kuleuven.cs.distrinet.rejuse.association.test;
+import java.util.Collection;
+import java.util.List;
+
 import be.kuleuven.cs.distrinet.rejuse.association.Association;
 import be.kuleuven.cs.distrinet.rejuse.association.MultiAssociation;
 import be.kuleuven.cs.distrinet.rejuse.association.SingleAssociation;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.junit.CVSRevision;
 import be.kuleuven.cs.distrinet.rejuse.junit.JutilTest;
-
-import java.util.List;
 
 public class TestHybrid extends JutilTest {
 
@@ -105,7 +106,7 @@ private class C extends T {
     _c = new MultiAssociation(this);
   }
 
-  public List getB() {
+  public Collection getB() {
     return _c.getOtherEnds();
   }
 
@@ -140,7 +141,7 @@ private class B {
     _name = name;
   }
 
-  public List getT() {
+  public Collection getT() {
     return _b.getOtherEnds();
   }
 

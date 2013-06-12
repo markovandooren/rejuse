@@ -1,6 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -148,15 +149,17 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
    @ post other != null ==> other.registered(\old(other.getOtherRelations()), this);
    @*/
   public void connectTo(Association<? extends TO,? super FROM> other) {
-  	checkLock();
-  	checkLock(getOtherRelation());
-  	checkLock(other);
-    if (other != _other) {
-      register(other);
-      if (other != null) {
-          other.register(this);
-      }
-    }
+  	if(isValidElement(other) && (other == null || other.isValidElement(this))) {
+  		checkLock();
+  		checkLock(getOtherRelation());
+  		checkLock(other);
+  		if (other != _other) {
+  			register(other);
+  			if (other != null) {
+  				other.register(this);
+  			}
+  		}
+  	}
   }
 
  /*@
@@ -317,4 +320,33 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 			action.perform(_other.getObject());
 		}
 	}
+	
+	@Override
+	public /*@ pure @*/ List<TO> getOtherEnds() {
+		if(isCaching()) {
+			if(_cache == null) {
+				_cache = doGetOtherEnds();
+			}
+			return _cache;
+		} else {
+			return doGetOtherEnds();
+		}
+	}
+	
+	public void flushCache() {
+		_cache = null;
+	}
+	
+	protected List<TO> doGetOtherEnds() {
+//	  increase();
+		Association<? extends TO, ? super FROM> otherRelation = getOtherRelation();
+		if(otherRelation == null) {
+			return Collections.EMPTY_LIST;
+		} else {
+			return (List<TO>) Collections.singletonList(otherRelation.getObject());
+		}
+	}
+	
+	private List<TO> _cache;
+
 }

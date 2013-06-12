@@ -1,11 +1,12 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
 
 /**
@@ -145,6 +146,25 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
     return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
   }
   
+	@Override
+	public /*@ pure @*/ Set<TO> getOtherEnds() {
+		if(isCaching()) {
+			if(_cache == null) {
+				_cache = Collections.unmodifiableSet(doGetOtherEnds());
+			}
+			return _cache;
+		} else {
+			return doGetOtherEnds();
+		}
+	}
+
+	public /*@ pure @*/ Set<TO> doGetOtherEnds() {
+		Set<TO> result = new HashSet<TO>();
+	  addOtherEndsTo(result);
+//	  increase();
+	  return result;
+  }
+
   /**
    * Remove the given Relation from this ReferenceSet
    *
@@ -303,4 +323,12 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
   		action.perform(element.getObject());
   	}
   }
+
+  private Set<TO> _cache;
+  
+	public void flushCache() {
+		_cache = null;
+	}
+	
+
 }

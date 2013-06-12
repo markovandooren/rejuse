@@ -1,12 +1,11 @@
 package be.kuleuven.cs.distrinet.rejuse.association;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import be.kuleuven.cs.distrinet.rejuse.action.Action;
 
 /**
  * <p>A class of objects that can be used to set up bi-directional association between objects.</p>
@@ -167,29 +166,63 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //  @Override
 	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
-  /**
-   * Return the objects on the other side of the binding.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \result != null;
-   @ post \result.size() == getOtherAssociations().size();
-   @ post (\forall Object o; \result.contains(o);
-   @        (\exists Association r; getOtherAssociations().contains(r);
-   @           r.getObject() == o));
-   @*/
-  //public /*@ pure @*/ abstract List<TO> getOtherEnds();
-//  @Override
-	public /*@ pure @*/ List<TO> getOtherEnds() {
-	  List<TO> result = new ArrayList<TO>();
-	  addOtherEndsTo(result);
-	  return result;
-  }
-
+//	protected void increase() {
+//		Integer i = _nbTimesGetOtherEnds.get(this);
+//		if(i == null) {
+//			_nbTimesGetOtherEnds.put(this, 1);
+//		} else {
+//			_nbTimesGetOtherEnds.put(this, 1+i);
+//		}
+//	}
+	
+//	public static int nbAvoidableGetOtherEnds() {
+//		int count = 0;
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			int intValue = entry.getValue().intValue();
+//			if(intValue > 1) {
+//				count += intValue - 1;
+//			}
+//		}
+//		return count;
+//	}
+//
+//	public static int nbWithoutAvoidableGetOtherEnds() {
+//		int count = 0;
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			if(entry.getValue().intValue() <= 1) {
+//				count++;
+//			}
+//		}
+//		return count;
+//	}
+	
+//	public static void cleanGetOtherEndsCache() {
+//		_nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+//	}
+//	
+//	public static Map<Class,Integer> nbAvoidableGetOtherEndsPerClass() {
+//		Map<Class,Integer> result = new HashMap<Class, Integer>();
+//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
+//			Class c = entry.getKey().getObject().getClass();
+//			Integer count = entry.getValue();
+//			Integer accumulated = result.get(c);
+//			if(accumulated == null) {
+//				accumulated = count - 1;
+//			} else {
+//				accumulated = accumulated + count - 1;
+//			}
+//			result.put(c, accumulated);
+//		}
+//		return result;
+//	}
+//
+//	public static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+	
 //  @Override
 	public abstract void addOtherEndsTo(Collection<? super TO> collection);
 
+//	public abstract List<TO> view();
+	
   /**
    * Return the association on the other side of the binding.
    */
@@ -327,10 +360,13 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   
   private Set<AssociationListener<? super TO>> _listeners;
   
+  public abstract void flushCache();
+  
   /**
    * If events are enabled, send "element added" events to all listeners.
    */
   protected void fireElementAdded(TO addedElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementAdded(addedElement);
@@ -342,6 +378,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    * If events are enabled, send "element removed" events to all listeners.
    */
   protected void fireElementRemoved(TO addedElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementRemoved(addedElement);
@@ -353,6 +390,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    * If events are enabled, send "element replaced" events to all listeners.
    */
   protected void fireElementReplaced(TO oldElement, TO newElement) {
+  	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
   			listener.notifyElementReplaced(oldElement, newElement);
@@ -405,4 +443,17 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //  @Override
 	public abstract void clear();
 
+	public void enableCache() {
+		_isCaching = true;
+	}
+	
+	public void disableCache() {
+		_isCaching = false;
+	}
+	
+	public boolean isCaching() {
+		return _isCaching;
+	}
+	
+	private boolean _isCaching;
 }
