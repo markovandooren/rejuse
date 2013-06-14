@@ -38,7 +38,8 @@ Export-Package: be.kuleuven.cs.distrinet.rejuse,
  be.kuleuven.cs.distrinet.rejuse.metric.unit,
  be.kuleuven.cs.distrinet.rejuse.predicate,
  be.kuleuven.cs.distrinet.rejuse.predicate.test,
- be.kuleuven.cs.distrinet.rejuse.property
+ be.kuleuven.cs.distrinet.rejuse.property,
+ be.kuleuven.cs.distrinet.rejuse.string
 Bundle-Vendor: distrinet.cs.kuleuven.be
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
