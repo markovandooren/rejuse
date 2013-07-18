@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
@@ -105,7 +108,18 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @*/
   public OrderedMultiAssociation(FROM object) {
     super(object);
-    _elements = new ArrayList<Association<? extends TO,? super FROM>>();
+  }
+  
+  public OrderedMultiAssociation(FROM object, int initialSize) {
+    super(object);
+    _initialSize = initialSize;
+  }
+
+  
+  private int _initialSize;
+  
+  private void initElement() {
+  	_elements = new ArrayList<Association<? extends TO,? super FROM>>(_initialSize);  	
   }
   
   /**
@@ -125,21 +139,29 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
 	public /*@ pure @*/ List<TO> getOtherEnds() {
 		if(isCaching()) {
 			if(_cache == null) {
-				_cache = Collections.unmodifiableList(doGetOtherEnds());
+				if(_elements != null) {
+					Builder<TO> builder = ImmutableList.<TO>builder();
+					for(Association<? extends TO,? super FROM> element: _elements) {
+						builder.add(element.getObject());
+					}
+					_cache = builder.build();
+				} else {
+					_cache = Collections.EMPTY_LIST;
+				}
 			}
 			return _cache;
 		} else {
 			return doGetOtherEnds();
 		}
 	}
-
-	public /*@ pure @*/ List<TO> doGetOtherEnds() {
-	  List<TO> result = new ArrayList<TO>();
-	  addOtherEndsTo(result);
-//	  increase();
-	  return result;
-  }
 	
+	protected /*@ pure @*/ List<TO> doGetOtherEnds() {
+		List<TO> result = new ArrayList<TO>();
+		addOtherEndsTo(result);
+		//	  increase();
+		return result;
+	}
+
 
   /**
    * {@inheritDoc} 
@@ -223,26 +245,30 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
    @*/
   public void replace(Association<? extends TO,? super FROM> oldAssociation, Association<? extends TO,? super FROM> newAssociation) {
-    int index = _elements.indexOf(oldAssociation);
-    if(index != -1) {
-	  	checkLock();
-	  	checkLock(oldAssociation);
-	  	checkLock(newAssociation);
-      _elements.set(index, newAssociation);
-      newAssociation.register(this);
-      oldAssociation.unregister(this);
-      fireElementReplaced(oldAssociation.getObject(), newAssociation.getObject());
-    }
+  	if(_elements != null) {
+  		int index = _elements.indexOf(oldAssociation);
+  		if(index != -1) {
+  			checkLock();
+  			checkLock(oldAssociation);
+  			checkLock(newAssociation);
+  			_elements.set(index, newAssociation);
+  			newAssociation.register(this);
+  			oldAssociation.unregister(this);
+  			fireElementReplaced(oldAssociation.getObject(), newAssociation.getObject());
+  		}
+  	}
   }
   
   public void addOtherEndsTo(Collection<? super TO> collection) {
-	  for(Association<? extends TO,? super FROM> element: _elements) {
-          collection.add(element.getObject());
-	  }
+  	if(_elements != null) {
+  		for(Association<? extends TO,? super FROM> element: _elements) {
+  			collection.add(element.getObject());
+  		}
+  	}
   }
 
   public TO lastElement() {
-  	int size = _elements.size();
+  	int size = size();
   	if(size > 0) {
 		  return _elements.get(size-1).getObject();
   	} else {
@@ -257,6 +283,8 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   	if(baseOneIndex < 1 || baseOneIndex > size()) {
   		throw new IllegalArgumentException();
   	}
+  	// No check needed, if _elements is null, the size is 0
+  	// so the check above will pass and an exception is thrown.
   	return _elements.get(baseOneIndex-1).getObject();
   }
   
@@ -270,10 +298,12 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @*/
   public int indexOf(TO element) {
   	int index = -1;
-  	for(int i = 0; i < _elements.size(); i++) {
-  		if(_elements.get(i).getObject().equals(element)) {
-  			index = i+1;
-  			break;
+  	if(_elements != null) {
+  		for(int i = 0; i < _elements.size(); i++) {
+  			if(_elements.get(i).getObject().equals(element)) {
+  				index = i+1;
+  				break;
+  			}
   		}
   	}
   	return index;
@@ -295,6 +325,11 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   @Override
+  protected List<Association<? extends TO, ? super FROM>> internalAssociations() {
+    return _elements;
+  }
+  
+  @Override
   protected void unregister(Association<? extends TO,? super FROM> association) {
 //    if(contains(association)) {
       unregisterPrivate(association);
@@ -302,9 +337,11 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
 
 	private void unregisterPrivate(Association<? extends TO, ? super FROM> association) {
-		boolean removed = _elements.remove(association);
-		if(removed) {
-			fireElementRemoved(association.getObject());
+		if(_elements != null) {
+			boolean removed = _elements.remove(association);
+			if(removed) {
+				fireElementRemoved(association.getObject());
+			}
 		}
 	}
     
@@ -317,18 +354,25 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
 
 	private void registerPrivate(Association<? extends TO, ? super FROM> association) {
-		_elements.add(association);
+		elements().add(association);
 		fireElementAdded(association.getObject());
 	}
   
 	private void registerInFrontPrivate(Association<? extends TO, ? super FROM> association) {
-		_elements.add(0,association);
+		elements().add(0,association);
 		fireElementAdded(association.getObject());
 	}
 	
 	private void registerAtIndexPrivate(Association<? extends TO, ? super FROM> association,int index) {
-		_elements.add(index-1,association);
+		elements().add(index-1,association);
 		fireElementAdded(association.getObject());
+	}
+	
+	private List<Association<? extends TO,? super FROM>> elements() {
+		if(_elements == null) {
+			initElement();
+		}
+		return _elements;
 	}
 
  /*@
@@ -341,13 +385,18 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @ //TODO: order
    @*/
   public /*@ pure @*/ boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered) {
-    return (oldConnections != null) &&
-           (contains(registered)) &&
-           new SafePredicate<Association<? extends TO,? super FROM>>() {
-             public boolean eval(Association<? extends TO,? super FROM> o) {
-               return OrderedMultiAssociation.this.contains(o);
-             }
-           }.forAll(_elements);
+		boolean result = (oldConnections != null) &&
+                     (contains(registered)) &&
+		                 (_elements != null);
+  	if(result) {
+  		for(Association<? extends TO,? super FROM> o: _elements)  {
+  			if(! contains(o)) {
+  				result = false;
+  				break;
+  			}
+  		}
+  	}
+		return result;
   }
 
  /*@
@@ -389,7 +438,7 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
      @ post \result == getOtherRelations().size();
      @*/
     public /*@ pure @*/ int size() {
-        return _elements.size();
+        return _elements == null ? 0 :_elements.size();
   }
     
   /**
@@ -401,7 +450,7 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    *        this ReferenceSet.
    */
   public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> element) {
-    return _elements.contains(element);
+    return _elements == null ? false : _elements.contains(element);
   }
   
   /**
@@ -416,8 +465,10 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   
   @Override
 	public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
-  	for(Association<? extends TO,? super FROM> element: _elements) {
-  		action.perform(element.getObject());
+  	if(_elements != null) {
+  		for(Association<? extends TO,? super FROM> element: _elements) {
+  			action.perform(element.getObject());
+  		}
   	}
   }
 

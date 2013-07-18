@@ -5,5 +5,7 @@
   </publications>
   <dependencies>
     <dependency org="junit" name="junit" rev="latest.integration" conf="*->*,!sources,!javadoc"/>
+    <dependency org="com.google.guava" name="guava" rev="latest.integration"/>
+
   </dependencies>
 </ivy-module>

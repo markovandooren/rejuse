@@ -146,6 +146,11 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
     return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
   }
   
+  @Override
+  protected Collection<Association<? extends TO, ? super FROM>> internalAssociations() {
+  	return _elements;
+  }
+  
 	@Override
 	public /*@ pure @*/ Set<TO> getOtherEnds() {
 		if(isCaching()) {

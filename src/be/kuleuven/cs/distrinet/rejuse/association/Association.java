@@ -55,7 +55,8 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @*/
 //  @Override
 	public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> association) {
-    return getOtherAssociations().contains(association);
+    Collection<Association<? extends TO, ? super FROM>> internalAssociations = internalAssociations();
+		return internalAssociations == null ? false : internalAssociations.contains(association);
   }
 
  /*@
@@ -166,57 +167,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 //  @Override
 	public /*@ pure @*/ abstract boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> unregistered);
 
-//	protected void increase() {
-//		Integer i = _nbTimesGetOtherEnds.get(this);
-//		if(i == null) {
-//			_nbTimesGetOtherEnds.put(this, 1);
-//		} else {
-//			_nbTimesGetOtherEnds.put(this, 1+i);
-//		}
-//	}
-	
-//	public static int nbAvoidableGetOtherEnds() {
-//		int count = 0;
-//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-//			int intValue = entry.getValue().intValue();
-//			if(intValue > 1) {
-//				count += intValue - 1;
-//			}
-//		}
-//		return count;
-//	}
-//
-//	public static int nbWithoutAvoidableGetOtherEnds() {
-//		int count = 0;
-//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-//			if(entry.getValue().intValue() <= 1) {
-//				count++;
-//			}
-//		}
-//		return count;
-//	}
-	
-//	public static void cleanGetOtherEndsCache() {
-//		_nbTimesGetOtherEnds = new HashMap<Association, Integer>();
-//	}
-//	
-//	public static Map<Class,Integer> nbAvoidableGetOtherEndsPerClass() {
-//		Map<Class,Integer> result = new HashMap<Class, Integer>();
-//		for(Map.Entry<Association, Integer> entry: _nbTimesGetOtherEnds.entrySet()) {
-//			Class c = entry.getKey().getObject().getClass();
-//			Integer count = entry.getValue();
-//			Integer accumulated = result.get(c);
-//			if(accumulated == null) {
-//				accumulated = count - 1;
-//			} else {
-//				accumulated = accumulated + count - 1;
-//			}
-//			result.put(c, accumulated);
-//		}
-//		return result;
-//	}
-//
-//	public static Map<Association, Integer> _nbTimesGetOtherEnds = new HashMap<Association, Integer>();
+
 	
 //  @Override
 	public abstract void addOtherEndsTo(Collection<? super TO> collection);
@@ -234,6 +185,8 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @*/
 //  @Override
 	public /*@ pure @*/ abstract List<Association<? extends TO,? super FROM>> getOtherAssociations();
+	
+	protected /*@ pure @*/ abstract Collection<Association<? extends TO,? super FROM>> internalAssociations();
 
   /**
    * Return the object on represented by this association end.

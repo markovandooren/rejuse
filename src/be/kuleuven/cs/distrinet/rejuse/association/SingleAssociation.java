@@ -289,6 +289,16 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
     return result;
   }
   
+  @Override
+  protected Collection<Association<? extends TO, ? super FROM>> internalAssociations() {
+  	return getOtherAssociations();
+  }
+  
+  @Override
+  public boolean contains(Association<? extends TO, ? super FROM> association) {
+  	return association == _other;
+  }
+  
   /**
    * The Relation this Reference belongs to
    */
