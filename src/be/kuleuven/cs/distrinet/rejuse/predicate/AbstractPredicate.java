@@ -91,6 +91,16 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
         }
     }
 
+    public <X extends T>  List<X> filteredList(Collection<X> collection) throws ConcurrentModificationException, Exception {
+    	List<X> result = new ArrayList<X>();
+    	for(X x: collection) {
+    		if(eval(x)) {
+    			result.add(x);
+    		}
+    	}
+    	return result;
+    }
+    
     /**
      * See superclass
      */

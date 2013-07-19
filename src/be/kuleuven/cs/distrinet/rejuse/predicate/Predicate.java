@@ -2,6 +2,8 @@ package be.kuleuven.cs.distrinet.rejuse.predicate;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
+import java.util.List;
+
 import be.kuleuven.cs.distrinet.rejuse.java.collections.CollectionOperator;
 
 /*@ model import org.jutil.java.collections.Collections; @*/
@@ -87,7 +89,7 @@ public interface Predicate<T> extends CollectionOperator {
       @ public behavior
       @
       @ post \result == true | \result == false;
-    @
+    @public <X extends T>  List<X> filteredList(Collection<X> collection) throws ConcurrentModificationException, Exception {
     @ signals (Exception) ! isValidElement(object);
       @*/
     public /*@ pure @*/ abstract boolean eval(T object) throws Exception;
@@ -240,4 +242,6 @@ public interface Predicate<T> extends CollectionOperator {
       @ post \result == getSubPredicates().size();
       @*/
 //    public /*@ pure @*/ int nbSubPredicates();
+    
+    public <X extends T>  List<X> filteredList(Collection<X> collection) throws Exception;
 }

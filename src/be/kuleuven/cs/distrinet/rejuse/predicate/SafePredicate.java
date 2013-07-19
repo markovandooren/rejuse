@@ -1,8 +1,10 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * <p>A class of total predicates that have no subpredicates.</p>
@@ -127,4 +129,15 @@ public abstract class SafePredicate<T> extends AbstractPredicate<T> {
           }
       }
   }
+  
+  public <X extends T>  List<X> filteredList(Collection<X> collection) {
+  	List<X> result = new ArrayList<X>();
+  	for(X x: collection) {
+  		if(eval(x)) {
+  			result.add(x);
+  		}
+  	}
+  	return result;
+  }
+
 }

@@ -72,6 +72,11 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   /**
    * Add the given association as a participant in this
    * binding.
+   * 
+   * If the new object is not null and replaces another one, {@link #fireElementReplaced(Object, Object)}
+   * is called. If the new object is null and replaces another one, {@link #fireElementRemoved(Object)}
+   * is called. If the new object is not null and does not replace another one, {@link #fireElementAdded(Object)}
+   * is called.
    */
  /*@
    @ protected behavior

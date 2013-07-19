@@ -30,7 +30,16 @@ public abstract class UnsafePredicate<T,E extends Exception> extends AbstractPre
   }
 
   /**
-   * See superclass
+   * See superclass  public <X extends T>  List<X> filteredList(Collection<X> collection) {
+  	List<X> result = new ArrayList<X>();
+  	for(X x: collection) {
+  		if(eval(x)) {
+  			result.add(x);
+  		}
+  	}
+  	return result;
+  }
+
    */
   public /*@ pure @*/ boolean forAll(Collection<T> collection) throws ConcurrentModificationException, E {
       boolean acc = true;
@@ -95,6 +104,16 @@ public abstract class UnsafePredicate<T,E extends Exception> extends AbstractPre
               throw (E)exc;
           }
       }
+  }
+
+  public <X extends T>  List<X> filteredList(Collection<X> collection) throws E {
+  	List<X> result = new ArrayList<X>();
+  	for(X x: collection) {
+  		if(eval(x)) {
+  			result.add(x);
+  		}
+  	}
+  	return result;
   }
 
 }
