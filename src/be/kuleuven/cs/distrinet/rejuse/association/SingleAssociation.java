@@ -261,8 +261,11 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
   		TO old = _other.getObject();
       _other.unregister(this);
       _other = other;
-      TO newObject = (_other != null ? _other.getObject() : null);
-			fireElementReplaced(old, newObject);
+      if(other != null) {
+      	fireElementReplaced(old, other.getObject());
+      } else {
+      	fireElementRemoved(old);
+      }
     }
     // _other == null
     else if(other != null){
