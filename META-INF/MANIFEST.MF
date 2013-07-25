@@ -43,4 +43,5 @@ Export-Package: be.kuleuven.cs.distrinet.rejuse,
 Bundle-Vendor: distrinet.cs.kuleuven.be
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.junit;bundle-version="4.10.0"
+Require-Bundle: org.junit;bundle-version="4.10.0",
+ Guava;bundle-version="14.0.1"
