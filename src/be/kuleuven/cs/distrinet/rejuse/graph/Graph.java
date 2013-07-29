@@ -13,7 +13,7 @@ import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
  * TODO WARNING : An undirected graph may not contain selfloops, i.e., it may not 
  *                contain an edge whose source is equal to its target.
  */
-public class Graph {
+public class Graph<V> {
   
   /**
    * Initialize an empty graph.
@@ -25,7 +25,7 @@ public class Graph {
    @ post getNbNodes() == 0;
    @*/
   public Graph() {
-    this(new BidiEdgeFactory());
+    this(new DefaultNodeFactory<V>(),new BidiEdgeFactory<V>());
   }
   
   /**
@@ -43,9 +43,10 @@ public class Graph {
    @ post getEdgeFactory() instanceof BidiEdgeFactory;
    @ post getNbNodes() == 0;
    @*/
-  public Graph(EdgeFactory edgeFactory) {
-    _nodeMap = new HashMap();
+  public Graph(NodeFactory<V> nodeFactory,EdgeFactory<V> edgeFactory) {
+    _nodeMap = new HashMap<>();
     _edgeFactory = edgeFactory;
+    _nodeFactory = nodeFactory;
   }
   
   /**
@@ -56,12 +57,27 @@ public class Graph {
    @
    @ post \result != null;
    @*/
-  public EdgeFactory getEdgeFactory() {
+  public EdgeFactory<V> edgeFactory() {
     return _edgeFactory;
   }
   
-  private EdgeFactory _edgeFactory;
+  private EdgeFactory<V> _edgeFactory;
 
+  /**
+   * Return the edge factory of this graph.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @*/
+  public NodeFactory<V> nodeFactory() {
+    return _nodeFactory;
+  }
+  
+  private NodeFactory<V> _nodeFactory;
+
+  
   //TODO: do we need a node factory ?
   // A node should only be in 1 graph, so it might be best
   // to let graph act as a factory and not expose node.
@@ -80,9 +96,9 @@ public class Graph {
    @
    @ post getObjects().contains(object) 
    @*/
-	public void addNode(Object object) {
+	public void addNode(V object) {
     if(_nodeMap.get(object) == null) {
-		  _nodeMap.put(object, new Node(object));
+		  _nodeMap.put(object, nodeFactory().createNode(object));
     }
 	}
 	
@@ -104,33 +120,9 @@ public class Graph {
    @
    @ //TODO : postconditions.
    @*/
-	public Edge addEdge(Object first, Object second) {
-		return _edgeFactory.createEdge(getNode(first), getNode(second));
+	public Edge<V> addEdge(V first, V second) {
+		return edgeFactory().createEdge(getNode(first), getNode(second));
 	}
-  
-  /**
-   * Create a new edge between the two given nodes with the given weight.
-   * 
-   * @param first
-   *        The first node.
-   * @param second
-   *        The second node.
-   * @param weight
-   *        The weight of the new edge.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre first != null;
-   @ pre second != null;
-   @ pre contains(first);
-   @ pre contains(second);
-   @
-   @ //TODO : postconditions.
-   @*/
-  public Edge addEdge(Object first, Object second, double weight) {
-    return _edgeFactory.createEdge(getNode(first), getNode(second), weight);
-  }
   
   /**
    * Return the number of nodes in this graph.
@@ -158,8 +150,8 @@ public class Graph {
    @
    @ post \result != null;
    @*/
-  public Node getNode(Object object) {
-    return (Node)_nodeMap.get(object);
+  public Node<V> getNode(Object object) {
+    return _nodeMap.get(object);
   }
   
   /**
@@ -198,7 +190,7 @@ public class Graph {
    @ post \result != null;
    @ TODO: specs
    @*/
-  public Set getObjects() {
+  public Set<V> getObjects() {
     return new HashSet(_nodeMap.keySet());
   }
   
@@ -225,8 +217,8 @@ public class Graph {
    @ post (\forall Node node; getNodes().contains(node);
    @         \result.contains(node) == node.isLeaf());
    @*/
-  public Set getLeaves() {
-    Set result = getNodes();
+  public Set<Node<V>> getLeaves() {
+    Set<Node<V>> result = getNodes();
     new SafePredicate() {
       public boolean eval(Object o) {
         return ((Node)o).isLeaf();
@@ -235,5 +227,5 @@ public class Graph {
     return result;
   }
   
-  private Map _nodeMap;
+  private Map<V,Node<V>> _nodeMap;
 }

@@ -1,0 +1,171 @@
+package be.kuleuven.cs.distrinet.rejuse.graph;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
+
+/**
+ * A class of edges.
+ * 
+ * The type parameters are an attempt at making it more convenient to use the graph
+ * without casting too much. For this to work, E should be the self type.
+ * 
+ * @author Marko van Dooren
+ */
+public abstract class AbstractEdge<V> implements Edge<V> {
+  
+ /*@
+   @ public behavior
+   @
+   @ pre first != null;
+   @ pre second != null;
+   @
+   @ post getFirst() == first;
+   @ post getSecond() == second;
+   @*/
+  public AbstractEdge(Node<V> first, Node<V> second) {
+    _first = first;
+    _second = second;
+    first.addEdge(this);
+    second.addEdge(this);
+  }
+  
+ /*@
+   @ post ! \old(getFirst()).contains(this);
+   @ post ! \old(getSecond()).contains(this);
+   @ post getFirst() == null;
+   @ post getSecond() == null;
+   @*/
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#terminate()
+	 */
+  @Override
+	public void terminate() {
+    _first.removeEdge(this);
+    _second.removeEdge(this);
+    _first = null;
+    _second = null;
+  }
+  
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getNodes()
+	 */
+ /*@
+   @ public behavior
+   @ 
+   @ post \result != null
+   @ post \result.contains(getFirst());
+   @ post \result.contains(getSecond());
+   @ post getFirst() == getSecond() ==> \result.size() == 1
+   @ post getFirst() != getSecond() ==> \result.size() == 2
+   @*/
+	@Override
+	public Set<Node<V>> getNodes() {
+		if(_nodes == null) {
+			Builder<Node<V>> builder = ImmutableSet.<Node<V>>builder();
+			builder.add(_first);
+			builder.add(_second);
+			_nodes = builder.build();
+		}
+		return _nodes;
+	}
+	
+	private ImmutableSet<Node<V>> _nodes;
+  
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#startsIn(be.kuleuven.cs.distrinet.rejuse.graph.Node)
+	 */
+ /*@
+   @ public behavior
+   @
+   @ //false when the given node is null
+   @ post node == null ==> \result == false;
+   @*/  
+  @Override
+	public abstract boolean startsIn(Node<V> node);
+
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#endsIn(be.kuleuven.cs.distrinet.rejuse.graph.Node)
+	 */
+ /*@
+   @ public behavior
+   @
+   @ //false when the given node is null
+   @ post node == null ==> \result == false;
+   @*/  
+  @Override
+	public abstract boolean endsIn(Node<V> node);
+  
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getStartNodes()
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ // The result is a subset of the set of all connected nodes
+   @ post getNodes().containsAll(\result);
+   @ post (\forall Node n; getNodes().contains(n);
+   @        startsIn(n));
+   @*/
+  @Override
+	public abstract Set<Node<V>> getStartNodes();
+  
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getEndFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre startsIn(start);
+   @*/
+  @Override
+	public abstract Node<V> getEndFor(Node<V> start);
+	
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getStartFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
+	 */
+ /*@
+   @ public behavior
+   @
+   @ pre endsIn(end);
+   @*/
+  @Override
+	public abstract Node<V> getStartFor(Node<V> end);
+  
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getEndNodes()
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ // The result is a subset of the set of all connected nodes
+   @ post getNodes().containsAll(\result);
+   @ post (\forall Node n; getNodes().contains(n);
+   @        endsIn(n));
+   @*/
+  @Override
+	public abstract Set<Node<V>> getEndNodes();
+  
+	/* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getFirst()
+	 */
+	@Override
+	public Node<V> getFirst() {
+		return _first;
+	}
+	
+  /* (non-Javadoc)
+	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getSecond()
+	 */
+  @Override
+	public Node<V> getSecond() {
+    return _second;
+  }
+  
+	private Node<V> _first;
+	private Node<V> _second;
+}

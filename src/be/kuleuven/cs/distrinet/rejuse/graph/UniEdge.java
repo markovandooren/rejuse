@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * @author Marko van Dooren
  */
-public class UniEdge extends Edge {
+public class UniEdge<V> extends AbstractEdge<V> {
 
   /**
    * Initialize a new unidirectional edge with the given start and end nodes
@@ -29,32 +29,10 @@ public class UniEdge extends Edge {
    @ post getEnd() == end;
    @ post getWeight() == weight;
    @*/
-  public UniEdge(Node start, Node end, double weight) {
-    super(start,end,weight);
+  public UniEdge(Node<V> start, Node<V> end) {
+    super(start,end);
   }
   
-  /**
-   * Initialize a new unidirectional edge with the given start and end nodes.
-   * The weight of the new edge is 0.
-   * 
-   * @param start
-   *        The node where this edge starts.
-   * @param end
-   *        The node where this edge ends.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre first != null;
-   @ pre second != null;
-   @
-   @ post getStart() == start;
-   @ post getEnd() == end;
-   @*/
-  public UniEdge(Node start, Node end) {
-    this(start,end,0);
-  }
-
   /**
    * Return the start node.
    */
@@ -63,7 +41,7 @@ public class UniEdge extends Edge {
    @
    @ post \result == getFirst(); 
    @*/  
-  public Node getStart() {
+  public Node<V> getStart() {
     return getFirst();
   }
 
@@ -75,7 +53,7 @@ public class UniEdge extends Edge {
    @
    @ post \result == getEnd(); 
    @*/  
-  public Node getEnd() {
+  public Node<V> getEnd() {
     return getEnd();
   }
 
@@ -84,7 +62,7 @@ public class UniEdge extends Edge {
    @
    @ post \result == (getFirst() == node);
    @*/
-  public boolean startsIn(Node node) {
+  public boolean startsIn(Node<V> node) {
     return getFirst() == node;
   }
 
@@ -93,7 +71,7 @@ public class UniEdge extends Edge {
     @
     @ post \result == (getSecond() == node);
     @*/
-  public boolean endsIn(Node node) {
+  public boolean endsIn(Node<V> node) {
     return getSecond() == node;
   }
 
@@ -103,8 +81,8 @@ public class UniEdge extends Edge {
    @ post \result.size() == 1;
    @ post \result.contains(getFirst());
    @*/
-  public Set getStartNodes() {
-    Set result = new HashSet();
+  public Set<Node<V>> getStartNodes() {
+    Set<Node<V>> result = new HashSet<>();
     result.add(getFirst());
     return result;
   }
@@ -114,7 +92,7 @@ public class UniEdge extends Edge {
    @
    @ post \result == getSecond(); 
    @*/
-  public Node getEndFor(Node start) {
+  public Node<V> getEndFor(Node<V> start) {
     return getSecond();
   }
 
@@ -123,7 +101,7 @@ public class UniEdge extends Edge {
     @
     @ post \result == getFirst(); 
     @*/
-  public Node getStartFor(Node end) {
+  public Node<V> getStartFor(Node<V> end) {
     return getFirst();
   }
 
@@ -133,8 +111,8 @@ public class UniEdge extends Edge {
     @ post \result.size() == 1;
     @ post \result.contains(getSecond());
     @*/
-  public Set getEndNodes() {
-    Set result = new HashSet();
+  public Set<Node<V>> getEndNodes() {
+    Set<Node<V>> result = new HashSet<>();
     result.add(getSecond());
     return result;
   }

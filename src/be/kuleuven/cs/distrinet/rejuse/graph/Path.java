@@ -8,7 +8,7 @@ import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 /**
  * @author Marko van Dooren
  */
-public class Path implements Comparable {
+public class Path<V> implements Comparable<Path<V>> {
   
   /**
    * Initialize a new path with the given start node.
@@ -22,7 +22,7 @@ public class Path implements Comparable {
    @ post getStart() == start;
    @ post getNbEdges() == 0;
    @*/
-  public Path(Node start) {
+  public Path(Node<V> start) {
     _start= start;
     _end = start;
     _edges = new ArrayList();
@@ -46,7 +46,7 @@ public class Path implements Comparable {
    @ post getStart() == start;
    @ post getEdges().equals(edges);
    @*/
-  protected Path(Node start, List edges, double length) {
+  protected Path(Node<V> start, List edges, double length) {
     _start= start;
     _end = start;
     _edges = new ArrayList(edges);
@@ -82,7 +82,7 @@ public class Path implements Comparable {
    @ post (\forall int i; i > 0 && i <= \result.size();
    @         \result.get(i) == getEdges().get(i-1).getEndFor(\result.get(i-1)))
    @*/
-  public List getNodes() {
+  public List<Node<V>> getNodes() {
     final ArrayList result = new ArrayList();
     result.add(_start);
     new Visitor() {
@@ -105,7 +105,7 @@ public class Path implements Comparable {
    @        o instanceof Edge);
    @ TODO consistency
    @*/
-  public List getEdges() {
+  public List<WeightedEdge<V>> getEdges() {
     return new ArrayList(_edges);
   }
   
@@ -120,10 +120,10 @@ public class Path implements Comparable {
    @ pre edge != null
    @ pre edge.startsIn(\old(getEnd()));
    @*/
-  public void addEdge(Edge edge) {
+  public void addEdge(WeightedEdge<V> edge) {
     _edges.add(edge);
     _end = edge.getEndFor(_end);
-    _length += edge.getWeight();
+    _length += edge.weight();
   }
   
   /**
@@ -133,7 +133,7 @@ public class Path implements Comparable {
    @ public behavior
    @
    @*/
-  public Node getEnd() {
+  public Node<V> getEnd() {
     return _end;
   }
   
@@ -161,7 +161,7 @@ public class Path implements Comparable {
     return _edges.size();
   }
   
-  private ArrayList _edges;
+  private List<WeightedEdge<V>> _edges;
   
   /**
    * Return the weight of this path.
@@ -172,9 +172,9 @@ public class Path implements Comparable {
   
   private double _length;
   
-  private Node _start;
+  private Node<V> _start;
   
-  private Node _end;
+  private Node<V> _end;
 
   /*@
     @ also public behavior
@@ -182,11 +182,11 @@ public class Path implements Comparable {
     @ post ! (o instanceof Path) ==> \result == -1;
     @ post (o instanceof Path) ==> \result == Math.sign(getLength() - ((Path)o).getLength());
     @*/
-  public int compareTo(Object o) {
+  public int compareTo(Path<V> o) {
     if(equals(o)) {
       return 0;
     }
-    else if((o instanceof Path) && (getLength() < ((Path)o).getLength())){
+    else if((getLength() < o.getLength())){
         return -1;
     }
     else {
@@ -199,8 +199,8 @@ public class Path implements Comparable {
    @
    @ TODO: specs   
    @*/
-  public Object clone() {
-    return new Path(_start, _edges, _length);
+  public Path<V> clone() {
+    return new Path<V>(_start, _edges, _length);
   }
   
   /**

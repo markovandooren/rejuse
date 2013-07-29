@@ -6,18 +6,15 @@ import java.util.Set;
 /**
  * @author Marko van Dooren
  */
-public class BidiEdge extends Edge {
+public class BidiEdge<V> extends AbstractEdge<V> {
 
   /**
-   * Initialize a new bidirectional edge with the given nodes
-   * and the given weight.
+   * Initialize a new bidirectional edge with the given nodes.
    * 
    * @param first
    *        The first node.
    * @param end
    *        The second node.
-   * @param weight
-   *        The weight of this edge.
    */
  /*@
    @ public behavior
@@ -27,41 +24,18 @@ public class BidiEdge extends Edge {
    @
    @ post getFirst() == first;
    @ post getSecond() == second;
-   @ post getWeight() == weight;
    @*/
-  public BidiEdge(Node first, Node second, double weight) {
-    super(first,second,weight);
+  public BidiEdge(Node<V> first, Node<V> second) {
+    super(first,second);
   }
   
-  /**
-   * Initialize a new unidirectional edge with the given start and end nodes.
-   * The weight of the new edge is 0.
-   * 
-   * @param first
-   *        The first node.
-   * @param end
-   *        The second node.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre first != null;
-   @ pre second != null;
-   @
-   @ post getFirst() == first;
-   @ post getSecond() == second;
-   @*/
-  public BidiEdge(Node first, Node second) {
-    this(first,second,0);
-  }
-
  /*@
    @ also public behavior
    @
    @ post \result == (getFirst() == node) ||
    @                 (getSecond() == node);
    @*/
-  public boolean startsIn(Node node) {
+  public boolean startsIn(Node<V> node) {
     return getFirst() == node || getSecond() == node;
   }
 
@@ -71,7 +45,7 @@ public class BidiEdge extends Edge {
    @ post \result == (getFirst() == node) ||
    @                 (getSecond() == node);
    @*/
-  public boolean endsIn(Node node) {
+  public boolean endsIn(Node<V> node) {
     return getFirst() == node || getSecond() == node;
   }
 
