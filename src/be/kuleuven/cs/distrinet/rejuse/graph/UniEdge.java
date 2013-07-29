@@ -116,5 +116,10 @@ public class UniEdge<V> extends AbstractEdge<V> {
     result.add(getSecond());
     return result;
   }
+  
+  @Override
+  public Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget) {
+  	return new UniEdge<>(newSource, newTarget);
+  }
 
 }

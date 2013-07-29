@@ -122,6 +122,8 @@ public interface Edge<V> {
 	/**
 	 * Return the second node of this edge.
 	 */
-	public abstract Node<V> getSecond();
+	public Node<V> getSecond();
+	
+	public Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget);
 
 }

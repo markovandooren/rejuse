@@ -3,6 +3,7 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
@@ -21,13 +22,27 @@ public class Graph<V> {
  /*@
    @ public behavior
    @
-   @ post getEdgeFactory() instanceof BidiEdgeFactory;
+   @ post edgeFactory() instanceof BidiEdgeFactory;
+   @ post nodeFactory() instanceof DefaultNodeFactory;
    @ post getNbNodes() == 0;
    @*/
   public Graph() {
     this(new DefaultNodeFactory<V>(),new BidiEdgeFactory<V>());
   }
   
+  /**
+   * Initialize an empty graph.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post getEdgeFactory() instanceof BidiEdgeFactory;
+   @ post getNbNodes() == 0;
+   @*/
+  public Graph(EdgeFactory<V> edgeFactory) {
+    this(new DefaultNodeFactory<V>(),edgeFactory);
+  }
+   
   /**
    * Initialize an empty graph that will use the given edge factory to create
    * edges.
@@ -96,10 +111,14 @@ public class Graph<V> {
    @
    @ post getObjects().contains(object) 
    @*/
-	public void addNode(V object) {
-    if(_nodeMap.get(object) == null) {
-		  _nodeMap.put(object, nodeFactory().createNode(object));
+	public Node<V> addNode(V object) {
+    Node<V> node = _nodeMap.get(object);
+		if(node == null) {
+		  Node<V> createNode = nodeFactory().createNode(object);
+			_nodeMap.put(object, createNode);
+			return createNode;
     }
+    return node;
 	}
 	
   /**
@@ -177,8 +196,8 @@ public class Graph<V> {
    @ post (\forall Object o; \result.contains(o)
    @         o instanceof Node);
    @*/
-	public Set getNodes() {
-    return new HashSet(_nodeMap.values());
+	public Set<Node<V>> getNodes() {
+    return new HashSet<>(_nodeMap.values());
 	}
   
   /**
@@ -191,7 +210,7 @@ public class Graph<V> {
    @ TODO: specs
    @*/
   public Set<V> getObjects() {
-    return new HashSet(_nodeMap.keySet());
+    return new HashSet<>(_nodeMap.keySet());
   }
   
   /**
@@ -225,6 +244,55 @@ public class Graph<V> {
       }
     }.filter(result);
     return result;
+  }
+  
+  public Graph<V> clone() {
+  	Graph<V> result = cloneSelf();
+  	Map<Node<V>,Node<V>> cloneMap = new HashMap<>();
+  	Set<Entry<V, Node<V>>> entrySet = _nodeMap.entrySet();
+		for(Map.Entry<V, Node<V>> entry: entrySet) {
+  		cloneMap.put(entry.getValue(), entry.getValue().bareClone());
+  	}
+		// Keep the set of edges because a bidirectional
+		// edge is shared between nodes, and we don't want
+		// to copy it twice.
+		Set<Edge<V>> done = new HashSet<>();
+  	for(Map.Entry<V, Node<V>> entry: entrySet) {
+  		Node<V> originalNode = entry.getValue();
+			Node<V> clonedNode = cloneMap.get(originalNode);
+			for(Edge<V> edge: originalNode.getStartEdges()) {
+				if(! done.contains(edge)) {
+					Node<V> originalTarget = edge.getEndFor(originalNode);
+					Node<V> clonedTarget = cloneMap.get(originalTarget);
+					edge.cloneTo(clonedNode, clonedTarget);
+					done.add(edge);
+				}
+  		}
+  	}
+  	return result;
+  }
+  
+  public Graph<V> plus(Graph<V> other) {
+  	Graph<V> result = clone();
+  	for(Node<V> node: other.getNodes()) {
+  		V sourceObject = node.getObject();
+			Node<V> source = getNode(sourceObject);
+  		if(source == null) {
+  			addNode(sourceObject);
+  		}
+  		for(Edge<V> edge: node.getStartEdges()) {
+    		V targetObject = edge.getEndFor(node).getObject();
+  			Node<V> target = getNode(targetObject);
+    		if(target == null) {
+    			addNode(targetObject);
+    		}
+  		}
+  	}
+  	return result;
+  }
+  
+  protected Graph<V> cloneSelf() {
+  	return new Graph<>(nodeFactory(),edgeFactory());
   }
   
   private Map<V,Node<V>> _nodeMap;

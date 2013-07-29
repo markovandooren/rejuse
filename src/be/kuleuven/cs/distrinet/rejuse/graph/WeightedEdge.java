@@ -66,5 +66,10 @@ public class WeightedEdge<V> implements Edge<V> {
 	public Node<V> getSecond() {
 		return _edge.getSecond();
 	}
+	
+	@Override
+	public Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget) {
+		return new WeightedEdge<>(_edge.cloneTo(newSource, newTarget), weight());
+	}
 
 }

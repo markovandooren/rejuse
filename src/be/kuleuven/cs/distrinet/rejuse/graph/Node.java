@@ -252,4 +252,8 @@ public class Node<V> {
     }
     return result;
   }
+  
+  public Node<V> bareClone() {
+  	return new Node<V>(getObject());
+  }
 }
