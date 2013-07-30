@@ -9,25 +9,13 @@ import be.kuleuven.cs.distrinet.rejuse.java.collections.CollectionOperator;
 /*@ model import org.jutil.java.collections.Collections; @*/
 
 /**
- * <p>A class of predicates that evaluate to <code>true</code> or
+ * <p>A class of predicates. A predicate is a function that evaluate to <code>true</code> or
  * <code>false</code> for an object.</p>
  *
- * <center><img src="doc-files/Predicate.png"/></center>
- *
- * <p>The Predicate class is actually an implementation of the <em>Strategy</em>
+ * <p>The Predicate class is an implementation of the <em>Strategy</em>
  * pattern. You can write code that works with predicates (e.g. filters,
  * quantifiers,...) in general, and the user of that code can write the specific
  * predicate.</p>
- *
- * <p>This class evolved from the <a href="ForAll.html"><code>ForAll</code></a>,
- * <a href="Exists.html"><code>Exists</code></a>, <a href="Counter.html"><code>Counter</code></a> and
- * <a href="Filter.html"><code>Filter</code></a> classes (which will be deprecated
- * soon). This class has the advantage that the predicate itself is reusable.
- * Using the classes mentioned above, you'd have to implement a predicate multiple
- * times if you wanted to use it for more than one type of operation. With the
- * <code>Predicate</code> class, you write the predicate once, and the client
- * can do with it whatever he/she wants.
- * </p>
  *
  * <p>The <a href="ForAll.html"><code>ForAll</code></a>,
  * <a href="Exists.html"><code>Exists</code></a>,
@@ -48,18 +36,11 @@ import be.kuleuven.cs.distrinet.rejuse.java.collections.CollectionOperator;
  *             o
  *             o post postcondition;
  *             o/
- *            public boolean eval(Object o) throws MyException {
+ *            public boolean eval(T o) throws MyException {
  *              //calculate boolean value
  *              //using the given object
  *            }
  *
- *            public int nbSubPredicates() {
- *              // ...
- *            }
- *
- *            public List getSubPredicates() {
- *              // ...
- *            }
  *          };
  * </code></pre>
  *
@@ -76,94 +57,84 @@ import be.kuleuven.cs.distrinet.rejuse.java.collections.CollectionOperator;
  */
 public interface Predicate<T> extends CollectionOperator {
 
-    /* The revision of this class */
-    public static final String CVS_REVISION = "$Revision$";
+	/**
+	 * Evaluate this Predicate for the given object.
+	 *
+	 * @param object The object for which this Predicate must be evaluated. In general,
+	 *               because collections can contain null, this might be null.
+	 */
+	public /*@ pure @*/ abstract boolean eval(T object) throws Exception;
 
-    /**
-     * Evaluate this Predicate for the given object.
-     *
-     * @param object The object for which this Predicate must be evaluated. In general,
-     *               because collections can contain null, this might be null.
-     */
-    /*@
-      @ public behavior
-      @
-      @ post \result == true | \result == false;
-    @public <X extends T>  List<X> filteredList(Collection<X> collection) throws ConcurrentModificationException, Exception {
-    @ signals (Exception) ! isValidElement(object);
-      @*/
-    public /*@ pure @*/ abstract boolean eval(T object) throws Exception;
+	/**
+	 * Check wether or not the given collection contains an object for which
+	 * this predicate evaluates to <code>true</code>.
+	 *
+	 * @param collection The collection which has to be searched for an object
+	 *                   for which this Predicate evaluates to <code>true</code>.
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post collection != null ==> \result == (\exists Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
+   @ post collection == null ==> \result == false;
+   @
+   @ signals (ConcurrentModificationException)
+   @         (* The collection was modified while accumulating *);
+   @ signals (Exception) (collection != null) &&
+   @                     (\exists Object o;
+   @                        (collection != null) &&
+   @                        Collections.containsExplicitly(collection, o);
+   @                          ! isValidElement(o));
+   @*/
+	public /*@ pure @*/ boolean exists(Collection<T> collection) throws ConcurrentModificationException, Exception;
 
-    /**
-     * Check wether or not the given collection contains an object for which
-     * this predicate evaluates to <code>true</code>.
-     *
-     * @param collection The collection which has to be searched for an object
-     *                   for which this Predicate evaluates to <code>true</code>.
-     */
-    /*@
-    @ public behavior
-    @
-    @ post collection != null ==> \result == (\exists Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
-    @ post collection == null ==> \result == false;
-    @
-    @ signals (ConcurrentModificationException)
-    @         (* The collection was modified while accumulating *);
-      @ signals (Exception) (collection != null) &&
-    @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
-    @*/
-    public /*@ pure @*/ boolean exists(Collection<T> collection) throws ConcurrentModificationException, Exception;
+	/**
+	 * Check wether or not this Predicate evaluates to <code>true</code>
+	 * for all object in the given collection.
+	 *
+	 * @param collection The collection of which one wants to know if all object
+	 *                   evaluate to <code>true</code> for this Predicate.
+	 */
+ /*@
+   @ public behavior
+   @
+   @ post collection != null ==> \result == (\forall Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
+   @ post collection == null ==> \result == true;
+   @
+   @ signals (ConcurrentModificationException)
+   @         (* The collection was modified while accumulating *);
+   @ signals (Exception) (collection != null) &&
+   @                     (\exists Object o;
+   @                        (collection != null) &&
+   @                        Collections.containsExplicitly(collection, o);
+   @                          ! isValidElement(o));
+   @*/
+	public /*@ pure @*/ boolean forAll(Collection<T> collection) throws ConcurrentModificationException, Exception;
 
-    /**
-     * Check wether or not this Predicate evaluates to <code>true</code>
-     * for all object in the given collection.
-     *
-     * @param collection The collection of which one wants to know if all object
-     *                   evaluate to <code>true</code> for this Predicate.
-     */
-    /*@
-    @ public behavior
-    @
-    @ post collection != null ==> \result == (\forall Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
-    @ post collection == null ==> \result == true;
-    @
-    @ signals (ConcurrentModificationException)
-    @         (* The collection was modified while accumulating *);
-      @ signals (Exception) (collection != null) &&
-    @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
-    @*/
-    public /*@ pure @*/ boolean forAll(Collection<T> collection) throws ConcurrentModificationException, Exception;
-
-    /**
-     * Count the number of object in the given collection for which this
-     * Predicate evaluates to <code>true</code>.
-     *
-     * @param collection The collection for which the number of object evaluating to
-     *                   <code>true</code> for this Predicate must be counted.
-     */
-    /*@
-    @ public behavior
-    @
-    @ post collection != null ==> \result == (\num_of Object o;
-    @                                          Collections.containsExplicitly(collection,o);
-    @                                          eval(o) == true);
-    @ post collection == null ==> \result == 0;
-    @
-    @ signals (ConcurrentModificationException)
-    @         (* The collection was modified while accumulating *);
-      @ signals (Exception) (collection != null) &&
-    @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
-    @*/
-    public /*@ pure @*/ int count(Collection<T> collection) throws ConcurrentModificationException, Exception;
+  /**
+   * Count the number of object in the given collection for which this
+   * Predicate evaluates to <code>true</code>.
+   *
+   * @param collection The collection for which the number of object evaluating to
+   *                   <code>true</code> for this Predicate must be counted.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post collection != null ==> \result == (\num_of Object o;
+   @                                          Collections.containsExplicitly(collection,o);
+   @                                          eval(o) == true);
+   @ post collection == null ==> \result == 0;
+   @
+   @ signals (ConcurrentModificationException)
+   @         (* The collection was modified while accumulating *);
+   @ signals (Exception) (collection != null) &&
+   @                     (\exists Object o;
+   @                        (collection != null) &&
+   @                        Collections.containsExplicitly(collection, o);
+   @                          ! isValidElement(o));
+   @*/
+  public /*@ pure @*/ int count(Collection<T> collection) throws ConcurrentModificationException, Exception;
 
     /**
      * <p>Remove all objects for which this Predicate evaluates to <code>false</code>
