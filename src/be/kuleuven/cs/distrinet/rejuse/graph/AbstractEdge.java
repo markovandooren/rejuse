@@ -1,6 +1,6 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -168,4 +168,14 @@ public abstract class AbstractEdge<V> implements Edge<V> {
   
 	private Node<V> _first;
 	private Node<V> _second;
+	
+	private Map<Class,Object> _metadata;
+	
+	public <T> T get(Class<T> key) {
+		return (T) _metadata.get(key);
+	}
+	
+	public <T> void put(Class<T> key, T value) {
+		_metadata.put(key, value);
+	}
 }

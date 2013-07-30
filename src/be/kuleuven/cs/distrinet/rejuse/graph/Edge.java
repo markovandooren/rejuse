@@ -125,5 +125,9 @@ public interface Edge<V> {
 	public Node<V> getSecond();
 	
 	public Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget);
+	
+	public <T> T get(Class<T> key);
+	
+	public <T> void put(Class<T> key, T value);
 
 }

@@ -105,7 +105,7 @@ public class Path<V> implements Comparable<Path<V>> {
    @        o instanceof Edge);
    @ TODO consistency
    @*/
-  public List<WeightedEdge<V>> getEdges() {
+  public List<Edge<V>> getEdges() {
     return new ArrayList(_edges);
   }
   
@@ -120,10 +120,13 @@ public class Path<V> implements Comparable<Path<V>> {
    @ pre edge != null
    @ pre edge.startsIn(\old(getEnd()));
    @*/
-  public void addEdge(WeightedEdge<V> edge) {
-    _edges.add(edge);
-    _end = edge.getEndFor(_end);
-    _length += edge.weight();
+  public void addEdge(Edge<V> edge) {
+  	Weight weight = edge.get(Weight.class);
+  	if(weight != null) {
+  		_edges.add(edge);
+  		_end = edge.getEndFor(_end);
+  		_length += weight.weight();
+  	}
   }
   
   /**
@@ -161,7 +164,7 @@ public class Path<V> implements Comparable<Path<V>> {
     return _edges.size();
   }
   
-  private List<WeightedEdge<V>> _edges;
+  private List<Edge<V>> _edges;
   
   /**
    * Return the weight of this path.

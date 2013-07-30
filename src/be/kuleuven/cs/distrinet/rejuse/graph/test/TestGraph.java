@@ -3,9 +3,10 @@ package be.kuleuven.cs.distrinet.rejuse.graph.test;
 import junit.framework.TestCase;
 import be.kuleuven.cs.distrinet.rejuse.graph.BidiEdgeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.DefaultNodeFactory;
+import be.kuleuven.cs.distrinet.rejuse.graph.Edge;
 import be.kuleuven.cs.distrinet.rejuse.graph.Node;
 import be.kuleuven.cs.distrinet.rejuse.graph.UniEdgeFactory;
-import be.kuleuven.cs.distrinet.rejuse.graph.WeightedEdge;
+import be.kuleuven.cs.distrinet.rejuse.graph.Weight;
 import be.kuleuven.cs.distrinet.rejuse.graph.WeightedEdgeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.WeightedGraph;
 
@@ -54,7 +55,7 @@ public class TestGraph extends TestCase {
     Node nodeA = graph.getNode(a); 
     Node nodeB = graph.getNode(b);
     Node nodeC = graph.getNode(c);
-    WeightedEdge<String> edge = null;
+    Edge<String> edge = null;
     edge = graph.addEdge(a,b,1);
     assertTrue(edge.getFirst().getObject() == a);
     assertTrue(edge.getSecond().getObject() == b);
@@ -62,7 +63,7 @@ public class TestGraph extends TestCase {
     assertTrue(edge.startsIn(graph.getNode(b)));
     assertTrue(edge.endsIn(graph.getNode(a)));
     assertTrue(edge.endsIn(graph.getNode(b)));
-    assertTrue(edge.weight() == 1);
+    assertTrue(edge.get(Weight.class).weight() == 1);
     assertTrue(nodeA.getNbStartEdges() == 1);
     assertTrue(nodeA.getNbEndEdges() == 1);
     assertTrue(nodeB.getNbStartEdges() == 1);

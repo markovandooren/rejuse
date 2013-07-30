@@ -1,17 +1,11 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Set;
 
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Mapping;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.SafeTransitiveClosure;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.SkipList;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
-import be.kuleuven.cs.distrinet.rejuse.java.comparator.ComparableComparator;
 
 /**
  * @author Marko van Dooren
@@ -251,6 +245,44 @@ public class Node<V> {
     	result.add(edge.getEndFor(this).getObject());
     }
     return result;
+  }
+  
+  /**
+   * Check whether this node is directly connected to the
+   * given node.
+   * 
+   * @param node The node of which must be determined if it is directly connected to this node.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre node != null;
+   @
+   @ post \result == \exists(Edge<V> e; getStartEdges().contains(e); e.getEndFor(this) == node);
+   @*/
+  public boolean isDirectlyConnectedTo(Node<V> node) {
+  	for(Edge<V> edge: _starts) {
+  		if(edge.getEndFor(this) == node) {
+  			return true;
+  		}
+  	}
+  	return false;
+  }
+  
+  /**
+   * Return the edges that directly connect this node to the
+   * given node. If no such edge exists, null is returned.
+   * @param node
+   * @return
+   */
+  public List<Edge<V>> directlyConnectingEdges(Node<V> node) {
+  	List<Edge<V>> result = new ArrayList<>();
+  	for(Edge<V> edge: _starts) {
+  		if(edge.getEndFor(this) == node) {
+  			result.add(edge);
+  		}
+  	}
+  	return result;
   }
   
   public Node<V> bareClone() {

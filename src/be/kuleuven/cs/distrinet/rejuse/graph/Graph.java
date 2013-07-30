@@ -2,6 +2,7 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -99,7 +100,8 @@ public class Graph<V> {
   // if we only have 1 class of nodes, a separate factory isn't needed.
 
   /**
-   * Add a new node for the given object to this graph
+   * Add a new node for the given object to this graph. If the
+   * object was already part of the graph, nothing changes.
    * 
    * @param object
    *        The object to be added to this graph
@@ -143,6 +145,22 @@ public class Graph<V> {
 		return edgeFactory().createEdge(getNode(first), getNode(second));
 	}
   
+	/**
+	 * Ensure that there is an edge from the first node
+	 * to the second node. If there was already an edge,
+	 * nothing changes. Otherwise an edge is added.
+	 * 
+	 * @param first
+	 * @param second
+	 */
+	public void ensureEdge(V first, V second) {
+		Node<V> firstNode = getNode(first);
+		Node<V> secondNode = getNode(second);
+		if(! firstNode.isDirectlyConnectedTo(secondNode)) {
+			addEdge(first, second);
+		}
+	}
+	
   /**
    * Return the number of nodes in this graph.
    */

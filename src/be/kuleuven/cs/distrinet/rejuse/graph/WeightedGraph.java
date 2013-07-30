@@ -16,7 +16,7 @@ public class WeightedGraph<V> extends Graph<V> {
 		super(nodeFactory, edgeFactory);
 	}
 	
-  public WeightedEdge<V> addEdge(V first, V second, double weight) {
+  public Edge<V> addEdge(V first, V second, double weight) {
   	return ((WeightedEdgeFactory<V>)edgeFactory()).createEdge(getNode(first), getNode(second), weight);
   }
   
@@ -61,7 +61,7 @@ public class WeightedGraph<V> extends Graph<V> {
   				Edge e = (Edge)o;
   				if(! done.containsKey(e.getEndFor(latest))) {
   					Path path = (Path)closest.clone();
-  					path.addEdge((WeightedEdge) e);
+  					path.addEdge((Edge) e);
   					temp.put(path.getEnd(), path);
   				}
   			}

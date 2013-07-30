@@ -27,8 +27,10 @@ public class WeightedEdgeFactory<V> implements EdgeFactory<V> {
 		};
 	}
 
-	public WeightedEdge<V> createEdge(Node<V> first, Node<V> second, double weight) {
-		return new WeightedEdge<>(edgeFactory().createEdge(first, second), weight);
+	public Edge<V> createEdge(Node<V> first, Node<V> second, double weight) {
+		Edge<V> result = edgeFactory().createEdge(first, second);
+		result.put(Weight.class, new Weight(weight));
+		return result;
 	}
 
 	@Override
