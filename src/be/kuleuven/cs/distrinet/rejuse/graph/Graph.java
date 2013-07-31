@@ -227,8 +227,8 @@ public class Graph {
    @*/
   public Set getLeaves() {
     Set result = getNodes();
-    new SafePredicate() {
-      public boolean eval(Object o) {
+    new SafePredicate<Node>() {
+      public boolean eval(Node o) {
         return ((Node)o).isLeaf();
       }
     }.filter(result);

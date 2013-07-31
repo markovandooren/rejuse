@@ -1,20 +1,19 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.List;
+
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
 
 /**
  *
  */
-public abstract class AbstractPredicate<T> implements Predicate<T> {
+public abstract class AbstractPredicate<T,E extends Exception> implements Predicate<T,E> {
 
     /**
      * See superclass
      */
-    public /*@ pure @*/ boolean exists(Collection<T> collection) throws ConcurrentModificationException, Exception {
+    public /*@ pure @*/ boolean exists(Collection<T> collection) throws E {
         boolean acc = false;
         if (collection!=null) {
             Iterator<T> iter = collection.iterator();
@@ -33,7 +32,7 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
     /**
      * See superclass
      */
-    public /*@ pure @*/ boolean forAll(Collection<T> collection) throws ConcurrentModificationException, Exception {
+    public /*@ pure @*/ boolean forAll(Collection<T> collection) throws E {
         boolean acc = true;
         if (collection!=null) {
             Iterator<T> iter = collection.iterator();
@@ -51,7 +50,7 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
     /**
      * See superclass
      */
-    public /*@ pure @*/ int count(Collection<T> collection) throws ConcurrentModificationException, Exception {
+    public /*@ pure @*/ int count(Collection<T> collection) throws E {
         int count = 0;
         if (collection!=null) {
             Iterator<T> iter = collection.iterator();
@@ -67,28 +66,15 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
     /**
      * See superclass
      */
-    public <X extends T> void filter(Collection<X> collection) throws ConcurrentModificationException, Exception {
-        if (collection!=null) {
-            // Make a backup, just in case something goes wrong
-            List backup = new ArrayList<T>(collection);
-            try {
-                Iterator<? extends T> iter = collection.iterator();
-                while (iter.hasNext()) {
-                    if (! eval(iter.next())) {
-                        iter.remove();
-                    }
-                }
-            } catch (Exception exc) {
-                // clear whatever is left in the collection
-//                collection.clear();
-                Iterator<X> iter = backup.iterator();
-                while (iter.hasNext()) {
-                	collection.add(iter.next());
-                }
-                //collection.addAll(backup);
-                throw exc;
-            }
-        }
+    public <X extends T> void filter(Collection<X> collection) throws E {
+    	if (collection!=null) {
+    		Iterator<? extends T> iter = collection.iterator();
+    		while (iter.hasNext()) {
+    			if (! eval(iter.next())) {
+    				iter.remove();
+    			}
+    		}
+    	}
     }
 
     /**
@@ -99,10 +85,63 @@ public abstract class AbstractPredicate<T> implements Predicate<T> {
         return (other==this);
     }
 
-    /**
-     * See superclass
-     */
-//    public /*@ pure @*/ int nbSubPredicates() {
-//        return getSubPredicates().size();
-//    }
+    public Predicate<T,E> and(final Predicate<? super T, ? extends E> other) {
+    	return new AbstractPredicate<T, E>() {
+				@Override
+				public boolean eval(T object) throws E {
+					return eval(object) && other.eval(object);
+				}
+			};
+    }
+    
+    public Predicate<T,E> or(final Predicate<? super T, ? extends E> other) {
+    	return new AbstractPredicate<T, E>() {
+				@Override
+				public boolean eval(T object) throws E {
+					return eval(object) || other.eval(object);
+				}
+			};
+    }
+    
+    public Predicate<T,E> negation() {
+    	return new AbstractPredicate<T, E>() {
+				@Override
+				public boolean eval(T object) throws E {
+					return ! eval(object);
+				}
+			};
+    }
+    
+    public Predicate<T,E> implies(final Predicate<? super T, ? extends E> other) {
+    	return new AbstractPredicate<T, E>() {
+				@Override
+				public boolean eval(T object) throws E {
+					return ! eval(object) || other.eval(object);
+				}
+			};
+    }
+
+    public Predicate<T,E> xor(final Predicate<? super T, ? extends E> other) {
+    	return new AbstractPredicate<T, E>() {
+				@Override
+				public boolean eval(T object) throws E {
+					return eval(object) ^ other.eval(object);
+				}
+			};
+    }
+    
+    public Predicate<T,Nothing> guard(final boolean value) {
+    	return new AbstractPredicate<T, Nothing>() {
+
+				@Override
+				public boolean eval(T object) throws Nothing {
+					try {
+						return AbstractPredicate.this.eval(object);
+					} catch(Exception e) {
+						return value;
+					}
+				}
+    		
+    	};
+    }
 }

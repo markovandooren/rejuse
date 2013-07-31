@@ -294,12 +294,12 @@ public class CompositeDimension extends Dimension {
            (
             (other instanceof Dimension) &&
             (baseDimensions.size() == ((Dimension)other).getBaseDimensions().size()) &&
-            (new SafePredicate() {
-              public /*@ pure @*/ boolean eval(Object o) {
+            (new SafePredicate<BaseDimension>() {
+              public /*@ pure @*/ boolean eval(BaseDimension o) {
                 BaseDimension base = (BaseDimension)o;
                 return getExponent(base) == ((Dimension)other).getExponent(base);
               }
-            }.forall(baseDimensions))
+            }.forAll(baseDimensions))
            );
   }
   
