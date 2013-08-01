@@ -1110,23 +1110,22 @@ public /*@ pure @*/ abstract class Unit {
    @ // SpecialUnit as key, and a non-null, non-zero Double as value.
    @ post \result == (map != null) &&
    @                 (\forall Object o; map.entrySet().contains(o);
-   @                   (((Map.Entry)o).getKey() instanceof SpecialUnit) &&
-   @                   (((Map.Entry)o).getValue() instanceof Double) &&
-   @                   (((Double)((Map.Entry)o).getValue()).doubleValue() != 0));
+   @                   (o.getKey() instanceof SpecialUnit) &&
+   @                   (o.getValue() instanceof Double) &&
+   @                   (((Double)o.getValue()).doubleValue() != 0));
    @*/
   public static /*@ pure @*/ boolean validUnitMap(Map map) {
     if (map == null) {
       return false;
     }
     Set entries = map.entrySet();
-    return new SafePredicate() {
-      public boolean eval(Object o) {
-        return (o instanceof Map.Entry) &&
-               (((Map.Entry)o).getKey() instanceof SpecialUnit) &&
-               (((Map.Entry)o).getValue() instanceof Double) &&
-               (((Double)((Map.Entry)o).getValue()).doubleValue() != 0);
+    return new SafePredicate<Map.Entry>() {
+      public boolean eval(Map.Entry o) {
+        return (o.getKey() instanceof SpecialUnit) &&
+               (o.getValue() instanceof Double) &&
+               (((Double)o.getValue()).doubleValue() != 0);
       }
-    }.forall(entries);
+    }.forAll(entries);
   }
 
    /**

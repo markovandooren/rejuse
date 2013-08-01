@@ -362,12 +362,11 @@ public class CompositeUnit extends Unit {
            (
             (other instanceof Unit) &&
             (baseUnits.size() == ((Unit)other).getSpecialUnits().size()) &&
-            (new SafePredicate() {
-              public boolean eval(Object o) {
-                SpecialUnit base = (SpecialUnit)o;
+            (new SafePredicate<SpecialUnit>() {
+              public boolean eval(SpecialUnit base) {
                 return getExponent(base) == ((Unit)other).getExponent(base);
               }
-            }.forall(baseUnits))
+            }.forAll(baseUnits))
            );
   }
 
@@ -387,11 +386,11 @@ public class CompositeUnit extends Unit {
    @                     s.convertsIsomorphToBaseUnit());
    @*/
   public /*@ pure @*/ boolean convertsIsomorphToBaseUnit() {
-    return new SafePredicate() {
-             public /*@ pure @*/ boolean eval(Object o) {
+    return new SafePredicate<Unit>() {
+             public /*@ pure @*/ boolean eval(Unit o) {
                return ((Unit)o).convertsIsomorphToBaseUnit();
              }
-           }.forall(getSpecialUnits());
+           }.forAll(getSpecialUnits());
   }
 
   /**

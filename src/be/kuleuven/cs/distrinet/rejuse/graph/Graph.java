@@ -256,9 +256,9 @@ public class Graph<V> {
    @*/
   public Set<Node<V>> getLeaves() {
     Set<Node<V>> result = getNodes();
-    new SafePredicate() {
-      public boolean eval(Object o) {
-        return ((Node)o).isLeaf();
+    new SafePredicate<Node<V>>() {
+      public boolean eval(Node<V> o) {
+        return o.isLeaf();
       }
     }.filter(result);
     return result;

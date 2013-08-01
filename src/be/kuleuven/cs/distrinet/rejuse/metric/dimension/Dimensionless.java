@@ -46,11 +46,11 @@ public final class Dimensionless extends BasicDimension {
            (
             (other != null) &&
             (other instanceof Dimension) &&
-             new SafePredicate() {
-               public boolean eval(Object o) {
+             new SafePredicate<BaseDimension>() {
+               public boolean eval(BaseDimension o) {
                  return ((Dimension)other).getExponent((BaseDimension)o) == 0;
                }
-             }.forall(((Dimension)other).getBaseDimensions())
+             }.forAll(((Dimension)other).getBaseDimensions())
            );
   }
 
