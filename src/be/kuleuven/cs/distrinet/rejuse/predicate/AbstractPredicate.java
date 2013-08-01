@@ -1,7 +1,9 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
 
@@ -77,7 +79,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	}
     }
 
-    public <X extends T>  List<X> filteredList(Collection<X> collection) throws ConcurrentModificationException, Exception {
+    public <X extends T>  List<X> filteredList(Collection<X> collection) throws E {
     	List<X> result = new ArrayList<X>();
     	for(X x: collection) {
     		if(eval(x)) {
@@ -154,4 +156,5 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     		
     	};
     }
+    
 }
