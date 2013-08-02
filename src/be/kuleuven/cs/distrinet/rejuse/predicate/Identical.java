@@ -13,10 +13,7 @@ package be.kuleuven.cs.distrinet.rejuse.predicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class Identical<T> extends SafePredicate<T> {
-
-	/* The revision of this class */
-	public final static String CVS_REVISION ="$Revision$";
+public class Identical extends SafePredicate<Object> {
 
   /**
    * <p>Initialize a new Identical with the given object</p>
@@ -29,14 +26,14 @@ public class Identical<T> extends SafePredicate<T> {
 	 @
    @ post getObject() == object;
    @*/
-  public Identical(T object) {
+  public Identical(Object object) {
     _object = object;
   }
 
 	/**
 	 * Return the object of this Identical.
 	 */
-  public /*@ pure @*/ T getObject() {
+  public /*@ pure @*/ Object getObject() {
     return _object;
   }
 
@@ -45,12 +42,12 @@ public class Identical<T> extends SafePredicate<T> {
 	 @
 	 @ post \result == (getObject() == object);
 	 @*/
-	public /*@ pure @*/ boolean eval(T object) {
+	public /*@ pure @*/ boolean eval(Object object) {
 		return _object == object;
 	}
 
 	/**
 	 * The object to be used for the identity test.
 	 */
-  private T _object;
+  private Object _object;
 }
