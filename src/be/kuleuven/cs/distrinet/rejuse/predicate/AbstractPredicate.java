@@ -157,4 +157,12 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	};
     }
     
+    public UniversalPredicate<T,E> makeUniversal(Class<T> type) {
+    	return new UniversalPredicate<T, E>(type) {
+				@Override
+				public boolean uncheckedEval(T t) throws E {
+					return AbstractPredicate.this.eval(t);
+				}
+			};
+    }
 }
