@@ -2,11 +2,13 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
 
 /**
@@ -142,7 +144,7 @@ public class Graph<V> {
    @ //TODO : postconditions.
    @*/
 	public Edge<V> addEdge(V first, V second) {
-		return edgeFactory().createEdge(getNode(first), getNode(second));
+		return edgeFactory().createEdge(node(first), node(second));
 	}
   
 	/**
@@ -154,8 +156,8 @@ public class Graph<V> {
 	 * @param second
 	 */
 	public void ensureEdge(V first, V second) {
-		Node<V> firstNode = getNode(first);
-		Node<V> secondNode = getNode(second);
+		Node<V> firstNode = node(first);
+		Node<V> secondNode = node(second);
 		if(! firstNode.isDirectlyConnectedTo(secondNode)) {
 			addEdge(first, second);
 		}
@@ -169,7 +171,7 @@ public class Graph<V> {
    @
    @ post \result == getNodes().size();
    @*/
-  public int getNbNodes() {
+  public int nbNodes() {
     return _nodeMap.size();
   }
   
@@ -187,7 +189,7 @@ public class Graph<V> {
    @
    @ post \result != null;
    @*/
-  public Node<V> getNode(Object object) {
+  public Node<V> node(Object object) {
     return _nodeMap.get(object);
   }
   
@@ -214,7 +216,7 @@ public class Graph<V> {
    @ post (\forall Object o; \result.contains(o)
    @         o instanceof Node);
    @*/
-	public Set<Node<V>> getNodes() {
+	public Set<Node<V>> nodes() {
     return new HashSet<>(_nodeMap.values());
 	}
   
@@ -227,7 +229,7 @@ public class Graph<V> {
    @ post \result != null;
    @ TODO: specs
    @*/
-  public Set<V> getObjects() {
+  public Set<V> objects() {
     return new HashSet<>(_nodeMap.keySet());
   }
   
@@ -255,7 +257,7 @@ public class Graph<V> {
    @         \result.contains(node) == node.isLeaf());
    @*/
   public Set<Node<V>> getLeaves() {
-    Set<Node<V>> result = getNodes();
+    Set<Node<V>> result = nodes();
     new SafePredicate<Node<V>>() {
       public boolean eval(Node<V> o) {
         return o.isLeaf();
@@ -278,9 +280,9 @@ public class Graph<V> {
   	for(Map.Entry<V, Node<V>> entry: entrySet) {
   		Node<V> originalNode = entry.getValue();
 			Node<V> clonedNode = cloneMap.get(originalNode);
-			for(Edge<V> edge: originalNode.getStartEdges()) {
+			for(Edge<V> edge: originalNode.outgoingEdges()) {
 				if(! done.contains(edge)) {
-					Node<V> originalTarget = edge.getEndFor(originalNode);
+					Node<V> originalTarget = edge.nodeConnectedTo(originalNode);
 					Node<V> clonedTarget = cloneMap.get(originalTarget);
 					edge.cloneTo(clonedNode, clonedTarget);
 					done.add(edge);
@@ -292,15 +294,15 @@ public class Graph<V> {
   
   public Graph<V> plus(Graph<V> other) {
   	Graph<V> result = clone();
-  	for(Node<V> node: other.getNodes()) {
-  		V sourceObject = node.getObject();
-			Node<V> source = getNode(sourceObject);
+  	for(Node<V> node: other.nodes()) {
+  		V sourceObject = node.object();
+			Node<V> source = node(sourceObject);
   		if(source == null) {
   			addNode(sourceObject);
   		}
-  		for(Edge<V> edge: node.getStartEdges()) {
-    		V targetObject = edge.getEndFor(node).getObject();
-  			Node<V> target = getNode(targetObject);
+  		for(Edge<V> edge: node.outgoingEdges()) {
+    		V targetObject = edge.nodeConnectedTo(node).object();
+  			Node<V> target = node(targetObject);
     		if(target == null) {
     			addNode(targetObject);
     		}
@@ -314,4 +316,65 @@ public class Graph<V> {
   }
   
   private Map<V,Node<V>> _nodeMap;
+  
+  public <E extends Exception> void applyToObjects(Action<? super V, E> action) throws E {
+  	for(V v: _nodeMap.keySet()) {
+  		action.perform(v);
+  	}
+  }
+  
+  public <E extends Exception> void traverse(V start, Action<? super V, ? extends E> nodeAction, Action<? super Edge<V>,? extends E> edgeAction) throws E {
+  	Node<V> initial = node(start);
+  	if(initial == null) {
+  		return;
+  	}
+  	LinkedList<Node<V>> todo = new LinkedList<>();
+  	todo.add(initial);
+  	Set<Node<V>> traversedNodes = new HashSet<>();
+  	Set<Edge<V>> traversedEdges= new HashSet<>();
+  	while(! todo.isEmpty()) {
+  		Node<V> current = todo.removeFirst();
+  		nodeAction.perform(current.object());
+  		traversedNodes.add(current);
+  		for(Edge<V> edge: current.outgoingEdges()) {
+				if(! traversedEdges.contains(edge)) {
+	  			Node<V> otherNode = edge.nodeConnectedTo(current);
+					if(! traversedNodes.contains(otherNode)) {
+	  				todo.addLast(otherNode);
+	  			}
+					edgeAction.perform(edge);
+					traversedEdges.add(edge);
+				}
+  		}
+  	}
+  }
+  
+  public <E extends Exception> void traverseAll(Action<? super V, ? extends E> nodeAction, Action<? super Edge<V>,? extends E> edgeAction) throws E {
+  	LinkedList<Node<V>> todo = new LinkedList<>();
+  	todo.addAll(_nodeMap.values());
+
+  	// We save some work by not tracking which
+  	// node are already visited since they are all present
+  	// to start with. Therefore the code is not shared.
+  	Set<Edge<V>> traversedEdges= new HashSet<>();
+  	while(! todo.isEmpty()) {
+  		Node<V> current = todo.removeFirst();
+  		nodeAction.perform(current.object());
+  		for(Edge<V> edge: current.outgoingEdges()) {
+				if(! traversedEdges.contains(edge)) {
+					edgeAction.perform(edge);
+					traversedEdges.add(edge);
+				}
+  		}
+  	}
+
+  }
+
+  public Set<Edge<V>> edges() {
+  	Set<Edge<V>> result = new HashSet<>();
+  	for(Node<V> node: nodes()) {
+  		result.addAll(node.outgoingEdges());
+  	}
+  	return result;
+  }
 }
