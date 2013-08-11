@@ -41,8 +41,20 @@ public class UniEdge<V> extends AbstractEdge<V> {
    @
    @ post \result == getFirst(); 
    @*/  
-  public Node<V> getStart() {
+  public Node<V> startNode() {
     return getFirst();
+  }
+
+  /**
+   * Return the start object.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result == startNode().object(); 
+   @*/  
+  public V start() {
+    return startNode().object();
   }
 
   /**
@@ -53,8 +65,20 @@ public class UniEdge<V> extends AbstractEdge<V> {
    @
    @ post \result == getEnd(); 
    @*/  
-  public Node<V> getEnd() {
-    return getEnd();
+  public Node<V> endNode() {
+    return getSecond();
+  }
+
+  /**
+   * Return the end object.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result == endNode().object(); 
+   @*/  
+  public V end() {
+    return endNode().object();
   }
 
  /*@
@@ -81,7 +105,7 @@ public class UniEdge<V> extends AbstractEdge<V> {
    @ post \result.size() == 1;
    @ post \result.contains(getFirst());
    @*/
-  public Set<Node<V>> getStartNodes() {
+  public Set<Node<V>> startNodes() {
     Set<Node<V>> result = new HashSet<>();
     result.add(getFirst());
     return result;
@@ -92,7 +116,7 @@ public class UniEdge<V> extends AbstractEdge<V> {
    @
    @ post \result == getSecond(); 
    @*/
-  public Node<V> getEndFor(Node<V> start) {
+  public Node<V> nodeConnectedTo(Node<V> start) {
     return getSecond();
   }
 
@@ -101,7 +125,7 @@ public class UniEdge<V> extends AbstractEdge<V> {
     @
     @ post \result == getFirst(); 
     @*/
-  public Node<V> getStartFor(Node<V> end) {
+  public Node<V> startFor(Node<V> end) {
     return getFirst();
   }
 
@@ -111,7 +135,7 @@ public class UniEdge<V> extends AbstractEdge<V> {
     @ post \result.size() == 1;
     @ post \result.contains(getSecond());
     @*/
-  public Set<Node<V>> getEndNodes() {
+  public Set<Node<V>> endNodes() {
     Set<Node<V>> result = new HashSet<>();
     result.add(getSecond());
     return result;
