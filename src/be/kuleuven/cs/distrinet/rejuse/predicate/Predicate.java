@@ -17,33 +17,11 @@ import be.kuleuven.cs.distrinet.rejuse.java.collections.CollectionOperator;
  * quantifiers,...) in general, and the user of that code can write the specific
  * predicate.</p>
  *
- * <p>The <a href="ForAll.html"><code>ForAll</code></a>,
- * <a href="Exists.html"><code>Exists</code></a>,
- * <a href="Counter.html"><code>Counter</code></a> and
- * <a href="Filter.html"><code>Filter</code></a> classes are replaced by
- * instance methods of this class so they can be removed in the future.
- * The recommended use for operations that do not work on collections is to
- * use an internal iterator (like the forall,... method of this class) in the
- * objects that contain the information. This was not possible for collections
- * since we don't have access to the source code, and so these methods are
- * put in this class.</p>
- *
- * <p>Typically, this class will be used as an anonymous inner class as follows:</p>
- * <pre><code>
- * Predicate myPredicate = new AbstractPredicate() {
- *            /oo
- *             o also public behavior
- *             o
- *             o post postcondition;
- *             o/
- *            public boolean eval(T o) throws MyException {
- *              //calculate boolean value
- *              //using the given object
- *            }
- *
- *          };
- * </code></pre>
- *
+ * <p>Typically, this class will be used as an anonymous inner class. For predicates
+ * that do not verify the type of the argument, use {@link AbstractPredicate}. For 
+ * predicates that do verify the type of the argument, use {@link UniversalPredicate}.</p>
+ * 
+ * 
  * <p><code>AbstractPredicate</code> implements all methods of this interface except for
  * <a href="Predicate.html#eval(Object)"><code>eval()</code></a>.</p>
  *
@@ -224,4 +202,6 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
 	public Predicate<T,Nothing> guard(final boolean value);
 
 	public <X extends T>  List<X> filteredList(Collection<X> collection) throws E;
+	
+	public UniversalPredicate<T,E> makeUniversal(Class<? extends T> type);
 }
