@@ -2,7 +2,7 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.Set;
 
-public interface Edge<V> {
+public abstract class Edge<V> {
 
 	/*@
 	 @ post ! \old(getFirst()).contains(this);
@@ -69,7 +69,7 @@ public interface Edge<V> {
 	  @ post (\forall Node n; getNodes().contains(n);
 	  @        startsIn(n));
 	  @*/
-	public abstract Set<Node<V>> getStartNodes();
+	public abstract Set<Node<V>> startNodes();
 
 	/**
 	 * Return the node that is reached when traversing this edge starting from
@@ -83,7 +83,7 @@ public interface Edge<V> {
 	  @
 	  @ pre startsIn(start);
 	  @*/
-	public abstract Node<V> getEndFor(Node<V> start);
+	public abstract Node<V> nodeConnectedTo(Node<V> start);
 
 	/**
 	 * Return the node that is used as a start node when the given node is the
@@ -97,7 +97,7 @@ public interface Edge<V> {
 	  @
 	  @ pre endsIn(end);
 	  @*/
-	public abstract Node<V> getStartFor(Node<V> end);
+	public abstract Node<V> startFor(Node<V> end);
 
 	/**
 	 * Return the nodes that can be used as an end point when
@@ -112,7 +112,7 @@ public interface Edge<V> {
 	  @ post (\forall Node n; getNodes().contains(n);
 	  @        endsIn(n));
 	  @*/
-	public abstract Set<Node<V>> getEndNodes();
+	public abstract Set<Node<V>> endNodes();
 
 	/**
 	 * Return the first node of this edge.
@@ -122,12 +122,12 @@ public interface Edge<V> {
 	/**
 	 * Return the second node of this edge.
 	 */
-	public Node<V> getSecond();
+	public abstract Node<V> getSecond();
 	
-	public Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget);
+	protected abstract Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget);
 	
-	public <T> T get(Class<T> key);
+	public abstract <T> T get(Class<T> key);
 	
-	public <T> void put(Class<T> key, T value);
+	public abstract <T> void put(Class<T> key, T value);
 
 }

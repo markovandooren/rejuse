@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableSet.Builder;
  * 
  * @author Marko van Dooren
  */
-public abstract class AbstractEdge<V> implements Edge<V> {
+public abstract class AbstractEdge<V> extends Edge<V> {
   
  /*@
    @ public behavior
@@ -111,7 +111,7 @@ public abstract class AbstractEdge<V> implements Edge<V> {
    @        startsIn(n));
    @*/
   @Override
-	public abstract Set<Node<V>> getStartNodes();
+	public abstract Set<Node<V>> startNodes();
   
   /* (non-Javadoc)
 	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getEndFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
@@ -122,7 +122,7 @@ public abstract class AbstractEdge<V> implements Edge<V> {
    @ pre startsIn(start);
    @*/
   @Override
-	public abstract Node<V> getEndFor(Node<V> start);
+	public abstract Node<V> nodeConnectedTo(Node<V> start);
 	
   /* (non-Javadoc)
 	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getStartFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
@@ -133,7 +133,7 @@ public abstract class AbstractEdge<V> implements Edge<V> {
    @ pre endsIn(end);
    @*/
   @Override
-	public abstract Node<V> getStartFor(Node<V> end);
+	public abstract Node<V> startFor(Node<V> end);
   
   /* (non-Javadoc)
 	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getEndNodes()
@@ -148,7 +148,7 @@ public abstract class AbstractEdge<V> implements Edge<V> {
    @        endsIn(n));
    @*/
   @Override
-	public abstract Set<Node<V>> getEndNodes();
+	public abstract Set<Node<V>> endNodes();
   
 	/* (non-Javadoc)
 	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getFirst()

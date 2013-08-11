@@ -57,7 +57,7 @@ public class BidiEdge<V> extends AbstractEdge<V> {
    @ post \result.contains(getSecond());
    @ post getFirst == getSecond() ==> \result.size() == 1;
    @*/
-  public Set<Node<V>> getStartNodes() {
+  public Set<Node<V>> startNodes() {
     Set<Node<V>> result = new HashSet<>();
     result.add(getFirst());
     result.add(getSecond());
@@ -70,7 +70,7 @@ public class BidiEdge<V> extends AbstractEdge<V> {
    @ post start == getFirst() ==> \result == getSecond(); 
    @ post start == getSecond() ==> \result == getFirst();
    @*/
-  public Node<V> getEndFor(Node<V> start) {
+  public Node<V> nodeConnectedTo(Node<V> start) {
     if(start == getFirst()) {
       return getSecond();
     }
@@ -85,7 +85,7 @@ public class BidiEdge<V> extends AbstractEdge<V> {
     @ post start == getFirst() ==> \result == getSecond(); 
     @ post start == getSecond() ==> \result == getFirst();
     @*/
-  public Node<V> getStartFor(Node<V> end) {
+  public Node<V> startFor(Node<V> end) {
     if(end == getFirst()) {
       return getSecond();
     }
@@ -102,7 +102,7 @@ public class BidiEdge<V> extends AbstractEdge<V> {
     @ post \result.contains(getSecond());
     @ post getFirst == getSecond() ==> \result.size() == 1;
     @*/
-  public Set<Node<V>> getEndNodes() {
+  public Set<Node<V>> endNodes() {
     Set<Node<V>> result = new HashSet<>();
     result.add(getFirst());
     result.add(getSecond());
