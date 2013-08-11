@@ -40,7 +40,7 @@ public class Node<V> {
    @
    @ post \result != null; 
    @*/
-  public V getObject() {
+  public V object() {
     return _object;
   }
   
@@ -100,7 +100,7 @@ public class Node<V> {
    @ post ! \result.contains(null);
    @ post (\forall Edge e; e != null; \result.contains(e) == e.startsIn(this)); 
    @*/
-  public Set<Edge<V>> getStartEdges() {
+  public Set<Edge<V>> outgoingEdges() {
     return new HashSet<>(_starts);
   }
   
@@ -114,7 +114,7 @@ public class Node<V> {
    @ post ! \result.contains(null);
    @ post (\forall Edge e; e != null; \result.contains(e) == e.endsIn(this)); 
    @*/
-  public Set<Edge<V>> getEndEdges() {
+  public Set<Edge<V>> incomingEdges() {
     return new HashSet<>(_starts);
   }
   
@@ -124,9 +124,9 @@ public class Node<V> {
  /*@
    @ public behavior
    @
-   @ post \result == getStartEdges().size();
+   @ post \result == outgoingEdges().size();
    @*/
-  public int getNbStartEdges() {
+  public int nbOutgoingEdges() {
     return _starts.size();
   }
   
@@ -136,9 +136,9 @@ public class Node<V> {
  /*@
    @ public behavior
    @
-   @ post \result == getEndEdges().size();
+   @ post \result == incomingEdges().size();
    @*/
-  public int getNbEndEdges() {
+  public int nbIncomingEdges() {
     return _ends.size();
   }
 
@@ -154,7 +154,7 @@ public class Node<V> {
    @ post (\forall Object o; result.contains(o); 
    @        getStartEdges().contains(o) || getEndEdges().contains(o));
    @*/  
-  public Set<Edge<V>> getEdges() {
+  public Set<Edge<V>> edges() {
     Set<Edge<V>> result = new HashSet<>(_starts);
     result.addAll(_ends);
     return result;
@@ -198,7 +198,7 @@ public class Node<V> {
     //TODO inefficient, but it works
     return new SafeTransitiveClosure() {
       public void addConnectedNodes(Object node, Set acc) {
-        acc.addAll(((Node)node).getDirectlyConnectedNodes());
+        acc.addAll(((Node)node).directlyConnectedNodes());
       }
     }.closure(this).contains(other);
   }
@@ -222,10 +222,10 @@ public class Node<V> {
    @
    @ TODO: specs
    @*/
-  public Set<Node<V>> getDirectlyConnectedNodes() {
+  public Set<Node<V>> directlyConnectedNodes() {
     Set<Node<V>> result = new HashSet<>();
     for(Edge<V> edge: _starts) {
-    	result.add(edge.getEndFor(this));
+    	result.add(edge.nodeConnectedTo(this));
     }
     return result;
   }
@@ -239,10 +239,10 @@ public class Node<V> {
    @
    @ TODO: specs
    @*/
-  public Set<V> getDirectlyConnectedObjects() {
+  public Set<V> directlyConnectedObjects() {
     Set<V> result = new HashSet<>();
     for(Edge<V> edge: _starts) {
-    	result.add(edge.getEndFor(this).getObject());
+    	result.add(edge.nodeConnectedTo(this).object());
     }
     return result;
   }
@@ -262,7 +262,7 @@ public class Node<V> {
    @*/
   public boolean isDirectlyConnectedTo(Node<V> node) {
   	for(Edge<V> edge: _starts) {
-  		if(edge.getEndFor(this) == node) {
+  		if(edge.nodeConnectedTo(this) == node) {
   			return true;
   		}
   	}
@@ -278,7 +278,7 @@ public class Node<V> {
   public List<Edge<V>> directlyConnectingEdges(Node<V> node) {
   	List<Edge<V>> result = new ArrayList<>();
   	for(Edge<V> edge: _starts) {
-  		if(edge.getEndFor(this) == node) {
+  		if(edge.nodeConnectedTo(this) == node) {
   			result.add(edge);
   		}
   	}
@@ -286,6 +286,6 @@ public class Node<V> {
   }
   
   public Node<V> bareClone() {
-  	return new Node<V>(getObject());
+  	return new Node<V>(object());
   }
 }

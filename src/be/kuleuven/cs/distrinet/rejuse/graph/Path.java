@@ -87,7 +87,7 @@ public class Path<V> implements Comparable<Path<V>> {
     result.add(_start);
     new Visitor() {
       public void visit(Object o) {
-        result.add(((Edge)o).getEndFor((Node)result.get(result.size()-1)));
+        result.add(((Edge)o).nodeConnectedTo((Node)result.get(result.size()-1)));
       }
     }.applyTo(_edges);
     return result;
@@ -124,7 +124,7 @@ public class Path<V> implements Comparable<Path<V>> {
   	Weight weight = edge.get(Weight.class);
   	if(weight != null) {
   		_edges.add(edge);
-  		_end = edge.getEndFor(_end);
+  		_end = edge.nodeConnectedTo(_end);
   		_length += weight.weight();
   	}
   }
