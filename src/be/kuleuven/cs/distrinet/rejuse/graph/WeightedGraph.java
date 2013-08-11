@@ -17,7 +17,7 @@ public class WeightedGraph<V> extends Graph<V> {
 	}
 	
   public Edge<V> addEdge(V first, V second, double weight) {
-  	return ((WeightedEdgeFactory<V>)edgeFactory()).createEdge(getNode(first), getNode(second), weight);
+  	return ((WeightedEdgeFactory<V>)edgeFactory()).createEdge(node(first), node(second), weight);
   }
   
   /**
@@ -32,7 +32,7 @@ public class WeightedGraph<V> extends Graph<V> {
    @ pre node != null;
    @*/
   public Path<V> distance(V start, V end) {
-  	Node<V> endNode = getNode(end);
+  	Node<V> endNode = node(end);
   	//TODO first version only uses the weight of the edges, no
   	// weightfunction
 
@@ -43,7 +43,7 @@ public class WeightedGraph<V> extends Graph<V> {
   	SkipList<Path<V>> adjacent = new SkipList<>(new ComparableComparator());
   	//final TreeSet newAdjacent = new TreeSet(new ComparableComparator());
   	final HashMap<Node<V>,Path<V>> temp = new HashMap<>();
-  	adjacent.add(new Path<V>(getNode(start)));
+  	adjacent.add(new Path<V>(node(start)));
 
   	while((! done.containsKey(endNode)) && (! adjacent.isEmpty())) {
   		// search the node closest to the 'done' nodes
@@ -53,13 +53,13 @@ public class WeightedGraph<V> extends Graph<V> {
   		adjacent.remove(closest);
   		done.put(closest.getEnd(), closest);
 
-  		Set startingFromLatest = closest.getEnd().getStartEdges();
+  		Set startingFromLatest = closest.getEnd().outgoingEdges();
 
   		// 1) add the paths adjacent to the path we just added.
   		new Visitor() {
   			public void visit(Object o) {
   				Edge e = (Edge)o;
-  				if(! done.containsKey(e.getEndFor(latest))) {
+  				if(! done.containsKey(e.nodeConnectedTo(latest))) {
   					Path path = (Path)closest.clone();
   					path.addEdge((Edge) e);
   					temp.put(path.getEnd(), path);
