@@ -101,7 +101,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return new AbstractPredicate<T, E>() {
 				@Override
 				public boolean eval(T object) throws E {
-					return eval(object) && other.eval(object);
+					return AbstractPredicate.this.eval(object) && other.eval(object);
 				}
 			};
     }
@@ -110,7 +110,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return new AbstractPredicate<T, E>() {
 				@Override
 				public boolean eval(T object) throws E {
-					return eval(object) || other.eval(object);
+					return AbstractPredicate.this.eval(object) || other.eval(object);
 				}
 			};
     }
@@ -119,7 +119,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return new AbstractPredicate<T, E>() {
 				@Override
 				public boolean eval(T object) throws E {
-					return ! eval(object);
+					return ! AbstractPredicate.this.eval(object);
 				}
 			};
     }
@@ -128,7 +128,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return new AbstractPredicate<T, E>() {
 				@Override
 				public boolean eval(T object) throws E {
-					return ! eval(object) || other.eval(object);
+					return ! AbstractPredicate.this.eval(object) || other.eval(object);
 				}
 			};
     }
@@ -137,14 +137,13 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return new AbstractPredicate<T, E>() {
 				@Override
 				public boolean eval(T object) throws E {
-					return eval(object) ^ other.eval(object);
+					return AbstractPredicate.this.eval(object) ^ other.eval(object);
 				}
 			};
     }
     
     public Predicate<T,Nothing> guard(final boolean value) {
     	return new AbstractPredicate<T, Nothing>() {
-
 				@Override
 				public boolean eval(T object) throws Nothing {
 					try {
@@ -157,7 +156,7 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	};
     }
     
-    public UniversalPredicate<T,E> makeUniversal(Class<T> type) {
+    public UniversalPredicate<T,E> makeUniversal(Class<? extends T> type) {
     	return new UniversalPredicate<T, E>(type) {
 				@Override
 				public boolean uncheckedEval(T t) throws E {
