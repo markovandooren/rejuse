@@ -6,9 +6,13 @@ public class Contracts {
 		notNull(o, "");
 	}
 	
-	public final static void notNull(Object o, String message) {
-		if(o == null) {
+	public final static void check(boolean bool, String message) {
+		if(! bool) {
 			throw new IllegalArgumentException(message);
 		}
+	}
+	
+	public final static void notNull(Object o, String message) {
+		check(o != null, message);
 	}
 }
