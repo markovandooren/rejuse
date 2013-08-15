@@ -89,14 +89,6 @@ public abstract class AbstractPredicate<T,E extends Exception> implements Predic
     	return result;
     }
     
-    /**
-     * See superclass
-     */
-    public final /*@ pure @*/ boolean equals(Object other) {
-        //default implementation
-        return (other==this);
-    }
-
     public Predicate<T,E> and(final Predicate<? super T, ? extends E> other) {
     	return new AbstractPredicate<T, E>() {
 				@Override
