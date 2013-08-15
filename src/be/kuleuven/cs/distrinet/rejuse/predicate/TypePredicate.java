@@ -2,6 +2,8 @@ package be.kuleuven.cs.distrinet.rejuse.predicate;
 
 import java.util.Collection;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+
 /**
  * <p>A class of predicate that check whether or not an object conforms to
  * a certain type.</p>
@@ -23,10 +25,7 @@ import java.util.Collection;
  * @author Marko van Dooren
  * @author Jan Dockx
  */
-public class TypePredicate<T,C extends T> extends SafePredicate<T> {
-
-    /* The revision of this class */
-    public static final String CVS_REVISION = "$Revision$";
+public class TypePredicate<T> extends UniversalPredicate<T,Nothing> {
 
     /**
      * <p>Initialize a new TypePredicate that checks whether or not objects
@@ -41,14 +40,15 @@ public class TypePredicate<T,C extends T> extends SafePredicate<T> {
     @
     @ post getType() == type;
     @*/
-    public TypePredicate(Class<C> type) {
-        _type = type;
+    public TypePredicate(Class<T> type) {
+        super(type);
     }
 
     /**
      * <p>Initialize a new TypePredicate based on the type with the given name.</p>
      *
      * @param name The name of the type.
+     * @throws ClassNotFoundException 
      */
    /*@
      @ public behavior
@@ -64,45 +64,24 @@ public class TypePredicate<T,C extends T> extends SafePredicate<T> {
      @ signals (ExceptionInInitializerError) (* something went wrong *);
      @ signals (IllegalArgumentException) (* Illegal Class Name *);
      @*/
-    public TypePredicate(String name) throws LinkageError, ExceptionInInitializerError, IllegalArgumentException {
-        try {
-            _type = (Class<C>)Class.forName(name);
-        } catch (ClassNotFoundException exc) {
-            throw new IllegalArgumentException("Illegal class name : "+name);
-        }
+    public TypePredicate(String name) throws ClassNotFoundException {
+    	super(klazz(name));
     }
 
-    /**
-     * Return the type of this TypePredicate.
-     */
-    /*@
-      @ public behavior
-      @
-      @ post \result != null;
-      @*/
-    public /*@ pure @*/ Class<C> getType() {
-        return _type;
-    }
+		protected static Class klazz(String name) throws ClassNotFoundException {
+			return Class.forName(name);
+		}
 
     /*@
       @ also public behavior
       @
       @ post \result == getType().isInstance(object);
       @*/
-    @Override public /*@ pure @*/ boolean eval(T object) {
-        return getType().isInstance(object);
+    @Override public /*@ pure @*/ boolean uncheckedEval(T object) {
+        return true;
     }
 
-    /**
-     * The type to be used in the filter.
-     */
-    /*@
-    @ private invariant _type != null;
-    @*/
-    private Class<C> _type;
-
-
-    public <X extends T, L extends Collection<C>,K extends Collection<X>> L filterReturn(K collection) {
+    public <X extends T, L extends Collection<T>,K extends Collection<X>> L filterReturn(K collection) {
         super.filter((K)collection);
         return (L)collection;
     }

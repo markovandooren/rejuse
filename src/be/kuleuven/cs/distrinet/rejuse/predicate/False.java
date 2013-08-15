@@ -1,5 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+
 /**
  * <p>A special total predicate that always returns <code>false</code> for 
  * <a href="False.html#eval(java.lang.Object)">eval()<code></code></a>.</p>
@@ -13,17 +15,18 @@ package be.kuleuven.cs.distrinet.rejuse.predicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class False<T> extends SafePredicate<T> {
+public class False extends UniversalPredicate<Object,Nothing> {
 
-  /* The revision of this class */
-    public final static String CVS_REVISION ="$Revision$";
-    
-    /*@
+ public False() {
+		super(Object.class);
+	}
+
+	/*@
 	 @ also public behavior
 	 @
 	 @ post \result == false;
 	 @*/
-	public /*@ pure @*/ boolean eval(T object) {
+	public /*@ pure @*/ boolean uncheckedEval(Object object) {
 		return false;
 	}
 	

@@ -662,14 +662,13 @@ public abstract class Dimension {
       return false;
     }
     Set entries = map.entrySet();
-    return new SafePredicate() {
-      public boolean eval(Object o) {
-        return (o instanceof Map.Entry) &&
-               (((Map.Entry)o).getKey() instanceof BaseDimension) &&
-               (((Map.Entry)o).getValue() instanceof Double) &&
-               (((Double)((Map.Entry)o).getValue()).doubleValue() != 0);
+    return new SafePredicate<Map.Entry>() {
+      public boolean eval(Map.Entry o) {
+        return (o.getKey() instanceof BaseDimension) &&
+               (o.getValue() instanceof Double) &&
+               (((Double)o.getValue()).doubleValue() != 0);
       }
-    }.forall(entries);
+    }.forAll(entries);
   }
 
    /**

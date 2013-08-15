@@ -414,4 +414,15 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
 	}
 	
 	private boolean _isCaching;
+	
+	public boolean containsObject(TO to) {
+		if(to != null) {
+			for(TO connected: getOtherEnds()) {
+				if(connected.equals(to)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

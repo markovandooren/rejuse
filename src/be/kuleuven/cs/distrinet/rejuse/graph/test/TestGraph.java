@@ -1,11 +1,14 @@
 package be.kuleuven.cs.distrinet.rejuse.graph.test;
 
 import junit.framework.TestCase;
+import be.kuleuven.cs.distrinet.rejuse.graph.BidiEdgeFactory;
+import be.kuleuven.cs.distrinet.rejuse.graph.DefaultNodeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.Edge;
-import be.kuleuven.cs.distrinet.rejuse.graph.Graph;
 import be.kuleuven.cs.distrinet.rejuse.graph.Node;
-import be.kuleuven.cs.distrinet.rejuse.graph.Path;
 import be.kuleuven.cs.distrinet.rejuse.graph.UniEdgeFactory;
+import be.kuleuven.cs.distrinet.rejuse.graph.Weight;
+import be.kuleuven.cs.distrinet.rejuse.graph.WeightedEdgeFactory;
+import be.kuleuven.cs.distrinet.rejuse.graph.WeightedGraph;
 
 /**
  * @author Marko van Dooren
@@ -24,47 +27,50 @@ public class TestGraph extends TestCase {
   }
   
   public void testGraph() {
-    Graph graph = new Graph();
+  	WeightedGraph<String> graph = new WeightedGraph<String>(
+        new DefaultNodeFactory<String>(), 
+        new WeightedEdgeFactory<String>(
+      	 	  new BidiEdgeFactory<String>()));
     String a = "a";
     String b = "b";
     String c = "c";
     String d = "d";
     graph.addNode(a);
     assertTrue(graph.contains(a));
-    assertTrue(graph.getNbNodes() == 1);
-    assertTrue(graph.getNodes().size() == 1);
-    assertTrue(graph.getObjects().contains(a));
+    assertTrue(graph.nbNodes() == 1);
+    assertTrue(graph.nodes().size() == 1);
+    assertTrue(graph.objects().contains(a));
     graph.addNode(b);
     assertTrue(graph.contains(b));
-    assertTrue(graph.getNbNodes() == 2);
-    assertTrue(graph.getNodes().size() == 2);
-    assertTrue(graph.getObjects().contains(b));
+    assertTrue(graph.nbNodes() == 2);
+    assertTrue(graph.nodes().size() == 2);
+    assertTrue(graph.objects().contains(b));
     graph.addNode(c);
     assertTrue(graph.contains(c));
-    assertTrue(graph.getNbNodes() == 3);
-    assertTrue(graph.getNodes().size() == 3);
-    assertTrue(graph.getObjects().contains(c));
+    assertTrue(graph.nbNodes() == 3);
+    assertTrue(graph.nodes().size() == 3);
+    assertTrue(graph.objects().contains(c));
     graph.addNode(a);
-    assertTrue(graph.getNbNodes() == 3);
-    Node nodeA = graph.getNode(a); 
-    Node nodeB = graph.getNode(b);
-    Node nodeC = graph.getNode(c);
-    Edge edge = null;
+    assertTrue(graph.nbNodes() == 3);
+    Node nodeA = graph.node(a); 
+    Node nodeB = graph.node(b);
+    Node nodeC = graph.node(c);
+    Edge<String> edge = null;
     edge = graph.addEdge(a,b,1);
-    assertTrue(edge.getFirst().getObject() == a);
-    assertTrue(edge.getSecond().getObject() == b);
-    assertTrue(edge.startsIn(graph.getNode(a)));
-    assertTrue(edge.startsIn(graph.getNode(b)));
-    assertTrue(edge.endsIn(graph.getNode(a)));
-    assertTrue(edge.endsIn(graph.getNode(b)));
-    assertTrue(edge.getWeight() == 1);
-    assertTrue(nodeA.getNbStartEdges() == 1);
-    assertTrue(nodeA.getNbEndEdges() == 1);
-    assertTrue(nodeB.getNbStartEdges() == 1);
-    assertTrue(nodeB.getNbEndEdges() == 1);
-    assertTrue(nodeC.getNbStartEdges() == 0);
-    assertTrue(nodeC.getNbEndEdges() == 0);
-    assertTrue(graph.getNode(a).canReach(graph.getNode(b)));
+    assertTrue(edge.getFirst().object() == a);
+    assertTrue(edge.getSecond().object() == b);
+    assertTrue(edge.startsIn(graph.node(a)));
+    assertTrue(edge.startsIn(graph.node(b)));
+    assertTrue(edge.endsIn(graph.node(a)));
+    assertTrue(edge.endsIn(graph.node(b)));
+    assertTrue(edge.get(Weight.class).weight() == 1);
+    assertTrue(nodeA.nbOutgoingEdges() == 1);
+    assertTrue(nodeA.nbIncomingEdges() == 1);
+    assertTrue(nodeB.nbOutgoingEdges() == 1);
+    assertTrue(nodeB.nbIncomingEdges() == 1);
+    assertTrue(nodeC.nbOutgoingEdges() == 0);
+    assertTrue(nodeC.nbIncomingEdges() == 0);
+    assertTrue(graph.node(a).canReach(graph.node(b)));
     graph.addEdge(b,c,1);
     graph.addEdge(a,c,1.8);
     //Path shortest = nodeA.dijkstra(nodeC);
@@ -74,8 +80,7 @@ public class TestGraph extends TestCase {
   }
   
   public void testDijkstra() {
-    Graph g = getBigGraph();
-    Path p = null;
+    WeightedGraph<String> g = getBigGraph();
     
     print(g, "a", "w");
     print(g, "q", "i");
@@ -85,12 +90,15 @@ public class TestGraph extends TestCase {
     print(g, "d", "n");
   }
   
-  private void print(Graph g, Object from, Object to) {
-    System.out.println(g.getNode(from).dijkstra(g.getNode(to)));
+  private <O> void print(WeightedGraph<O> g, O from, O to) {
+    System.out.println(g.distance(from,to));
   }
 
-  private Graph getBigGraph() {
-    Graph graph = new Graph(new UniEdgeFactory());
+  private WeightedGraph<String> getBigGraph() {
+  	WeightedGraph<String> graph = new WeightedGraph<String>(
+  			                              new DefaultNodeFactory<String>(), 
+  			                              new WeightedEdgeFactory<String>(
+  			                            	 	  new UniEdgeFactory<String>()));
     graph.addNode("a");
     graph.addNode("b");
     graph.addNode("c");

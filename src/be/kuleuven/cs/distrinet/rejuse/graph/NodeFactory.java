@@ -3,7 +3,7 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 /**
  * @author Marko van Dooren
  */
-public interface EdgeFactory<V> {
+public interface NodeFactory<V> {
   
   /**
    * Create a new edge with the given first and second nodes. The
@@ -22,7 +22,7 @@ public interface EdgeFactory<V> {
    @                            second,
    @                            getWeightFunction().getWeight(first, second));
    @*/
-  public abstract Edge<V> createEdge(Node<V> first, Node<V> second);
+  public abstract Node<V> createNode(V object);
   
   
 

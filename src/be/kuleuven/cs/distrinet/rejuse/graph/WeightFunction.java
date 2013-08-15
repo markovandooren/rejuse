@@ -3,6 +3,6 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 /**
  * @author Marko van Dooren
  */
-public interface WeightFunction {
-  public double getWeight(Node first, Node second);
+public interface WeightFunction<V> {
+  public double getWeight(Node<V> first, Node<V> second);
 }

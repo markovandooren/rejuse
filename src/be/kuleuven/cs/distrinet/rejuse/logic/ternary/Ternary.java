@@ -77,4 +77,17 @@ public enum Ternary {
   public Ternary nand(Ternary other) {
   	return this.and(other).not();
   }
+  
+  /**
+   * p NOR q = NOT (p OR q) 
+   * @param other
+   * @return
+   */
+  public Ternary nor(Ternary other) {
+  	return this.or(other).not();
+  }
+  
+  public static Ternary fromBoolean(boolean bool) {
+  	return bool ? TRUE : FALSE;
+  }
 }

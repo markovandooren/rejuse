@@ -1,175 +1,133 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
-import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @author Marko van Dooren
- */
-public abstract class Edge {
-	
-  
- /*@
-   @ public behavior
-   @
-   @ pre first != null;
-   @ pre second != null;
-   @
-   @ post getFirst() == first;
-   @ post getSecond() == second;
-   @ post getWeight() == weight;
-   @*/
-  public Edge(Node first, Node second, double weight) {
-    _first = first;
-    _second = second;
-    _weight = weight;
-    first.addEdge(this);
-    second.addEdge(this);
-  }
-  
- /*@
-   @ post ! \old(getFirst()).contains(this);
-   @ post ! \old(getSecond()).contains(this);
-   @ post getFirst() == null;
-   @ post getSecond() == null;
-   @*/
-  public void terminate() {
-    _first.removeEdge(this);
-    _second.removeEdge(this);
-    _first = null;
-    _second = null;
-  }
-  
-  /**
+public abstract class Edge<V> {
+
+	/*@
+	 @ post ! \old(getFirst()).contains(this);
+	 @ post ! \old(getSecond()).contains(this);
+	 @ post getFirst() == null;
+	 @ post getSecond() == null;
+	 @*/
+	public abstract void terminate();
+
+	/**
 	 * Return the nodes connected to this edge.
 	 */
- /*@
-   @ public behavior
-   @ 
-   @ post \result != null
-   @ post \result.contains(getFirst());
-   @ post \result.contains(getSecond());
-   @ post getFirst() == getSecond() ==> \result.size() == 1
-   @ post getFirst() != getSecond() ==> \result.size() == 2
-   @*/
-	public Set getNodes() {
-		Set result = new HashSet();
-		result.add(_first);
-		result.add(_second);
-		return result;
-	}
-  
-  /**
-   * Check whether or not this edge starts in the
-   * given node.
-   * 
-   * @param node
-   *        The node to be checked
-   */
- /*@
-   @ public behavior
-   @
-   @ //false when the given node is null
-   @ post node == null ==> \result == false;
-   @*/  
-  public abstract boolean startsIn(Node node);
+	/*@
+	  @ public behavior
+	  @ 
+	  @ post \result != null
+	  @ post \result.contains(getFirst());
+	  @ post \result.contains(getSecond());
+	  @ post getFirst() == getSecond() ==> \result.size() == 1
+	  @ post getFirst() != getSecond() ==> \result.size() == 2
+	  @*/
+	public abstract Set<Node<V>> getNodes();
 
-  /**
-   * Check whether or not this edge ends in the
-   * given node.
-   * 
-   * @param node
-   *        The node to be checked
-   */
- /*@
-   @ public behavior
-   @
-   @ //false when the given node is null
-   @ post node == null ==> \result == false;
-   @*/  
-  public abstract boolean endsIn(Node node);
-  
-  /**
-   * Return the nodes that can be used as a start for
-   * traversing this edge.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \result != null;
-   @ // The result is a subset of the set of all connected nodes
-   @ post getNodes().containsAll(\result);
-   @ post (\forall Node n; getNodes().contains(n);
-   @        startsIn(n));
-   @*/
-  public abstract Set getStartNodes();
-  
-  /**
-   * Return the node that is reached when traversing this edge starting from
-   * the given node.
-   * 
-   * @param start
-   *        The start node.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre startsIn(start);
-   @*/
-  public abstract Node getEndFor(Node start);
-	
-  /**
-   * Return the node that is used as a start node when the given node is the
-   * end of travering this edge.
-   * 
-   * @param end
-   *        The end node.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre endsIn(end);
-   @*/
-  public abstract Node getStartFor(Node end);
-  
-  /**
-   * Return the nodes that can be used as an end point when
-   * traversing this edge.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \result != null;
-   @ // The result is a subset of the set of all connected nodes
-   @ post getNodes().containsAll(\result);
-   @ post (\forall Node n; getNodes().contains(n);
-   @        endsIn(n));
-   @*/
-  public abstract Set getEndNodes();
-  
-  /**
-   * Return the weight of this edge.
-   */
-  public double getWeight() {
-    return _weight;
-  }
-	
-  private double _weight;
-  
 	/**
-   * Return the first node of this edge.
+	 * Check whether or not this edge starts in the
+	 * given node.
+	 * 
+	 * @param node
+	 *        The node to be checked
 	 */
-	public Node getFirst() {
-		return _first;
-	}
+	/*@
+	  @ public behavior
+	  @
+	  @ //false when the given node is null
+	  @ post node == null ==> \result == false;
+	  @*/
+	public abstract boolean startsIn(Node<V> node);
+
+	/**
+	 * Check whether or not this edge ends in the
+	 * given node.
+	 * 
+	 * @param node
+	 *        The node to be checked
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ //false when the given node is null
+	  @ post node == null ==> \result == false;
+	  @*/
+	public abstract boolean endsIn(Node<V> node);
+
+	/**
+	 * Return the nodes that can be used as a start for
+	 * traversing this edge.
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ post \result != null;
+	  @ // The result is a subset of the set of all connected nodes
+	  @ post getNodes().containsAll(\result);
+	  @ post (\forall Node n; getNodes().contains(n);
+	  @        startsIn(n));
+	  @*/
+	public abstract Set<Node<V>> startNodes();
+
+	/**
+	 * Return the node that is reached when traversing this edge starting from
+	 * the given node.
+	 * 
+	 * @param start
+	 *        The start node.
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ pre startsIn(start);
+	  @*/
+	public abstract Node<V> nodeConnectedTo(Node<V> start);
+
+	/**
+	 * Return the node that is used as a start node when the given node is the
+	 * end of travering this edge.
+	 * 
+	 * @param end
+	 *        The end node.
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ pre endsIn(end);
+	  @*/
+	public abstract Node<V> startFor(Node<V> end);
+
+	/**
+	 * Return the nodes that can be used as an end point when
+	 * traversing this edge.
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ post \result != null;
+	  @ // The result is a subset of the set of all connected nodes
+	  @ post getNodes().containsAll(\result);
+	  @ post (\forall Node n; getNodes().contains(n);
+	  @        endsIn(n));
+	  @*/
+	public abstract Set<Node<V>> endNodes();
+
+	/**
+	 * Return the first node of this edge.
+	 */
+	public abstract Node<V> getFirst();
+
+	/**
+	 * Return the second node of this edge.
+	 */
+	public abstract Node<V> getSecond();
 	
-  /**
-   * Return the second node of this edge.
-   */
-  public Node getSecond() {
-    return _second;
-  }
-  
-	private Node _first;
-	private Node _second;
+	protected abstract Edge<V> cloneTo(Node<V> newSource, Node<V> newTarget);
+	
+	public abstract <T> T get(Class<T> key);
+	
+	public abstract <T> void put(Class<T> key, T value);
+
 }

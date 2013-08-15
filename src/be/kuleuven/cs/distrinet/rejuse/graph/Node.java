@@ -1,22 +1,16 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Set;
 
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Mapping;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.SafeTransitiveClosure;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.SkipList;
-import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
-import be.kuleuven.cs.distrinet.rejuse.java.comparator.ComparableComparator;
 
 /**
  * @author Marko van Dooren
  */
-public class Node {
+public class Node<V> {
   
   /**
    * Initialize a new node for the given object.
@@ -32,10 +26,10 @@ public class Node {
    @ post getObject() == object;
    @ post getEdges().isEmpty();
    @*/
-  Node(Object object) {
+  public Node(V object) {
     _object = object;
-    _starts = new HashSet();
-    _ends = new HashSet();
+    _starts = new HashSet<>();
+    _ends = new HashSet<>();
   }
   
   /**
@@ -46,14 +40,14 @@ public class Node {
    @
    @ post \result != null; 
    @*/
-  public Object getObject() {
+  public V object() {
     return _object;
   }
   
   /**
    * The object of this edge.
    */
-  private Object _object;
+  private V _object;
   
   /**
    * Add the given edge to this node.
@@ -71,12 +65,12 @@ public class Node {
    @ post edge.startsIn(this) ==> getStartEdges().contains(edge)
    @ post edge.endsIn(this) ==> getEndEdges().contains(edge)
    @*/
-  void addEdge(Edge edge) {
+  void addEdge(Edge<V> edge) {
     if(edge.startsIn(this)) {
       _starts.add(edge);
     }
     if(edge.endsIn(this)) {
-      _ends.add(this);
+      _ends.add(edge);
     }
   }
   
@@ -91,7 +85,7 @@ public class Node {
    @
    @ post ! getEdges().contains(edge); 
    @*/
-  void removeEdge(Edge edge) {
+  void removeEdge(Edge<V> edge) {
     _starts.remove(edge);
     _ends.remove(edge);
   }
@@ -104,12 +98,10 @@ public class Node {
    @
    @ post \result != null
    @ post ! \result.contains(null);
-   @ post (\forall Object o; \result.contains(o); o instanceof Edge);
    @ post (\forall Edge e; e != null; \result.contains(e) == e.startsIn(this)); 
    @*/
-  public Set getStartEdges() {
-    Set result = new HashSet(_starts);
-    return result;
+  public Set<Edge<V>> outgoingEdges() {
+    return new HashSet<>(_starts);
   }
   
   /**
@@ -120,12 +112,10 @@ public class Node {
    @
    @ post \result != null
    @ post ! \result.contains(null);
-   @ post (\forall Object o; \result.contains(o); o instanceof Edge);
    @ post (\forall Edge e; e != null; \result.contains(e) == e.endsIn(this)); 
    @*/
-  public Set getEndEdges() {
-    Set result = new HashSet(_starts);
-    return result;
+  public Set<Edge<V>> incomingEdges() {
+    return new HashSet<>(_starts);
   }
   
   /**
@@ -134,9 +124,9 @@ public class Node {
  /*@
    @ public behavior
    @
-   @ post \result == getStartEdges().size();
+   @ post \result == outgoingEdges().size();
    @*/
-  public int getNbStartEdges() {
+  public int nbOutgoingEdges() {
     return _starts.size();
   }
   
@@ -146,9 +136,9 @@ public class Node {
  /*@
    @ public behavior
    @
-   @ post \result == getEndEdges().size();
+   @ post \result == incomingEdges().size();
    @*/
-  public int getNbEndEdges() {
+  public int nbIncomingEdges() {
     return _ends.size();
   }
 
@@ -164,8 +154,8 @@ public class Node {
    @ post (\forall Object o; result.contains(o); 
    @        getStartEdges().contains(o) || getEndEdges().contains(o));
    @*/  
-  public Set getEdges() {
-    Set result = new HashSet(_starts);
+  public Set<Edge<V>> edges() {
+    Set<Edge<V>> result = new HashSet<>(_starts);
     result.addAll(_ends);
     return result;
   }
@@ -185,12 +175,12 @@ public class Node {
   /**
    * The edges starting in this node.
    */
-  private Set _starts;
+  private Set<Edge<V>> _starts;
   
   /**
    * The edges ending in this node.
    */
-  private Set _ends;
+  private Set<Edge<V>> _ends;
   
   /**
    * Check whether or not the given node is reachable when starting from this
@@ -204,96 +194,16 @@ public class Node {
    @
    @ pre node != null;
    @*/ 
-  public boolean canReach(Node other) {
+  public boolean canReach(Node<V> other) {
     //TODO inefficient, but it works
     return new SafeTransitiveClosure() {
       public void addConnectedNodes(Object node, Set acc) {
-        acc.addAll(((Node)node).getDirectlyConnectedNodes());
+        acc.addAll(((Node)node).directlyConnectedNodes());
       }
     }.closure(this).contains(other);
   }
   
-  /**
-   * Return the shortest path to the given node.
-   *  
-   * @param other
-   *        The destination.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre node != null;
-   @*/
-  public Path dijkstra(Node node) {
-    //TODO first version only uses the weight of the edges, no
-    // weightfunction
-    
-    // The list of nodes we have already calculated, together with their
-    // shortest path from this node.
-    final Map done = new HashMap();
-    // The list of adjacent nodes that remain to be done.
-    SkipList adjacent = new SkipList(new ComparableComparator());
-    //final TreeSet newAdjacent = new TreeSet(new ComparableComparator());
-    final HashMap temp = new HashMap();
-    adjacent.add(new Path(this));
-    
-    while((! done.containsKey(node)) && (! adjacent.isEmpty())) {
-      // search the node closest to the 'done' nodes
-      final Path closest = (Path)adjacent.first();
-      final Node latest = closest.getEnd();
-      // Move its shortest path from 'adjacent' to 'done'      
-      adjacent.remove(closest);
-      done.put(closest.getEnd(), closest);
-      
-      Set startingFromLatest = closest.getEnd().getStartEdges();
-      
-      // 1) add the paths adjacent to the path we just added.
-      new Visitor() {
-        public void visit(Object o) {
-          Edge e = (Edge)o;
-          if(! done.containsKey(e.getEndFor(latest))) {
-            Path path = (Path)closest.clone();
-            path.addEdge(e);
-            temp.put(path.getEnd(), path);
-          }
-        }
-      }.applyTo(startingFromLatest);
-      
-      // 2) remove from both 'temp' and 'adjacent' the paths for which a
-      //    shorter path exists.
-      
-      Iterator iter = adjacent.iterator();
-      while(iter.hasNext()) {
-        Path path = (Path)iter.next();
-        // If the destination can also be reached using a path in temp,
-        // remove the longest path.
-        Node destination = path.getEnd(); 
-        if(temp.containsKey(destination)) {
-          Path alternative = (Path)temp.get(destination);
-          if(alternative.compareTo(path) < 0) {
-            iter.remove();
-          }
-          else {
-            temp.remove(destination);
-          }
-        }
-      }
-      
-      // 3) merge both sets
-      adjacent.addAll(temp.values());
-      
-      // Clear temp
-      temp.clear();
-    }
-    Path result = (Path)done.get(node);
-    if(result == null) {
-      throw new NoSuchElementException();
-    }
-    else {
-      return result;
-    }
-  }
-  
+
  /*@
    @ also public behavior
    @
@@ -312,13 +222,11 @@ public class Node {
    @
    @ TODO: specs
    @*/
-  public Set getDirectlyConnectedNodes() {
-    Set result = new HashSet(_starts);
-    new Mapping() {
-      public Object mapping(Object element) {
-        return ((Edge)element).getEndFor(Node.this);
-      }
-    }.applyTo(result);
+  public Set<Node<V>> directlyConnectedNodes() {
+    Set<Node<V>> result = new HashSet<>();
+    for(Edge<V> edge: _starts) {
+    	result.add(edge.nodeConnectedTo(this));
+    }
     return result;
   }
   
@@ -331,13 +239,53 @@ public class Node {
    @
    @ TODO: specs
    @*/
-  public Set getDirectlyConnectedObjects() {
-    Set result = new HashSet(_starts);
-    new Mapping() {
-      public Object mapping(Object element) {
-        return ((Edge)element).getEndFor(Node.this).getObject();
-      }
-    }.applyTo(result);
+  public Set<V> directlyConnectedObjects() {
+    Set<V> result = new HashSet<>();
+    for(Edge<V> edge: _starts) {
+    	result.add(edge.nodeConnectedTo(this).object());
+    }
     return result;
+  }
+  
+  /**
+   * Check whether this node is directly connected to the
+   * given node.
+   * 
+   * @param node The node of which must be determined if it is directly connected to this node.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre node != null;
+   @
+   @ post \result == \exists(Edge<V> e; getStartEdges().contains(e); e.getEndFor(this) == node);
+   @*/
+  public boolean isDirectlyConnectedTo(Node<V> node) {
+  	for(Edge<V> edge: _starts) {
+  		if(edge.nodeConnectedTo(this) == node) {
+  			return true;
+  		}
+  	}
+  	return false;
+  }
+  
+  /**
+   * Return the edges that directly connect this node to the
+   * given node. If no such edge exists, null is returned.
+   * @param node
+   * @return
+   */
+  public List<Edge<V>> directlyConnectingEdges(Node<V> node) {
+  	List<Edge<V>> result = new ArrayList<>();
+  	for(Edge<V> edge: _starts) {
+  		if(edge.nodeConnectedTo(this) == node) {
+  			result.add(edge);
+  		}
+  	}
+  	return result;
+  }
+  
+  public Node<V> bareClone() {
+  	return new Node<V>(object());
   }
 }
