@@ -125,39 +125,32 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
 	 * <p>Remove all objects for which this Predicate evaluates to <code>false</code>
 	 * from the given collection.</p>
 	 *
-	 * <p>If you want to remove all object for which this Predicate evaluates
-	 * to <code>true</code>, wrap a <code>Not</code> predicate around this predicate, and
-	 * perform the filter using that predicate. For example:</p>
-	 * <pre><code>
-	 * new Not(myPredicate).filter(collection);
-	 * </code></pre>
-	 *
 	 * @param collection The collection to be filtered.
 	 */
-	/*@
-    @ public behavior
-    @
-    @ // All object that evaluate to false have been removed.
-    @ post collection != null ==> (\forall Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
-    @ // No new objects have been put in the collection, and object that evaluate to true
-    @ // remain untouched.
-    @ post collection != null ==> (\forall Object o; \old(Collections.containsExplicitly(collection, o));
-    @                               (eval(o) == true) ==>
-    @                               (
-    @                                Collections.nbExplicitOccurrences(o, collection) ==
-    @                                \old(Collections.nbExplicitOccurrences(o, collection))
-    @                               )
-    @                             );
-    @
-    @ signals (ConcurrentModificationException)
-    @         (* The collection was modified while accumulating *);
-      @ // If a Exception occurs, nothing will happen.
-      @ signals (Exception) (collection != null) &&
-    @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
-    @*/
+ /*@
+   @ public behavior
+   @
+   @ // All object that evaluate to false have been removed.
+   @ post collection != null ==> (\forall Object o; Collections.containsExplicitly(collection, o); eval(o) == true);
+   @ // No new objects have been put in the collection, and object that evaluate to true
+   @ // remain untouched.
+   @ post collection != null ==> (\forall Object o; \old(Collections.containsExplicitly(collection, o));
+   @                               (eval(o) == true) ==>
+   @                               (
+   @                                Collections.nbExplicitOccurrences(o, collection) ==
+   @                                \old(Collections.nbExplicitOccurrences(o, collection))
+   @                               )
+   @                             );
+   @
+   @ signals (ConcurrentModificationException)
+   @         (* The collection was modified while accumulating *);
+   @ // If a Exception occurs, nothing will happen.
+   @ signals (Exception) (collection != null) &&
+   @                     (\exists Object o;
+   @                        (collection != null) &&
+   @                        Collections.containsExplicitly(collection, o);
+   @                          ! isValidElement(o));
+   @*/
 	public <X extends T> void filter(Collection<X> collection) throws E;
 
 
@@ -203,5 +196,5 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
 
 	public <X extends T>  List<X> filteredList(Collection<X> collection) throws E;
 	
-	public UniversalPredicate<T,E> makeUniversal(Class<? extends T> type);
+	public <X extends T> UniversalPredicate<X,E> makeUniversal(Class<X> type);
 }

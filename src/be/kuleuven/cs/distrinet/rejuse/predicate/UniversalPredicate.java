@@ -9,7 +9,7 @@ import be.kuleuven.cs.distrinet.rejuse.contract.Contracts;
 
 public abstract class UniversalPredicate<T, E extends Exception> extends AbstractPredicate<Object,E> {
 
-	public UniversalPredicate(Class<? extends T> type) {
+	public UniversalPredicate(Class<T> type) {
 		Contracts.notNull(type, "The class object of a universal predicate cannot be null.");
 		_type = type;
 	}
@@ -31,9 +31,9 @@ public abstract class UniversalPredicate<T, E extends Exception> extends Abstrac
 	
 	public abstract boolean uncheckedEval(T t) throws E;
 
-	private Class<? extends T> _type;
+	private Class<T> _type;
 	
-	public Class<? extends T> type() {
+	public Class<T> type() {
 		return _type;
 	}
 	
