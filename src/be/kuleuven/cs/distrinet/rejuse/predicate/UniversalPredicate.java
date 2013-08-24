@@ -56,6 +56,15 @@ public abstract class UniversalPredicate<T, E extends Exception> extends Abstrac
 		};
   }
   
+  public UniversalPredicate<T,E> or(final UniversalPredicate<? super T, ? extends E> other) {
+  	return new UniversalPredicate<T, E>(type()) {
+			@Override
+			public boolean uncheckedEval(T object) throws E {
+				return UniversalPredicate.this.eval(object) || other.eval(object);
+			}
+		};
+  }
+  
   @Override
   public UniversalPredicate<T, Nothing> guard(final boolean value) {
   	return new UniversalPredicate<T, Nothing>(type()) {
