@@ -3,13 +3,14 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
-import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+import be.kuleuven.cs.distrinet.rejuse.predicate.AbstractPredicate;
+import be.kuleuven.cs.distrinet.rejuse.predicate.Predicate;
 
 /**
  * @author Marko van Dooren
@@ -258,7 +259,7 @@ public class Graph<V> {
    @*/
   public Set<Node<V>> getLeaves() {
     Set<Node<V>> result = nodes();
-    new SafePredicate<Node<V>>() {
+    new AbstractPredicate<Node<V>,Nothing>() {
       public boolean eval(Node<V> o) {
         return o.isLeaf();
       }
@@ -377,4 +378,14 @@ public class Graph<V> {
   	}
   	return result;
   }
+  
+	public <E extends Exception> void filter(Predicate<? super Edge<V>,E> predicate) throws E {
+		for(Edge<V> edge: edges()) {
+			if(! predicate.eval(edge)) {
+				edge.terminate();
+			}
+		}
+	}
+	
+
 }
