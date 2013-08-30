@@ -94,4 +94,8 @@ public abstract class Action<T, E extends Exception> {
 	}
 	
 	private Class<T> _type;
+	
+	public boolean mustProceed() {
+		return true;
+	}
 }
