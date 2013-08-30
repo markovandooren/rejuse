@@ -53,6 +53,12 @@ public abstract class UniversalPredicate<T, E extends Exception> extends Abstrac
 			public boolean uncheckedEval(T object) throws E {
 				return UniversalPredicate.this.eval(object) && other.eval(object);
 			}
+			
+			@Override
+			public String toString() {
+				return "(" + UniversalPredicate.this.toString() +" & " + other.toString() +")";
+			}
+
 		};
   }
   
@@ -61,6 +67,11 @@ public abstract class UniversalPredicate<T, E extends Exception> extends Abstrac
 			@Override
 			public boolean uncheckedEval(T object) throws E {
 				return UniversalPredicate.this.eval(object) || other.eval(object);
+			}
+			
+			@Override
+			public String toString() {
+				return "(" + UniversalPredicate.this.toString() +" | " + other.toString() +")";
 			}
 		};
   }

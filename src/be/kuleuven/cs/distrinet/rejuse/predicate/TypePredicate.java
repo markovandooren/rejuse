@@ -85,4 +85,9 @@ public class TypePredicate<T> extends UniversalPredicate<T,Nothing> {
         super.filter((K)collection);
         return (L)collection;
     }
+    
+    @Override
+    public String toString() {
+      return "instanceof "+type().getSimpleName();
+    }
 }
