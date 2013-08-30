@@ -30,4 +30,26 @@ public class False extends UniversalPredicate<Object,Nothing> {
 		return false;
 	}
 	
+	@Override
+	public String toString() {
+		return "false";
+	}
+
+	@Override
+		public Predicate<Object, Nothing> and(
+				Predicate<? super Object, ? extends Nothing> other) {
+			return this;
+		}
+	
+	@Override
+		public UniversalPredicate<Object, Nothing> or(
+				UniversalPredicate other) {
+			return other;
+		}
+	
+	@Override
+		public Predicate<Object, Nothing> or(
+				Predicate other) {
+			return other;
+		}
 }
