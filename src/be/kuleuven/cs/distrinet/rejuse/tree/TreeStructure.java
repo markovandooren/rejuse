@@ -2,6 +2,7 @@ package be.kuleuven.cs.distrinet.rejuse.tree;
 
 import java.util.List;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.predicate.TypePredicate;
 import be.kuleuven.cs.distrinet.rejuse.predicate.UniversalPredicate;
 
@@ -95,6 +96,14 @@ public abstract class TreeStructure<T> {
 		return new TypePredicate<X>(c).downCastedList(children(element));
 	}
 
+	public final <X extends T, E extends Exception>  void apply(T element, Action<X,E> action) throws E {
+		if(action.type().isInstance(element)) {
+			action.perform((T)element);
+		}
+		for (T e : children(element)) {
+			tree(e).apply(e,action);
+		}
+	}
 
 
 }
