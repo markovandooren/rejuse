@@ -35,7 +35,7 @@ public abstract class TreePredicate<D, E extends Exception> extends UniversalPre
 			
 			@Override
 			public String toString() {
-				return "("+TreePredicate.this.toString() + "|" + other.toString()+")";
+				return "("+TreePredicate.this.toString() + " | " + other.toString()+")";
 			}
 		};
 	}
@@ -55,7 +55,7 @@ public abstract class TreePredicate<D, E extends Exception> extends UniversalPre
 			
 			@Override
 			public String toString() {
-				return "("+TreePredicate.this.toString() + "&" + other.toString()+")";
+				return "("+TreePredicate.this.toString() + " & " + other.toString()+")";
 			}
 
 		};
@@ -82,6 +82,11 @@ public abstract class TreePredicate<D, E extends Exception> extends UniversalPre
 			public Predicate<Object, Nothing> and(
 					Predicate<? super Object, ? extends Nothing> other) {
 				return this;
+			}
+			
+			@Override
+			public String toString() {
+				return "false";
 			}
 		};
 		
