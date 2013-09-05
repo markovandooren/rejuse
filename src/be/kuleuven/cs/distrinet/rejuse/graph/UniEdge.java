@@ -129,6 +129,15 @@ public class UniEdge<V> extends AbstractEdge<V> {
     return getFirst();
   }
 
+ /*@
+   @ also public behavior
+   @
+   @ post \result == getFirst(); 
+   @*/
+  public Node<V> endFor(Node<V> end) {
+  	return getSecond();
+  }
+
   /*@
     @ also public behavior
     @

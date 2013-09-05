@@ -97,6 +97,20 @@ public class BidiEdge<V> extends AbstractEdge<V> {
   /*@
     @ also public behavior
     @
+    @ post start == getFirst() ==> \result == getSecond(); 
+    @ post start == getSecond() ==> \result == getFirst();
+    @*/
+  public Node<V> endFor(Node<V> end) {
+  	if(end == getSecond()) {
+  		return getFirst();
+  	}
+  	else {
+  		return getSecond();
+  	}
+  }
+  /*@
+    @ also public behavior
+    @
     @ post \result.size() <= 2;
     @ post \result.contains(getFirst());
     @ post \result.contains(getSecond());

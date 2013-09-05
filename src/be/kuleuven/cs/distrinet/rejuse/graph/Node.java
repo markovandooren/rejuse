@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+
 import be.kuleuven.cs.distrinet.rejuse.java.collections.SafeTransitiveClosure;
 
 /**
@@ -28,8 +30,8 @@ public class Node<V> {
    @*/
   public Node(V object) {
     _object = object;
-    _starts = new HashSet<>();
-    _ends = new HashSet<>();
+    _outgoing = new HashSet<>();
+    _incoming = new HashSet<>();
   }
   
   /**
@@ -67,10 +69,10 @@ public class Node<V> {
    @*/
   void addEdge(Edge<V> edge) {
     if(edge.startsIn(this)) {
-      _starts.add(edge);
+      _outgoing.add(edge);
     }
     if(edge.endsIn(this)) {
-      _ends.add(edge);
+      _incoming.add(edge);
     }
   }
   
@@ -86,8 +88,8 @@ public class Node<V> {
    @ post ! getEdges().contains(edge); 
    @*/
   void removeEdge(Edge<V> edge) {
-    _starts.remove(edge);
-    _ends.remove(edge);
+    _outgoing.remove(edge);
+    _incoming.remove(edge);
   }
   
   /**
@@ -101,7 +103,7 @@ public class Node<V> {
    @ post (\forall Edge e; e != null; \result.contains(e) == e.startsIn(this)); 
    @*/
   public Set<Edge<V>> outgoingEdges() {
-    return new HashSet<>(_starts);
+    return new HashSet<>(_outgoing);
   }
   
   /**
@@ -115,7 +117,7 @@ public class Node<V> {
    @ post (\forall Edge e; e != null; \result.contains(e) == e.endsIn(this)); 
    @*/
   public Set<Edge<V>> incomingEdges() {
-    return new HashSet<>(_starts);
+    return new HashSet<>(_outgoing);
   }
   
   /**
@@ -127,7 +129,7 @@ public class Node<V> {
    @ post \result == outgoingEdges().size();
    @*/
   public int nbOutgoingEdges() {
-    return _starts.size();
+    return _outgoing.size();
   }
   
   /**
@@ -139,7 +141,7 @@ public class Node<V> {
    @ post \result == incomingEdges().size();
    @*/
   public int nbIncomingEdges() {
-    return _ends.size();
+    return _incoming.size();
   }
 
   /**
@@ -155,9 +157,10 @@ public class Node<V> {
    @        getStartEdges().contains(o) || getEndEdges().contains(o));
    @*/  
   public Set<Edge<V>> edges() {
-    Set<Edge<V>> result = new HashSet<>(_starts);
-    result.addAll(_ends);
-    return result;
+  	ImmutableSet.Builder<Edge<V>> builder = ImmutableSet.builder();
+    builder.addAll(_outgoing);
+    builder.addAll(_incoming);
+    return builder.build();
   }
   
   /**
@@ -169,18 +172,18 @@ public class Node<V> {
    @ post \result == getStartEdges().isEmpty();
    @*/
   public boolean isLeaf() {
-    return _starts.isEmpty();
+    return _outgoing.isEmpty();
   }
   
   /**
    * The edges starting in this node.
    */
-  private Set<Edge<V>> _starts;
+  private Set<Edge<V>> _outgoing;
   
   /**
    * The edges ending in this node.
    */
-  private Set<Edge<V>> _ends;
+  private Set<Edge<V>> _incoming;
   
   /**
    * Check whether or not the given node is reachable when starting from this
@@ -198,7 +201,7 @@ public class Node<V> {
     //TODO inefficient, but it works
     return new SafeTransitiveClosure() {
       public void addConnectedNodes(Object node, Set acc) {
-        acc.addAll(((Node)node).directlyConnectedNodes());
+        acc.addAll(((Node)node).directSuccessorNodes());
       }
     }.closure(this).contains(other);
   }
@@ -213,6 +216,15 @@ public class Node<V> {
     return _object.toString();
   }
   
+  public void terminate() {
+  	for(Edge<V> edge: _incoming) {
+  		edge.terminate();
+  	}
+  	for(Edge<V> edge: _outgoing) {
+  		edge.terminate();
+  	}
+  }
+  
   /**
    * 
    * @return
@@ -222,9 +234,9 @@ public class Node<V> {
    @
    @ TODO: specs
    @*/
-  public Set<Node<V>> directlyConnectedNodes() {
+  public Set<Node<V>> directSuccessorNodes() {
     Set<Node<V>> result = new HashSet<>();
-    for(Edge<V> edge: _starts) {
+    for(Edge<V> edge: _outgoing) {
     	result.add(edge.nodeConnectedTo(this));
     }
     return result;
@@ -239,29 +251,87 @@ public class Node<V> {
    @
    @ TODO: specs
    @*/
-  public Set<V> directlyConnectedObjects() {
+  public Set<Node<V>> directPredecessorNodes() {
+    Set<Node<V>> result = new HashSet<>();
+    for(Edge<V> edge: _incoming) {
+    	result.add(edge.nodeConnectedTo(this));
+    }
+    return result;
+  }
+  
+  /**
+   * 
+   * @return
+   */
+ /*@
+   @ public behavior
+   @
+   @ TODO: specs
+   @*/
+  public Set<V> directSuccessors() {
     Set<V> result = new HashSet<>();
-    for(Edge<V> edge: _starts) {
+    for(Edge<V> edge: _outgoing) {
     	result.add(edge.nodeConnectedTo(this).object());
     }
     return result;
   }
   
   /**
-   * Check whether this node is directly connected to the
-   * given node.
    * 
-   * @param node The node of which must be determined if it is directly connected to this node.
+   * @return
+   */
+ /*@
+   @ public behavior
+   @
+   @ TODO: specs
+   @*/
+  public Set<V> directPredecessors() {
+    Set<V> result = new HashSet<>();
+    for(Edge<V> edge: _incoming) {
+    	result.add(edge.nodeConnectedTo(this).object());
+    }
+    return result;
+  }
+  
+  /**
+   * Check whether this node has the given node as a
+   * direct successor.
+   * 
+   * @param node The node of which must be determined if it 
+   *             is a direct successor of this node.
    */
  /*@
    @ public behavior
    @
    @ pre node != null;
    @
-   @ post \result == \exists(Edge<V> e; getStartEdges().contains(e); e.getEndFor(this) == node);
+   @ post \result == \exists(Edge<V> e; incomingEdges().contains(e); e.getEndFor(this) == node);
    @*/
-  public boolean isDirectlyConnectedTo(Node<V> node) {
-  	for(Edge<V> edge: _starts) {
+  public boolean hasDirectSuccessor(Node<V> node) {
+  	for(Edge<V> edge: _outgoing) {
+  		if(edge.nodeConnectedTo(this) == node) {
+  			return true;
+  		}
+  	}
+  	return false;
+  }
+  
+  /**
+   * Check whether this node has the given node as a
+   * direct predecessor.
+   * 
+   * @param node The node of which must be determined if it 
+   *             is a direct predecessor of this node.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre node != null;
+   @
+   @ post \result == \exists(Edge<V> e; outgoingEdges().contains(e); e.getEndFor(this) == node);
+   @*/
+  public boolean hasDirectPredecessor(Node<V> node) {
+  	for(Edge<V> edge: _outgoing) {
   		if(edge.nodeConnectedTo(this) == node) {
   			return true;
   		}
@@ -277,7 +347,7 @@ public class Node<V> {
    */
   public List<Edge<V>> directlyConnectingEdges(Node<V> node) {
   	List<Edge<V>> result = new ArrayList<>();
-  	for(Edge<V> edge: _starts) {
+  	for(Edge<V> edge: _outgoing) {
   		if(edge.nodeConnectedTo(this) == node) {
   			result.add(edge);
   		}

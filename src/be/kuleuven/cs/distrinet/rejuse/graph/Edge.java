@@ -99,6 +99,16 @@ public abstract class Edge<V> {
 	  @*/
 	public abstract Node<V> startFor(Node<V> end);
 
+	public abstract Node<V> endFor(Node<V> end);
+	
+	public Node<V> opposite(Node<V> node) {
+		if(node == getFirst()) {
+			return getSecond();
+		} else {
+			return getFirst();
+		}
+	}
+	
 	/**
 	 * Return the nodes that can be used as an end point when
 	 * traversing this edge.

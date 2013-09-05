@@ -126,6 +126,13 @@ public class Graph<V> {
     return node;
 	}
 	
+	public void removeNode(V object) {
+		if(contains(object)) {
+			node(object).terminate();
+			_nodeMap.remove(object);
+		}
+	}
+	
   /**
    * Create a new edge between the two given nodes.
    * 
@@ -159,7 +166,7 @@ public class Graph<V> {
 	public void ensureEdge(V first, V second) {
 		Node<V> firstNode = node(first);
 		Node<V> secondNode = node(second);
-		if(! firstNode.isDirectlyConnectedTo(secondNode)) {
+		if(! firstNode.hasDirectSuccessor(secondNode)) {
 			addEdge(first, second);
 		}
 	}
@@ -202,7 +209,7 @@ public class Graph<V> {
    @
    @ post object == null ==> \result == false;
    @*/
-  public boolean contains(Object object) {
+  public boolean contains(V object) {
     return _nodeMap.containsKey(object);
   }
 	
@@ -375,6 +382,14 @@ public class Graph<V> {
   	Set<Edge<V>> result = new HashSet<>();
   	for(Node<V> node: nodes()) {
   		result.addAll(node.outgoingEdges());
+  	}
+  	return result;
+  }
+  
+  public int nbEdges() {
+  	int result = 0;
+  	for(Node<V> node: nodes()) {
+  		result += node.nbOutgoingEdges();
   	}
   	return result;
   }
