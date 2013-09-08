@@ -321,7 +321,7 @@ public class SkipList<E> extends AbstractCollection<E> {
 	/**
 	 * See superclass
 	 */
-	public /*@ pure @*/ Iterator iterator() {
+	public /*@ pure @*/ Iterator<E> iterator() {
 		return new SkipListIterator();
   }
 	
