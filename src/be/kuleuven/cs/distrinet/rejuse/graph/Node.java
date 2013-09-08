@@ -217,10 +217,12 @@ public class Node<V> {
   }
   
   public void terminate() {
-  	for(Edge<V> edge: _incoming) {
+  	Set<Edge<V>> incoming = ImmutableSet.copyOf(_incoming);
+  	for(Edge<V> edge: incoming) {
   		edge.terminate();
   	}
-  	for(Edge<V> edge: _outgoing) {
+  	Set<Edge<V>> outgoing = ImmutableSet.copyOf(_outgoing);
+  	for(Edge<V> edge: outgoing) {
   		edge.terminate();
   	}
   }
