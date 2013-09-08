@@ -237,7 +237,7 @@ public class Node<V> {
   public Set<Node<V>> directSuccessorNodes() {
     Set<Node<V>> result = new HashSet<>();
     for(Edge<V> edge: _outgoing) {
-    	result.add(edge.nodeConnectedTo(this));
+    	result.add(edge.endFor(this));
     }
     return result;
   }
@@ -254,7 +254,7 @@ public class Node<V> {
   public Set<Node<V>> directPredecessorNodes() {
     Set<Node<V>> result = new HashSet<>();
     for(Edge<V> edge: _incoming) {
-    	result.add(edge.nodeConnectedTo(this));
+    	result.add(edge.startFor(this));
     }
     return result;
   }
@@ -271,7 +271,7 @@ public class Node<V> {
   public Set<V> directSuccessors() {
     Set<V> result = new HashSet<>();
     for(Edge<V> edge: _outgoing) {
-    	result.add(edge.nodeConnectedTo(this).object());
+    	result.add(edge.endFor(this).object());
     }
     return result;
   }
@@ -288,7 +288,7 @@ public class Node<V> {
   public Set<V> directPredecessors() {
     Set<V> result = new HashSet<>();
     for(Edge<V> edge: _incoming) {
-    	result.add(edge.nodeConnectedTo(this).object());
+    	result.add(edge.startFor(this).object());
     }
     return result;
   }
@@ -309,7 +309,7 @@ public class Node<V> {
    @*/
   public boolean hasDirectSuccessor(Node<V> node) {
   	for(Edge<V> edge: _outgoing) {
-  		if(edge.nodeConnectedTo(this) == node) {
+  		if(edge.endFor(this) == node) {
   			return true;
   		}
   	}
@@ -332,7 +332,7 @@ public class Node<V> {
    @*/
   public boolean hasDirectPredecessor(Node<V> node) {
   	for(Edge<V> edge: _outgoing) {
-  		if(edge.nodeConnectedTo(this) == node) {
+  		if(edge.startFor(this) == node) {
   			return true;
   		}
   	}
@@ -345,10 +345,10 @@ public class Node<V> {
    * @param node
    * @return
    */
-  public List<Edge<V>> directlyConnectingEdges(Node<V> node) {
+  public List<Edge<V>> directlySuccessorEdges(Node<V> node) {
   	List<Edge<V>> result = new ArrayList<>();
   	for(Edge<V> edge: _outgoing) {
-  		if(edge.nodeConnectedTo(this) == node) {
+  		if(edge.endFor(this) == node) {
   			result.add(edge);
   		}
   	}

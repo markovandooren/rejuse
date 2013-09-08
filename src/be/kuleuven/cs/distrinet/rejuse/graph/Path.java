@@ -83,13 +83,14 @@ public class Path<V> implements Comparable<Path<V>> {
    @         \result.get(i) == getEdges().get(i-1).getEndFor(\result.get(i-1)))
    @*/
   public List<Node<V>> getNodes() {
-    final ArrayList result = new ArrayList();
+    final ArrayList<Node<V>> result = new ArrayList<>();
     result.add(_start);
-    new Visitor() {
-      public void visit(Object o) {
-        result.add(((Edge)o).nodeConnectedTo((Node)result.get(result.size()-1)));
-      }
-    }.applyTo(_edges);
+    Node<V> current = _start;
+    for(Edge<V> edge: _edges) {
+      Node<V> next = edge.endFor(current);
+			result.add(next);
+			current = next;
+    }
     return result;
   }
   
@@ -124,7 +125,7 @@ public class Path<V> implements Comparable<Path<V>> {
   	Weight weight = edge.get(Weight.class);
   	if(weight != null) {
   		_edges.add(edge);
-  		_end = edge.nodeConnectedTo(_end);
+  		_end = edge.endFor(_end);
   		_length += weight.weight();
   	}
   }

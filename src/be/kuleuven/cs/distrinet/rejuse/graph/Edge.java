@@ -72,20 +72,6 @@ public abstract class Edge<V> {
 	public abstract Set<Node<V>> startNodes();
 
 	/**
-	 * Return the node that is reached when traversing this edge starting from
-	 * the given node.
-	 * 
-	 * @param start
-	 *        The start node.
-	 */
-	/*@
-	  @ public behavior
-	  @
-	  @ pre startsIn(start);
-	  @*/
-	public abstract Node<V> nodeConnectedTo(Node<V> start);
-
-	/**
 	 * Return the node that is used as a start node when the given node is the
 	 * end of travering this edge.
 	 * 

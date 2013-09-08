@@ -38,7 +38,7 @@ public class WeightedGraph<V> extends Graph<V> {
 
   	// The list of nodes we have already calculated, together with their
   	// shortest path from this node.
-  	final Map done = new HashMap();
+  	final Map<Node<V>,Path<V>> done = new HashMap<>();
   	// The list of adjacent nodes that remain to be done.
   	SkipList<Path<V>> adjacent = new SkipList<>(new ComparableComparator());
   	//final TreeSet newAdjacent = new TreeSet(new ComparableComparator());
@@ -48,36 +48,33 @@ public class WeightedGraph<V> extends Graph<V> {
   	while((! done.containsKey(endNode)) && (! adjacent.isEmpty())) {
   		// search the node closest to the 'done' nodes
   		final Path<V> closest = adjacent.first();
-  		final Node latest = closest.getEnd();
+  		final Node<V> latest = closest.getEnd();
   		// Move its shortest path from 'adjacent' to 'done'      
   		adjacent.remove(closest);
   		done.put(closest.getEnd(), closest);
 
-  		Set startingFromLatest = closest.getEnd().outgoingEdges();
+  		Set<Edge<V>> startingFromLatest = closest.getEnd().outgoingEdges();
 
+  		for(Edge<V> edge: startingFromLatest) {
+				if(! done.containsKey(edge.endFor(latest))) {
+					Path<V> path = closest.clone();
+					path.addEdge(edge);
+					temp.put(path.getEnd(), path);
+				}
+  		}
   		// 1) add the paths adjacent to the path we just added.
-  		new Visitor() {
-  			public void visit(Object o) {
-  				Edge e = (Edge)o;
-  				if(! done.containsKey(e.nodeConnectedTo(latest))) {
-  					Path path = (Path)closest.clone();
-  					path.addEdge((Edge) e);
-  					temp.put(path.getEnd(), path);
-  				}
-  			}
-  		}.applyTo(startingFromLatest);
 
   		// 2) remove from both 'temp' and 'adjacent' the paths for which a
   		//    shorter path exists.
 
-  		Iterator iter = adjacent.iterator();
+  		Iterator<Path<V>> iter = adjacent.iterator();
   		while(iter.hasNext()) {
-  			Path path = (Path)iter.next();
+  			Path<V> path = iter.next();
   			// If the destination can also be reached using a path in temp,
   			// remove the longest path.
-  			Node destination = path.getEnd(); 
+  			Node<V> destination = path.getEnd(); 
   			if(temp.containsKey(destination)) {
-  				Path alternative = (Path)temp.get(destination);
+  				Path<V> alternative = temp.get(destination);
   				if(alternative.compareTo(path) < 0) {
   					iter.remove();
   				}
@@ -93,7 +90,7 @@ public class WeightedGraph<V> extends Graph<V> {
   		// Clear temp
   		temp.clear();
   	}
-  	Path result = (Path)done.get(endNode);
+  	Path<V> result = done.get(endNode);
   	if(result == null) {
   		throw new NoSuchElementException();
   	}

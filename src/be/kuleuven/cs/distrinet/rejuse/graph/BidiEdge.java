@@ -64,21 +64,6 @@ public class BidiEdge<V> extends AbstractEdge<V> {
     return result;
   }
 
- /*@
-   @ also public behavior
-   @
-   @ post start == getFirst() ==> \result == getSecond(); 
-   @ post start == getSecond() ==> \result == getFirst();
-   @*/
-  public Node<V> nodeConnectedTo(Node<V> start) {
-    if(start == getFirst()) {
-      return getSecond();
-    }
-    else {
-      return getFirst();
-    }
-  }
-
   /*@
     @ also public behavior
     @

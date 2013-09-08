@@ -114,17 +114,6 @@ public abstract class AbstractEdge<V> extends Edge<V> {
 	public abstract Set<Node<V>> startNodes();
   
   /* (non-Javadoc)
-	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getEndFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
-	 */
- /*@
-   @ public behavior
-   @
-   @ pre startsIn(start);
-   @*/
-  @Override
-	public abstract Node<V> nodeConnectedTo(Node<V> start);
-	
-  /* (non-Javadoc)
 	 * @see be.kuleuven.cs.distrinet.rejuse.graph.IEdge#getStartFor(be.kuleuven.cs.distrinet.rejuse.graph.Node)
 	 */
  /*@

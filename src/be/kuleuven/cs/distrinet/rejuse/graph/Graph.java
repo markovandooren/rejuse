@@ -2,6 +2,7 @@ package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -290,7 +291,7 @@ public class Graph<V> {
 			Node<V> clonedNode = cloneMap.get(originalNode);
 			for(Edge<V> edge: originalNode.outgoingEdges()) {
 				if(! done.contains(edge)) {
-					Node<V> originalTarget = edge.nodeConnectedTo(originalNode);
+					Node<V> originalTarget = edge.endFor(originalNode);
 					Node<V> clonedTarget = cloneMap.get(originalTarget);
 					edge.cloneTo(clonedNode, clonedTarget);
 					done.add(edge);
@@ -309,7 +310,7 @@ public class Graph<V> {
   			addNode(sourceObject);
   		}
   		for(Edge<V> edge: node.outgoingEdges()) {
-    		V targetObject = edge.nodeConnectedTo(node).object();
+    		V targetObject = edge.endFor(node).object();
   			Node<V> target = node(targetObject);
     		if(target == null) {
     			addNode(targetObject);
@@ -346,7 +347,7 @@ public class Graph<V> {
   		traversedNodes.add(current);
   		for(Edge<V> edge: current.outgoingEdges()) {
 				if(! traversedEdges.contains(edge)) {
-	  			Node<V> otherNode = edge.nodeConnectedTo(current);
+	  			Node<V> otherNode = edge.endFor(current);
 					if(! traversedNodes.contains(otherNode)) {
 	  				todo.addLast(otherNode);
 	  			}
@@ -402,5 +403,31 @@ public class Graph<V> {
 		}
 	}
 	
+	public void prune() {
+		Set<Node<V>> todo = nodes();
+		boolean prune = true;
+		while(prune) {
+			Node<V> toPrune = null;
+			Iterator<Node<V>> todoIterator = todo.iterator();
+			while(todoIterator.hasNext()) {
+				Node<V> node = todoIterator.next();
+				todoIterator.remove();
+				if(node.nbIncomingEdges() == 0 || node.nbOutgoingEdges() == 0) {
+					toPrune = node;
+					break;
+				}
+			}
+			if(toPrune != null) {
+				todo.addAll(toPrune.directSuccessorNodes());
+				todo.addAll(toPrune.directPredecessorNodes());
+				// Remove again if there is a self link.
+				todo.remove(toPrune);
+				removeNode(toPrune.object());
+			} else {
+				// Stop if nothing has been removed.
+				prune = false;
+			}
+		}
+	}
 
 }
