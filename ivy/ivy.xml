@@ -6,6 +6,9 @@
   <dependencies>
     <dependency org="junit" name="junit" rev="latest.integration" conf="*->*,!sources,!javadoc"/>
     <dependency org="com.google.guava" name="guava" rev="latest.integration"/>
+    <dependency org="net.sf.jung" name="jung-api" rev="2.0.1"/>
+    <dependency org="net.sf.jung" name="jung-algorithms" rev="2.0.1"/>
+
 
   </dependencies>
 </ivy-module>
