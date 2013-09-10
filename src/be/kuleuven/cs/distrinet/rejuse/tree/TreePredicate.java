@@ -20,7 +20,7 @@ public abstract class TreePredicate<D, E extends Exception> extends UniversalPre
 	 */
 	public abstract boolean canSucceedBeyond(D node) throws E;
 
-	public TreePredicate<D, E> or(final TreePredicate<D, ? extends E> other) {
+	public TreePredicate<D, E> orTree(final TreePredicate<D, ? extends E> other) {
 		return new TreePredicate<D, E>(type()) {
 
 			@Override
@@ -73,7 +73,7 @@ public abstract class TreePredicate<D, E extends Exception> extends UniversalPre
 			}
 			
 			@Override
-			public TreePredicate<Object, Nothing> or(
+			public TreePredicate<Object, Nothing> orTree(
 					TreePredicate<Object, ? extends Nothing> other) {
 				return (TreePredicate<Object, Nothing>) other;
 			}
