@@ -335,11 +335,11 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
   /**
    * If events are enabled, send "element removed" events to all listeners.
    */
-  protected void fireElementRemoved(TO addedElement) {
+  protected void fireElementRemoved(TO removedElement) {
   	flushCache();
   	if(! _eventsBlocked && _listeners != null) {
   		for(AssociationListener<? super TO> listener: _listeners) {
-  			listener.notifyElementRemoved(addedElement);
+  			listener.notifyElementRemoved(removedElement);
   		}
   	}
   }
