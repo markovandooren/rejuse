@@ -156,7 +156,7 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
 	}
 	
 	protected /*@ pure @*/ List<TO> doGetOtherEnds() {
-		List<TO> result = new ArrayList<TO>();
+		List<TO> result = new ArrayList<TO>(size());
 		addOtherEndsTo(result);
 		//	  increase();
 		return result;
