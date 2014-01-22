@@ -204,11 +204,13 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
    @ pre element != null;
    @*/
   @Override
-  protected void register(Association<? extends TO,? super FROM> element) {
+  protected boolean register(Association<? extends TO,? super FROM> element) {
     boolean added = _elements.add(element);
     if(added) {
     	fireElementAdded(element.getObject());
+    	return true;
     }
+    return false;
   }
   
 

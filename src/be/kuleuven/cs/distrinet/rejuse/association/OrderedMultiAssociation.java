@@ -181,30 +181,30 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    * {@inheritDoc}
    */  
   public void add(Association<? extends TO,? super FROM> element) {
-    if(! contains(element)) {
 	  	checkLock();
 	  	checkLock(element);
 	  	if(element != null) {
-        element.register(this);
+        boolean added = element.register(this);
         // Skip a redundant contains check.
-        registerPrivate(element);
+        if(added) {
+        	registerPrivate(element);
+        }
 	  	}
-    }
   }
   
   /**
    * {@inheritDoc}
    */  
   public void addInFront(Association<? extends TO,? super FROM> element) {
-    if(! contains(element)) {
-	  	checkLock();
-	  	checkLock(element);
-	  	if(element != null) {
-        element.register(this);
-        // Skip a redundant contains check.
-        registerInFrontPrivate(element);
-	  	}
-    }
+  	checkLock();
+  	checkLock(element);
+  	if(element != null) {
+  		boolean added = element.register(this);
+  		// Skip a redundant contains check.
+  		if(added) {
+  			registerInFrontPrivate(element);
+  		}
+  	}
   }
   
   /**
@@ -347,10 +347,12 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
     
   
   @Override
-  protected void register(Association<? extends TO,? super FROM> association) {
+  protected boolean register(Association<? extends TO,? super FROM> association) {
     if(! contains(association)) {
       registerPrivate(association);
+      return true;
     }
+    return false;
   }
 
 	private void registerPrivate(Association<? extends TO, ? super FROM> association) {

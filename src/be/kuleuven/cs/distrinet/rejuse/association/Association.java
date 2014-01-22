@@ -85,7 +85,7 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @
    @ post registered(\old(getOtherAssociations()), other);
    @*/
-  protected abstract void register(Association<? extends TO,? super FROM> other);
+  protected abstract boolean register(Association<? extends TO,? super FROM> other);
   
   
   protected void checkLock() {

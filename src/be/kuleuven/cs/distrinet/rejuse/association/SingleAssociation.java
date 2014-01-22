@@ -256,7 +256,10 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
   }
 
   @Override
-  protected void register(Association<? extends TO,? super FROM> other) {
+  protected boolean register(Association<? extends TO,? super FROM> other) {
+  	if(_other == other) {
+  		return false;
+  	}
     if(_other != null) {
   		TO old = _other.getObject();
       _other.unregister(this);
@@ -272,6 +275,7 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
       _other = other;
       fireElementAdded(_other.getObject());
     }
+    return true;
   }
 
   /**
