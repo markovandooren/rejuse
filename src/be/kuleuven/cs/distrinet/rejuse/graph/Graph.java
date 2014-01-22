@@ -164,11 +164,14 @@ public class Graph<V> {
 	 * @param first
 	 * @param second
 	 */
-	public void ensureEdge(V first, V second) {
+	public Edge<V> ensureEdge(V first, V second) {
 		Node<V> firstNode = node(first);
 		Node<V> secondNode = node(second);
-		if(! firstNode.hasDirectSuccessor(secondNode)) {
-			addEdge(first, second);
+		Edge<V> edge = firstNode.someOutgoingEdge(secondNode);
+		if(edge == null) {
+			return addEdge(first, second);
+		} else {
+			return edge;
 		}
 	}
 	
