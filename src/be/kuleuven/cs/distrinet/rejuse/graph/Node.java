@@ -203,7 +203,7 @@ public class Node<V> {
       public void addConnectedNodes(Object node, Set acc) {
         acc.addAll(((Node)node).directSuccessorNodes());
       }
-    }.closure(this).contains(other);
+    }.closureFromAll(directSuccessorNodes()).contains(other);
   }
   
 
