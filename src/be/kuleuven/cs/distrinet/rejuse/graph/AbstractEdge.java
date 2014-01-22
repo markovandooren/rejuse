@@ -1,5 +1,6 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -161,10 +162,16 @@ public abstract class AbstractEdge<V> extends Edge<V> {
 	private Map<Class,Object> _metadata;
 	
 	public <T> T get(Class<T> key) {
+		if(_metadata == null) {
+			return null;
+		}
 		return (T) _metadata.get(key);
 	}
 	
 	public <T> void put(Class<T> key, T value) {
+		if(_metadata == null) {
+			_metadata = new HashMap<>();
+		}
 		_metadata.put(key, value);
 	}
 }
