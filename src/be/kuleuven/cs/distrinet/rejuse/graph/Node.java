@@ -103,7 +103,26 @@ public class Node<V> {
    @ post (\forall Edge e; e != null; \result.contains(e) == e.startsIn(this)); 
    @*/
   public Set<Edge<V>> outgoingEdges() {
-    return new HashSet<>(_outgoing);
+    return ImmutableSet.copyOf(_outgoing);
+  }
+  
+  public Set<Edge<V>> outgoingEdges(Node<V> target) {
+  	Set<Edge<V>> result = new HashSet<>();
+  	for(Edge<V> out: _outgoing) {
+  		if(out.opposite(this) == target) {
+  			result.add(out);
+  		}
+  	}
+  	return result;
+  }
+  
+  public Edge<V> someOutgoingEdge(Node<V> target) {
+  	for(Edge<V> out: _outgoing) {
+  		if(out.opposite(this) == target) {
+  			return out;
+  		}
+  	}
+  	return null;
   }
   
   /**
