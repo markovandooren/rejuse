@@ -406,7 +406,7 @@ public class Graph<V> {
 		}
 	}
 	
-	public void prune() {
+	public void remoteEdgesNotInvolvedInCycles() {
 		Set<Node<V>> todo = nodes();
 		boolean prune = true;
 		while(prune) {
