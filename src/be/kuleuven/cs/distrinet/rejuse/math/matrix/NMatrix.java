@@ -96,7 +96,7 @@ public abstract class NMatrix {
     }
     int[] dims = getDimensions();
     for(int i=0; i<index.length; i++) {
-      if((index[i] <= 0) || index[i] > dims[i]) {
+      if((index[i] < 0) || index[i] >= dims[i]) {
         return false;
       }
     }

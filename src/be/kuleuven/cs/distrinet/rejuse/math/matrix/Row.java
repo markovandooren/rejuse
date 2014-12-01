@@ -56,8 +56,8 @@ public class Row extends Matrix {
    @*/
   public /*@ pure @*/ Row(double[] elements) {
     super(1,elements.length);
-    for(int i=1; i <= elements.length; i++) {
-      setElementAt(1,i,elements[i-1]);
+    for(int i=0; i < elements.length; i++) {
+      setElementAt(1,i,elements[i]);
     }
   }
 
@@ -75,7 +75,7 @@ public class Row extends Matrix {
    @ post \result == elementAt(1, index);
    @*/
   public /*@ pure @*/ double elementAt(int index) {
-    return elementAt(1, index);
+    return elementAt(0, index);
   }
 
   /**
@@ -94,7 +94,7 @@ public class Row extends Matrix {
    @ post elementAt(index) == value;
    @*/
 	public void setElementAt(int index, double value) {
-		setElementAt(1,index,value);
+		setElementAt(0,index,value);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class Row extends Matrix {
 		int size = upper - lower + 1;
 		Row result = new Row(size);
 		for(int i=lower; i<=upper; i++) {
-			result.setElementAt(i - lower + 1, elementAt(i));
+			result.setElementAt(i - lower, elementAt(i));
 		}
 		return result;
 	} 
@@ -159,8 +159,8 @@ public class Row extends Matrix {
 	 @*/
 	public void setSubRow(int lower, Row row) {
 		int size = row.size();
-		for (int i=1; i<= size; i++) {
-			setElementAt(i + lower - 1, row.elementAt(i));
+		for (int i=0; i< size; i++) {
+			setElementAt(i + lower, row.elementAt(i));
 		}
 	}
 	
@@ -177,7 +177,7 @@ public class Row extends Matrix {
    @ post \result == (index > 0) && (index <= size());
    @*/
   public /*@ pure @*/ boolean validIndex(int index) {
-    return ((index > 0) && (index <= size()));
+    return ((index >= 0) && (index < size()));
   }
 }
 

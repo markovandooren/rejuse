@@ -6,6 +6,7 @@ import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
 import java.lang.reflect.Array;
 
 /**
@@ -40,6 +41,11 @@ final public class Singleton extends AbstractList implements Set {
   public /*@ pure @*/ Singleton(Object onlyElement) {
     _onlyElement = onlyElement;
   }
+  
+  @Override
+public Spliterator spliterator() {
+   return Set.super.spliterator();
+}
 
 	/**
 	 * Return the only element in this Singleton.

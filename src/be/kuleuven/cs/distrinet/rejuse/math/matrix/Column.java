@@ -56,8 +56,8 @@ public class Column extends Matrix {
    @*/
   public /*@ pure @*/ Column(double[] elements) {
     super(elements.length, 1);
-    for(int i=1; i <= elements.length; i++) {
-      setElementAt(i,1,elements[i-1]);
+    for(int i=0; i < elements.length; i++) {
+      setElementAt(i,0,elements[i]);
     }
   }
 
@@ -75,7 +75,7 @@ public class Column extends Matrix {
    @ post \result == elementAt(index, 1);
    @*/
   public /*@ pure @*/ double elementAt(int index) {
-    return elementAt(index, 1);
+    return elementAt(index, 0);
   }
 
   /**
@@ -94,7 +94,7 @@ public class Column extends Matrix {
    @ post elementAt(index) == value;
    @*/
 	public void setElementAt(int index, double value) {
-		setElementAt(index,1,value);
+		setElementAt(index,0,value);
 	}
 	
   /**
@@ -134,7 +134,7 @@ public class Column extends Matrix {
 		int size = upper - lower + 1;
 		Column result = new Column(size);
 		for(int i=lower; i<=upper; i++) {
-			result.setElementAt(i - lower + 1, elementAt(i));
+			result.setElementAt(i - lower, elementAt(i));
 		}
 		return result;
 	} 
@@ -159,8 +159,8 @@ public class Column extends Matrix {
 	 @*/
 	public void setSubColumn(int lower, Column column) {
 		int size = column.size();
-		for (int i=1; i<= size; i++) {
-			setElementAt(i + lower - 1, column.elementAt(i));
+		for (int i=0; i< size; i++) {
+			setElementAt(i + lower, column.elementAt(i));
 		}
 	}
 	
@@ -181,7 +181,8 @@ public class Column extends Matrix {
    @*/
   public /*@ pure @*/ double norm(int p) {
     double sum=0;
-    for (int i=1; i <= size(); i++) {
+    int size = size();
+    for (int i=0; i < size; i++) {
       sum+=Math.pow(elementAt(i),(double)p);
     }
     return Math.pow(sum, ((double)((double)1)/((double)p)));
@@ -196,7 +197,7 @@ public class Column extends Matrix {
 	 @ post \result instanceof Column;
 	 @*/
 	public /*@ pure @*/ Object clone() {
-		return getColumn(1);
+		return getColumn(0);
 	}
 
 	/**
@@ -213,7 +214,7 @@ public class Column extends Matrix {
 	public void normalize() {
 		double norm = norm(2);
 		int size = size();
-		for (int i=1; i<= size; i++) {
+		for (int i=0; i< size; i++) {
 			setElementAt(i,elementAt(i)/norm);
 		}
 	}
@@ -231,7 +232,7 @@ public class Column extends Matrix {
    @ post \result == (index > 0) && (index <= size());
    @*/
   public /*@ pure @*/ boolean validIndex(int index) {
-    return ((index > 0) && (index <= size()));
+    return ((index >= 0) && (index < size()));
   }
 }
 
