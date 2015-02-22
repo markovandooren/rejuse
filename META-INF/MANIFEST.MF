@@ -45,20 +45,7 @@ Export-Package: be.kuleuven.cs.distrinet.rejuse,
  be.kuleuven.cs.distrinet.rejuse.predicate.test,
  be.kuleuven.cs.distrinet.rejuse.property,
  be.kuleuven.cs.distrinet.rejuse.string,
- be.kuleuven.cs.distrinet.rejuse.tree,
- com.google.common.annotations,
- com.google.common.base,
- com.google.common.base.internal,
- com.google.common.cache,
- com.google.common.collect,
- com.google.common.eventbus,
- com.google.common.hash,
- com.google.common.io,
- com.google.common.math,
- com.google.common.net,
- com.google.common.primitives,
- com.google.common.reflect,
- com.google.common.util.concurrent
+ be.kuleuven.cs.distrinet.rejuse.tree
 Bundle-Vendor: distrinet.cs.kuleuven.be
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

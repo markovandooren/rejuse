@@ -404,9 +404,6 @@ public class SkipList<E> extends AbstractCollection<E> {
 		// do nothing if this SkipList is empty.
 		if(first != null) {
 			_size--;
-//		for (int i = 1; i < first.length ; i++) {
-//			_head[i] = first[i];
-//		}
 			System.arraycopy(first,1,_head,1,first.length-1);
 		}
 	}
@@ -484,7 +481,7 @@ public class SkipList<E> extends AbstractCollection<E> {
 	 * Return a random level between 1 and getMaxLevel(). The fraction
 	 * of levels > = i that has level >= i+1 is getProbability().
 	 */
- /*@
+  /*@
 	 @ private behavior
 	 @
 	 @ post \result >= 1;
@@ -500,7 +497,9 @@ public class SkipList<E> extends AbstractCollection<E> {
 
 
 	/**
-	 * <p>All elements in a SkipList are kept as nodes. Nodes are represented
+    * <p>The first node of this SkipList.</p>
+    * 
+ 	 * <p>All elements in a SkipList are kept as nodes. Nodes are represented
 	 * as object arrays for efficiency reasons. I tried an object-oriented
 	 * cell design, but it was too slow.</p>
 	 *
@@ -514,10 +513,6 @@ public class SkipList<E> extends AbstractCollection<E> {
 	 *
 	 * <p>The number of forward pointer is the level of the node, and is
 	 * restricted by _maxLevel.</p>
-	 */
-
-	/**
-	 * <p>The first node of this SkipList.</p>
 	 */
  /*@
 	 @ private invariant _head != null;
