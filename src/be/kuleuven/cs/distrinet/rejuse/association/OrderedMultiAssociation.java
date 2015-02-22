@@ -301,7 +301,7 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   	if(_elements != null) {
   		for(int i = 0; i < _elements.size(); i++) {
   			if(_elements.get(i).getObject().equals(element)) {
-  				index = i+1;
+  				index = i;
   				break;
   			}
   		}

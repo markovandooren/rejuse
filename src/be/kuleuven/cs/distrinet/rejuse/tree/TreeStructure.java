@@ -17,8 +17,8 @@ import be.kuleuven.cs.distrinet.rejuse.predicate.UniversalPredicate;
  * as a parameter with each method. This makes it easier to use. Second, since not all
  * tree structure objects in the tree may be of the same class, care must be taken that
  * the data structure objects that is passed as an argument actually corresponds to
- * that TreeStructure object. With a StatefulTreeStructure, nothing can go wrong since we don't
- * have to pass the data structure object as an argument in the first place. 
+ * that TreeStructure object. With a StatefulTreeStructure, nothing can go wrong since we do
+ * not pass the data structure object as an argument in the first place. 
  * 
  * But creating a StatefulTreeStructure object for each object in your data structure is
  * more expensive than having a single (or a few) TreeStructure objects. When the
@@ -28,7 +28,6 @@ import be.kuleuven.cs.distrinet.rejuse.predicate.UniversalPredicate;
  * persons. In other cases, however, we would either have to synchronize the StatefulTreeStructure
  * objects with the underlying data structure, or create new StatefulTreeStructure objects on each use. 
  * For large data structures, this may become problematic.
- * 
  * 
  * @author Marko van Dooren
  *
@@ -84,7 +83,7 @@ public abstract class TreeStructure<T> {
 		return el == ancestor;
 	}
 
-	public final <X extends T> List<X> descendants(T element, Class<X> c) {
+	public <X extends T> List<X> descendants(T element, Class<X> c) {
 		List<X> result = children(element, c);
 		for (T e : children(element)) {
 			result.addAll(tree(e).descendants(e,c));
@@ -92,11 +91,11 @@ public abstract class TreeStructure<T> {
 		return result;
 	}
 	
-	public final <X extends T> List<X> children(T element, Class<X> c) {
+	public <X extends T> List<X> children(T element, Class<X> c) {
 		return new TypePredicate<X>(c).downCastedList(children(element));
 	}
 
-	public final <X extends T, E extends Exception>  void apply(T element, Action<X,E> action) throws E {
+	public <X extends T, E extends Exception>  void apply(T element, Action<X,E> action) throws E {
 		if(action.type().isInstance(element)) {
 			action.perform((T)element);
 		}

@@ -3,7 +3,7 @@ package be.kuleuven.cs.distrinet.rejuse.action;
 /**
  * A class of exceptions that cannot be thrown.
  * 
- * The purpose of this class is to serve as a generic parameter
+ * The purpose of this class is to serve as a type parameter
  * for {@link Action} classes. Note that even when {@link Nothing}
  * is used as a parameter, any unchecked throwable can be thrown
  * by the action. However, by using Nothing, you indicate that
@@ -15,9 +15,6 @@ package be.kuleuven.cs.distrinet.rejuse.action;
  */
 public final class Nothing extends RuntimeException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 278570927015695612L;
 
 	/**
