@@ -40,15 +40,33 @@ public abstract class TreeStructure<T> {
 	 * 
 	 * @param node The node of which the parent is requested.
 	 */
- /*@
-   @ public behavior
-   @
-   @ pre node != null;
-   @*/
+  /*@
+    @ public behavior
+    @
+    @ pre node != null;
+    @*/
 	public abstract T parent(T node);
 	
+   /**
+    * Return the direct children of the given element.
+    * 
+    * The result will never be null. All elements in the collection will have 
+    * the given element as their parent according to this tree.
+    */
+  /*@
+    @ public behavior
+    @
+    @ post \result != null;
+    @ post result.stream().allMatch(e -> e.parent() == this);
+    @*/
 	public abstract List<? extends T> children(T element);
 	
+	/**
+	 * Return the tree structure of the given element.
+	 * 
+	 * @param element The element from which the retrieve the tree structure.
+	 * @return the tree structor of the given element.
+	 */
 	public abstract TreeStructure<T> tree(T element);
 	
 	public <X extends T, E extends Exception> X nearestAncestor(T element, UniversalPredicate<X,E> predicate) throws E {
