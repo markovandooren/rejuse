@@ -1,10 +1,10 @@
 .DS_Store
+.gradle
+.project
+.classpath
+.settings
 dist
 tmp
 build
 lib
-.project
-.classpath
-properties
 /bin
-key
