@@ -30,9 +30,14 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 	TreeStructure<T> _underLying;
 	
 	@Override
-	public T parent(T node) {
+	public T node() {
+	  return _underLying.node();
+	}
+	
+	@Override
+	public T parent() {
 		// Not a skipper
-		return _underLying.parent(node);
+		return _underLying.parent();
 //		return nearestAncestor(node, new UniversalPredicate<T, Nothing>(type()) {
 //
 //			@Override
@@ -43,18 +48,12 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 	}
 
 	@Override
-	public List<? extends T> children(T element) {
-		if(canSucceedBeyond(element)) {
-			return _underLying.children(element);
+	public List<? extends T> children() {
+		if(canSucceedBeyond(node())) {
+			return _underLying.children();
 		} else {
 			return Collections.EMPTY_LIST;
 		}
-//		return skip(ImmutableList.of(element), new Function<T, TreeStructure<T>, Nothing>() {
-//			@Override
-//			public TreeStructure<T> apply(T argument) {
-//				return tree(argument);
-//			}
-//		});
 	}
 	
 //	/**
