@@ -277,15 +277,15 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
   }
   
   /**
-   * Return the index-th element of this association. The indices start at 1.
+   * @param index the index of the requested element.
    */
-  public TO elementAt(int baseOneIndex) {
-  	if(baseOneIndex < 1 || baseOneIndex > size()) {
+  public TO elementAt(int index) {
+  	if(index < 0 || index >= size()) {
   		throw new IllegalArgumentException();
   	}
   	// No check needed, if _elements is null, the size is 0
   	// so the check above will pass and an exception is thrown.
-  	return _elements.get(baseOneIndex-1).getObject();
+  	return _elements.get(index).getObject();
   }
   
   /**
