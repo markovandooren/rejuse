@@ -14,23 +14,11 @@ public class TestAnd extends JutilTest {
   public void setup() {
   }
 
-  private Predicate<Integer,Nothing> _greaterThan5 = new AbstractPredicate<Integer,Nothing>() {
-    public boolean eval(Integer o) {
-        return ((Integer)o).intValue() > 5;
-    }
-  };
+  private Predicate<Integer,Nothing> _greaterThan5 = o -> o.intValue() > 5;
 
-  private Predicate<Integer,Nothing> _smallerThan5 = new AbstractPredicate<Integer,Nothing>() {
-    public boolean eval(Integer o) {
-        return ((Integer)o).intValue() < 5;
-    }
-  };
+  private Predicate<Integer,Nothing> _smallerThan5 = o -> o.intValue() < 5;
 
-  private Predicate<Integer,Nothing> _equalTo5 = new AbstractPredicate<Integer,Nothing>() {
-    public boolean eval(Integer o) {
-        return ((Integer)o).intValue() == 5;
-    }
-  };
+  private Predicate<Integer,Nothing> _equalTo5 = o -> o.intValue() == 5;
 
   private <T> Predicate<T,Nothing> wrap(Predicate<T,?> predicate) {
     return predicate.guard(false);

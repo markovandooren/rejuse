@@ -7,7 +7,7 @@ import java.util.List;
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
 import be.kuleuven.cs.distrinet.rejuse.contract.Contracts;
 
-public abstract class UniversalPredicate<T, E extends Exception> extends AbstractPredicate<Object,E> {
+public abstract class UniversalPredicate<T, E extends Exception> implements Predicate<Object,E> {
 
 	public UniversalPredicate(Class<T> type) {
 		Contracts.notNull(type, "The class object of a universal predicate cannot be null.");

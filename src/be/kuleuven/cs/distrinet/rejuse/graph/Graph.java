@@ -1,16 +1,17 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
-import be.kuleuven.cs.distrinet.rejuse.predicate.AbstractPredicate;
 import be.kuleuven.cs.distrinet.rejuse.predicate.Predicate;
 
 /**
@@ -270,7 +271,7 @@ public class Graph<V> {
    @*/
   public Set<Node<V>> getLeaves() {
     Set<Node<V>> result = nodes();
-    new AbstractPredicate<Node<V>,Nothing>() {
+    new Predicate<Node<V>,Nothing>() {
       public boolean eval(Node<V> o) {
         return o.isLeaf();
       }
@@ -433,4 +434,44 @@ public class Graph<V> {
 		}
 	}
 
+	public Map<V,List<V>> reachabilityMap() {
+	  Map<V,List<V>> result = new HashMap<>();
+	  List<Node<V>> nodes = new ArrayList<Node<V>>(_nodeMap.values());
+	  int size = nodes.size();
+	  Map<Node<V>,Integer> indexMap = new HashMap<>();
+	  for(int i = 0; i < size; i++) {
+	    indexMap.put(nodes.get(i), i);
+	  }
+	  
+	  boolean[][] adjacency = new boolean[size][size];
+    for(int i = 0; i < size; i++) {
+      adjacency[i][i] = true;
+    }
+	  for(int i = 0; i < size; i++) {
+	    Node<V> node = nodes.get(i);
+	    List<Node<V>> directSuccessorNodes = node.outgoings();
+	    for(Node<V> adj: directSuccessorNodes) {
+	      adjacency[i][indexMap.get(adj)] = true;
+	    }
+	  }
+	  for(int k = 0; k < size; k++) {
+	    for(int i = 0; i < size; i++) {
+	      for(int j = 0; j < size; j++) {
+	        adjacency[i][j] = adjacency[i][j] || (adjacency[i][k] && adjacency[k][j]); 
+	      }
+	    }
+	  }
+	  
+	  for(int nodeNumber = 0 ; nodeNumber < size; nodeNumber++) {
+	    Node<V> node = nodes.get(nodeNumber);
+	    List<V> adjacent = new ArrayList<>();
+	    for(int connectedIndex = 0 ; connectedIndex < size; connectedIndex++) {
+	      if(adjacency[nodeNumber][connectedIndex]) {
+	        adjacent.add(nodes.get(connectedIndex).object());
+	      }
+	    }
+	    result.put(node.object(), adjacent);
+	  }
+	  return result;
+	}
 }

@@ -1,13 +1,15 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
-
 import be.kuleuven.cs.distrinet.rejuse.java.collections.SafeTransitiveClosure;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Marko van Dooren
@@ -70,6 +72,9 @@ public class Node<V> {
   void addEdge(Edge<V> edge) {
     if(edge.startsIn(this)) {
       _outgoing.add(edge);
+      if(_outgoingCache != null) {
+        _outgoingCache.add(edge.endFor(this));
+      }
     }
     if(edge.endsIn(this)) {
       _incoming.add(edge);
@@ -88,6 +93,9 @@ public class Node<V> {
    @ post ! getEdges().contains(edge); 
    @*/
   void removeEdge(Edge<V> edge) {
+    if(_outgoingCache != null) {
+      _outgoingCache.remove(edge.endFor(this));
+    }
     _outgoing.remove(edge);
     _incoming.remove(edge);
   }
@@ -218,7 +226,7 @@ public class Node<V> {
    @*/ 
   public boolean canReach(Node<V> other) {
     //TODO inefficient, but it works
-    return new SafeTransitiveClosure() {
+    return other == this || new SafeTransitiveClosure() {
       public void addConnectedNodes(Object node, Set acc) {
         acc.addAll(((Node)node).directSuccessorNodes());
       }
@@ -378,5 +386,35 @@ public class Node<V> {
   
   public Node<V> bareClone() {
   	return new Node<V>(object());
+  }
+  
+  public Set<Node<V>> reachableNodes() {
+    Set<Node<V>> done = new HashSet<>();
+    LinkedList<List<Node<V>>> todo = new LinkedList<List<Node<V>>>();
+    List<Node<V>> first = Collections.singletonList(this);
+    todo.add(first);
+    while(! todo.isEmpty()) {
+      List<Node<V>> nodes = todo.getFirst();
+      for(Node<V> node: nodes) {
+        if(! done.contains(node)) {
+          done.add(node);
+          List<Node<V>> nested = node.outgoings();
+          todo.add(nested);
+        }
+      }
+      todo.removeFirst();
+    }
+    return done;
+  }
+
+  private List<Node<V>> _outgoingCache;
+  List<Node<V>> outgoings() {
+    if(_outgoingCache == null) {
+      _outgoingCache = new ArrayList<>(_outgoing.size());
+      for(Edge<V> edge: _outgoing) {
+        _outgoingCache.add(edge.endFor(this));
+      }
+    }
+    return Collections.unmodifiableList(_outgoingCache);
   }
 }

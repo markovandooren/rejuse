@@ -1,6 +1,8 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
@@ -71,7 +73,21 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
       @                        Collections.containsExplicitly(collection, o);
       @                          ! isValidElement(o));
     @*/
-	public /*@ pure @*/ boolean exists(Collection<T> collection) throws E;
+  public default /*@ pure @*/ boolean exists(Collection<? extends T> collection) throws E {
+    boolean acc = false;
+    if (collection!=null) {
+        Iterator<? extends T> iter = collection.iterator();
+        // variant : the number of elements in the explicit collection that
+        //           have not yet been checked.
+        // invariant : acc == false if none of the previous elements in the
+        //             explicit collection satisfies the criterion.
+        //             Otherwise, it is true.
+        while (iter.hasNext() && (!acc)) {
+            acc = eval(iter.next());
+        }
+    }
+    return acc;
+}
 
 	/**
 	 * Check wether or not this Predicate evaluates to <code>true</code>
@@ -88,13 +104,27 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
     @
     @ signals (ConcurrentModificationException)
     @         (* The collection was modified while accumulating *);
-      @ signals (Exception) (collection != null) &&
+    @ signals (Exception) (collection != null) &&
     @                     (\exists Object o;
-      @                        (collection != null) &&
-      @                        Collections.containsExplicitly(collection, o);
-      @                          ! isValidElement(o));
+    @                        (collection != null) &&
+    @                        Collections.containsExplicitly(collection, o);
+    @                          ! isValidElement(o));
     @*/
-	public /*@ pure @*/ boolean forAll(Collection<T> collection) throws E;
+  public default /*@ pure @*/ boolean forAll(Collection<? extends T> collection) throws E {
+    boolean acc = true;
+    if (collection!=null) {
+        Iterator<? extends T> iter = collection.iterator();
+        // variant : the number of elements in the explicit collection that
+        //           have not yet been checked.
+        // invariant : acc == true if all previous elements in the explicit collection
+        //             satisfy the criterion. Otherwise, it is false.
+        while (iter.hasNext() && acc) {
+            acc = eval(iter.next());
+        }
+    }
+    return acc;
+}
+
 
 	/**
 	 * Count the number of object in the given collection for which this
@@ -119,7 +149,19 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
       @                        Collections.containsExplicitly(collection, o);
       @                          ! isValidElement(o));
     @*/
-	public /*@ pure @*/ int count(Collection<T> collection) throws E;
+  public default /*@ pure @*/ int count(Collection<? extends T> collection) throws E {
+    int count = 0;
+    if (collection!=null) {
+        Iterator<? extends T> iter = collection.iterator();
+        while (iter.hasNext()) {
+            if (eval(iter.next())) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
 
 	/**
 	 * <p>Remove all objects for which this Predicate evaluates to <code>false</code>
@@ -151,7 +193,21 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
    @                        Collections.containsExplicitly(collection, o);
    @                          ! isValidElement(o));
    @*/
-	public <X extends T> void filter(Collection<X> collection) throws E;
+  public default <X extends T> void filter(Collection<X> collection) throws E {
+    if (collection!=null) {
+      Iterator<? extends T> iter = collection.iterator();
+      while (iter.hasNext()) {
+        if (! eval(iter.next())) {
+          iter.remove();
+        }
+      }
+    }
+  }
+
+  public default <X extends T, L extends Collection<T>,K extends Collection<X>> L filterReturn(K collection) throws E {
+    filter((K)collection);
+    return (L)collection;
+}
 
 
 	/**
@@ -182,19 +238,83 @@ public interface Predicate<T, E extends Exception> extends CollectionOperator {
       @*/
 	public /*@ pure @*/ boolean equals(Object other);
 	
-	public Predicate<T,E> and(final Predicate<? super T, ? extends E> other);
+  public default Predicate<T,E> and(final Predicate<? super T, ? extends E> other) {
+    return new Predicate<T, E>() {
+      @Override
+      public boolean eval(T object) throws E {
+        return Predicate.this.eval(object) && other.eval(object);
+      }
+    };
+  }
 	
-	public Predicate<T,E> or(final Predicate<? super T, ? extends E> other);
+  public default Predicate<T,E> or(final Predicate<? super T, ? extends E> other) {
+    return new Predicate<T, E>() {
+      @Override
+      public boolean eval(T object) throws E {
+        return Predicate.this.eval(object) || other.eval(object);
+      }
+    };
+  }
 	
-	public Predicate<T,E> negation();
+  public default Predicate<T,E> negation() {
+    return new Predicate<T, E>() {
+      @Override
+      public boolean eval(T object) throws E {
+        return ! Predicate.this.eval(object);
+      }
+    };
+  }
 	
-	public Predicate<T,E> implies(final Predicate<? super T, ? extends E> other);
+  public default Predicate<T,E> implies(final Predicate<? super T, ? extends E> other) {
+    return new Predicate<T, E>() {
+      @Override
+      public boolean eval(T object) throws E {
+        return ! Predicate.this.eval(object) || other.eval(object);
+      }
+    };
+  }
 	
-	public Predicate<T,E> xor(final Predicate<? super T, ? extends E> other);
+  public default Predicate<T,E> xor(final Predicate<? super T, ? extends E> other) {
+    return new Predicate<T, E>() {
+      @Override
+      public boolean eval(T object) throws E {
+        return Predicate.this.eval(object) ^ other.eval(object);
+      }
+    };
+  }
 	
-	public Predicate<T,Nothing> guard(final boolean value);
+  public default Predicate<T,Nothing> guard(final boolean value) {
+    return new Predicate<T, Nothing>() {
+      @Override
+      public boolean eval(T object) throws Nothing {
+        try {
+          return Predicate.this.eval(object);
+        } catch(Exception e) {
+          return value;
+        }
+      }
+      
+    };
+  }
+  
 
-	public <X extends T>  List<X> filteredList(Collection<X> collection) throws E;
+  public default <X extends T>  List<X> filteredList(Collection<X> collection) throws E {
+    List<X> result = new ArrayList<X>();
+    for(X x: collection) {
+      if(eval(x)) {
+        result.add(x);
+      }
+    }
+    return result;
+  }
+  
 	
-	public <X extends T> UniversalPredicate<X,E> makeUniversal(Class<X> type);
+  public default <X extends T> UniversalPredicate<X,E> makeUniversal(Class<X> type) {
+    return new UniversalPredicate<X, E>(type) {
+      @Override
+      public boolean uncheckedEval(X t) throws E {
+        return Predicate.this.eval(t);
+      }
+    };
+  }
 }

@@ -1,5 +1,8 @@
 package be.kuleuven.cs.distrinet.rejuse.tree;
 
+import static be.kuleuven.cs.distrinet.rejuse.collection.CollectionOperations.filter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
@@ -46,6 +49,15 @@ public abstract class TreeStructure<T> {
     @ post result.stream().allMatch(e -> e.parent() == this);
     @*/
 	public abstract List<? extends T> children();
+	
+	public List<TreeStructure<? extends T>> branches() {
+	  List<? extends T> children = children();
+	  List<TreeStructure<? extends T>> result = new ArrayList<>(children.size());
+    for(T child: children) {
+	    result.add(tree(child));
+	  }
+    return result;
+	}
 	
 	/**
 	 * Return the tree structure of the given element.
@@ -96,7 +108,9 @@ public abstract class TreeStructure<T> {
 	}
 	
 	public <X> List<X> children(Class<X> c) {
-		return new TypePredicate<X>(c).downCastedList(children());
+    List result = children();
+    filter(result, child -> c.isInstance(child));
+    return result;
 	}
 
 	public <X, E extends Exception>  void apply(Action<X,E> action) throws E {

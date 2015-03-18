@@ -1,5 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+
 /**
  * <p>A special total predicate that checks whether or not objects are different
  * from <code>null</code>.</p>
@@ -13,7 +15,7 @@ package be.kuleuven.cs.distrinet.rejuse.predicate;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class NotNull<T> extends SafePredicate<T> {
+public class NotNull<T> implements Predicate<T,Nothing> {
 
   /* The revision of this class */
     public final static String CVS_REVISION ="$Revision$";

@@ -81,11 +81,6 @@ public class TypePredicate<T> extends UniversalPredicate<T,Nothing> {
         return true;
     }
 
-    public <X extends T, L extends Collection<T>,K extends Collection<X>> L filterReturn(K collection) {
-        super.filter((K)collection);
-        return (L)collection;
-    }
-    
     @Override
     public String toString() {
       return "instanceof "+type().getSimpleName();

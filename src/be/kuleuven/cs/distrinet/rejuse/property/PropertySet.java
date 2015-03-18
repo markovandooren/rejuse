@@ -1,5 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.property;
 
+import static be.kuleuven.cs.distrinet.rejuse.collection.CollectionOperations.forAll;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import be.kuleuven.cs.distrinet.rejuse.collection.CollectionOperations;
 import be.kuleuven.cs.distrinet.rejuse.logic.ternary.Ternary;
 import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
 
@@ -256,16 +259,10 @@ public class PropertySet<E,P extends Property<E,P>> {
  /*@
    @ behavior
    @
-   @ post \result == (\forall p1,p2; properties().contains(p1) & properties().contains(p2);
-   @                   ! p1.contradicts(p2));
+   @ post \result == forAll(unsafeProperties(), p -> internallyConsistent(p));
    @*/
   public boolean consistent() {
-    return new SafePredicate<P>() {
-      @Override
-      public boolean eval(final P p1) {
-        return internallyConsistent(p1);
-      }
-    }.forAll(unsafeProperties());
+    return forAll(unsafeProperties(), p -> internallyConsistent(p));
   }
   
   /**
@@ -305,12 +302,7 @@ public class PropertySet<E,P extends Property<E,P>> {
    @                   ! property.contradicts(p));
    @*/
   public boolean internallyConsistent(final Property<E,?> property) {
-    return new SafePredicate<P>() {
-      @Override
-      public boolean eval(P p2) {
-        return ! property.contradicts(p2);
-      }
-    }.forAll(unsafeProperties());
+    return forAll(unsafeProperties(), p -> ! property.contradicts(p));
   }
   
   /**
