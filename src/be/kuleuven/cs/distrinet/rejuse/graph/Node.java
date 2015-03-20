@@ -395,7 +395,8 @@ public class Node<V> {
     todo.add(first);
     while(! todo.isEmpty()) {
       List<Node<V>> nodes = todo.getFirst();
-      for(Node<V> node: nodes) {
+      for(int i=0; i< nodes.size();i++) {
+        Node<V> node = nodes.get(i);
         if(! done.contains(node)) {
           done.add(node);
           List<Node<V>> nested = node.outgoings();
