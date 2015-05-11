@@ -45,7 +45,8 @@ Export-Package: be.kuleuven.cs.distrinet.rejuse,
  be.kuleuven.cs.distrinet.rejuse.predicate.test,
  be.kuleuven.cs.distrinet.rejuse.property,
  be.kuleuven.cs.distrinet.rejuse.string,
- be.kuleuven.cs.distrinet.rejuse.tree
+ be.kuleuven.cs.distrinet.rejuse.tree,
+ org.aikodi.contract
 Bundle-Vendor: distrinet.cs.kuleuven.be
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
