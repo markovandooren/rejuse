@@ -439,11 +439,6 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ post (\forall Property<E> p; contains(p); set.contradicts(p) != Ternary.TRUE);
    @*/
   public void removeContradictingProperties(PropertySet<E,P> set) {
-//  	for(P p : properties()) {
-//  		if(set.contradicts(p) == Ternary.TRUE) {
-//  			removeProperty(p);
-//  		}
-//  	}
   	Iterator<P> ps = unsafeProperties().iterator();
   	while(ps.hasNext()) {
   		P p = ps.next();
@@ -464,5 +459,8 @@ public class PropertySet<E,P extends Property<E,P>> {
   	return result;
   }
   
+  /**
+   * The properties in this property set.
+   */
   private Set<P> _properties = new HashSet<P>();
 }
