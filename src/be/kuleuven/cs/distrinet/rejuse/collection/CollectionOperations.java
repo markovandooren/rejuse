@@ -20,8 +20,19 @@ public interface CollectionOperations {
     return predicate.count(collection);
   }
   
-  public static <T,E extends Exception> void filter (Collection<T> collection, Predicate<? super T,E> predicate) throws E {
+  public static <T,E extends Exception> void filter(Collection<T> collection, Predicate<? super T,E> predicate) throws E {
     predicate.filter(collection);
+  }
+  
+  public static <T,E extends Exception> T findFirst(Collection<T> collection, Predicate<? super T,E> predicate) throws E {
+    Iterator<T> iterator = collection.iterator();
+    while(iterator.hasNext()) {
+      T t = iterator.next();
+      if(predicate.eval(t)) {
+        return t;
+      }
+    }
+    return null;
   }
   
   public static <T1,T2,E extends Exception> boolean forAll(Collection<T1> first, Collection<T2> second, BiFunction<T1, T2, Boolean,E> predicate) throws E {
