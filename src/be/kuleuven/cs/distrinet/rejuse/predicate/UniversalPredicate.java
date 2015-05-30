@@ -9,6 +9,16 @@ import be.kuleuven.cs.distrinet.rejuse.contract.Contracts;
 
 public abstract class UniversalPredicate<T, E extends Exception> implements Predicate<Object,E> {
 
+  public static <T,E extends Exception> UniversalPredicate<T,E> of(Class<T> kind, Predicate<? super T,E> predicate) {
+    return new UniversalPredicate<T, E>(kind){
+    
+        @Override
+        public boolean uncheckedEval(T t) throws E {
+          return predicate.eval(t);
+        }
+    };
+  }
+  
 	public UniversalPredicate(Class<T> type) {
 		Contracts.notNull(type, "The class object of a universal predicate cannot be null.");
 		_type = type;
