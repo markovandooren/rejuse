@@ -22,7 +22,7 @@ public abstract class Relation<E> {
    */
   public abstract boolean contains(E first, E second) throws Exception;
   
-  protected void removeLeftOperands(Collection<E> collection) throws Exception {
+  public void removeLeftOperands(Collection<E> collection) throws Exception {
   	if(collection != null) {
   		Iterator<E> iter = collection.iterator();
   		while(iter.hasNext()) {
