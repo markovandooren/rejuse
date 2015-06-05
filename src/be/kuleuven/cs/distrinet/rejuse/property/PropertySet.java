@@ -334,33 +334,21 @@ public class PropertySet<E,P extends Property<E,P>> {
    @ pre property != null;
    @
    @*/
-//  public Ternary implies(Property<E,?> property) {
-//  	return newImplies(property);
-//  }
+  public Ternary implies(Property<E,?> property) {
+    Set properties = propertiesView();
+        boolean implied = property.impliedBy(properties);
+    boolean contradicted = property.contradictedBy(properties);
+    if(implied && (! contradicted)) {
+        return Ternary.TRUE;
+    } else if ((! implied) && contradicted) {
+        return Ternary.FALSE;
+    } else {
+        return Ternary.UNKNOWN; 
+    }
+
+  }
   
-//  public Ternary oldImplies(Property<E,?> property) {
-//    SafePredicate<Property<E,?>> propertyFilter = new SafePredicate<Property<E,?>>() {
-//      @Override
-//      public boolean eval(Property<E,?> property) {
-//      	// A property for which there is no internal consistency is not allowed to state that a property is implied or contradicted.
-//        return unsafePropertiesView().contains(property) && internallyConsistent(property);
-//      }
-//    };
-//    Set<? extends Property<E,?>> implying = property.impliedByProperties();
-//    propertyFilter.filter(implying);
-//    
-//    Set<? extends Property<E,?>> contradicting = property.contradictedProperties();
-//    propertyFilter.filter(contradicting);
-//    
-//    if((! implying.isEmpty()) && (contradicting.isEmpty())) {
-//        return Ternary.TRUE;
-//    } else if ((implying.isEmpty()) && (! contradicting.isEmpty())) {
-//        return Ternary.FALSE;
-//    } else {
-//      return Ternary.UNKNOWN; 
-//    }
-//    
-//  }
+  
   
   private Set<P> propertiesView() {
   	if(_propertiesCache == null) {
@@ -370,52 +358,6 @@ public class PropertySet<E,P extends Property<E,P>> {
   }
   
   private Set<P> _propertiesCache;
-  
-  public Ternary newImplies(Property<E,?> property) {
-  	Set properties = propertiesView();
-		boolean implied = property.impliedBy(properties);
-  	boolean contradicted = property.contradictedBy(properties);
-  	if(implied && (! contradicted)) {
-  		return Ternary.TRUE;
-  	} else if ((! implied) && contradicted) {
-  		return Ternary.FALSE;
-  	} else {
-  		return Ternary.UNKNOWN; 
-  	}
-
-  }
-  
-  public Ternary implies(Property<E,?> property) {
-  	return newImplies(property);
-  }
-  
-  public Ternary oldImplies(Property<E,?> property) {
-    boolean implied = false;
-    for(Property<E,?> p : property.impliedByProperties()) {
-    	if(unsafeProperties().contains(p) && internallyConsistent(p)) {
-    		implied = true;
-    		break;
-    	}
-    }
-    
-    boolean contradicted = false;
-    for(Property<E,?> p : property.contradictedProperties()) {
-    	if(unsafeProperties().contains(p) && internallyConsistent(p)) {
-    		contradicted = true;
-    		break;
-    	}
-    }
-
-    if(implied && (! contradicted)) {
-        return Ternary.TRUE;
-    } else if ((! implied) && contradicted) {
-        return Ternary.FALSE;
-    } else {
-      return Ternary.UNKNOWN; 
-    }
-    
-  }
-
   
   /** 
    * Check if the properties in this property set contradict the given property.
