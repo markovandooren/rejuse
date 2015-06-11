@@ -86,7 +86,7 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 
 	@Override
 	public TreeStructure<T> tree(T element) {
-		return this;
+	  return new PrunedTreeStructure<>(_underLying.tree(element), _predicate);
 	}
 	
 //	public abstract Class<T> type();
