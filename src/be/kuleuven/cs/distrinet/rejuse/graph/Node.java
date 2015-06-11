@@ -212,21 +212,25 @@ public class Node<V> {
    */
   private Set<Edge<V>> _incoming;
   
-  /**
-   * Check whether or not the given node is reachable when starting from this
-   * node.
-   *  
-   * @param other
-   *        The node to be reached.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre node != null;
-   @*/ 
-  public boolean canReach(Node<V> other) {
-    //TODO inefficient, but it works
-    return other == this || new SafeTransitiveClosure() {
+//  /**
+//   * Check whether or not the given node is reachable when starting from this
+//   * node.
+//   *  
+//   * @param other
+//   *        The node to be reached.
+//   */
+// /*@
+//   @ public behavior
+//   @
+//   @ pre node != null;
+//   @*/ 
+//  public boolean canReach(Node<V> other) {
+//    //TODO inefficient, but it works
+//    return other == this || hasEdgesTo(other);
+//  }
+
+  private boolean hasEdgesTo(Node<V> other) {
+    return new SafeTransitiveClosure() {
       public void addConnectedNodes(Object node, Set acc) {
         acc.addAll(((Node)node).directSuccessorNodes());
       }
@@ -370,11 +374,11 @@ public class Node<V> {
   
   /**
    * Return the edges that directly connect this node to the
-   * given node. If no such edge exists, null is returned.
+   * given node. If no such edge exists, an empty list is returned.
    * @param node
    * @return
    */
-  public List<Edge<V>> directlySuccessorEdges(Node<V> node) {
+  public List<Edge<V>> directSuccessorEdges(Node<V> node) {
   	List<Edge<V>> result = new ArrayList<>();
   	for(Edge<V> edge: _outgoing) {
   		if(edge.endFor(this) == node) {
@@ -387,6 +391,35 @@ public class Node<V> {
   public Node<V> bareClone() {
   	return new Node<V>(object());
   }
+  
+  public boolean canReach(Node<V> target) {
+    return target == this || canReachOther(target); 
+  }
+  
+  public boolean canReachOther(Node<V> target) {
+    
+    Set<Node<V>> done = new HashSet<>();
+    LinkedList<List<Node<V>>> todo = new LinkedList<List<Node<V>>>();
+//    List<Node<V>> first = Collections.singletonList(this);
+    todo.add(outgoings());
+    while(! todo.isEmpty()) {
+      List<Node<V>> nodes = todo.getFirst();
+      for(int i=0; i< nodes.size();i++) {
+        Node<V> node = nodes.get(i);
+        if(! done.contains(node)) {
+          done.add(node);
+          if(node == target) {
+            return true;
+          }
+          List<Node<V>> nested = node.outgoings();
+          todo.add(nested);
+        }
+      }
+      todo.removeFirst();
+    }
+    return false;
+  }
+
   
   public Set<Node<V>> reachableNodes() {
     Set<Node<V>> done = new HashSet<>();
