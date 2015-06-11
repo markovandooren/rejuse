@@ -36,15 +36,7 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 	
 	@Override
 	public T parent() {
-		// Not a skipper
 		return _underLying.parent();
-//		return nearestAncestor(node, new UniversalPredicate<T, Nothing>(type()) {
-//
-//			@Override
-//			public boolean uncheckedEval(T t) throws Nothing {
-//				return PrunedTreeStructure.this.eval(t);
-//			}
-//		});
 	}
 
 	@Override
@@ -56,39 +48,15 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 		}
 	}
 	
-//	/**
-//	 * Navigate the 
-//	 * @param nodes
-//	 * @return
-//	 * @throws E 
-//	 * @throws Nothing 
-//	 */
-//	private List<? extends T> skip(List<? extends T> nodes, Function<T,TreeStructure<T>,Nothing> treeSelector) throws Nothing {
-//		ImmutableList.Builder<T> builder = ImmutableList.builder(); 
-//		for(T node: nodes) {
-//			if(eval(node)) {
-//				builder.add(node);
-//			} else {
-//				if(canSucceedBeyond(node)) {
-//					builder.addAll(skip(treeSelector.apply(node).children(node),treeSelector));
-//				}
-//			}
-//		}
-//		return builder.build();
-//	}
-	
 	public final boolean canSucceedBeyond(T node) {
 		return _predicate.canSucceedBeyond(node);
 	}
 	
 	private TreePredicate<T, Nothing> _predicate;
-//	public abstract boolean eval(T node);
 
 	@Override
 	public TreeStructure<T> tree(T element) {
 	  return new PrunedTreeStructure<>(_underLying.tree(element), _predicate);
 	}
 	
-//	public abstract Class<T> type();
-
 }
