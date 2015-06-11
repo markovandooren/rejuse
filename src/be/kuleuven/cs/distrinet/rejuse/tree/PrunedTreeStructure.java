@@ -27,7 +27,7 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 		_predicate = predicate;
 	}
 	
-	TreeStructure<T> _underLying;
+	private TreeStructure<T> _underLying;
 	
 	@Override
 	public T node() {
