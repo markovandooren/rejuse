@@ -6,6 +6,14 @@ import java.util.List;
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 
 /**
+ * <p>A path in a graph. A path consists of a sequence of
+ * nodes that are connected by edges.</p>
+ * 
+ * <p>A path is defined by the start node and the edges of
+ * which it consists. There may be multiple edges between two nodes,
+ * and because they can have different weights, the edges must be stored
+ * instead of the nodes </p> 
+ * 
  * @author Marko van Dooren
  */
 public class Path<V> implements Comparable<Path<V>> {
@@ -25,7 +33,7 @@ public class Path<V> implements Comparable<Path<V>> {
   public Path(Node<V> start) {
     _start= start;
     _end = start;
-    _edges = new ArrayList();
+    _edges = new ArrayList<>();
     _length = 0;
   }
   
@@ -46,10 +54,10 @@ public class Path<V> implements Comparable<Path<V>> {
    @ post getStart() == start;
    @ post getEdges().equals(edges);
    @*/
-  protected Path(Node<V> start, List edges, double length) {
+  protected Path(Node<V> start, List<Edge<V>> edges, double length) {
     _start= start;
     _end = start;
-    _edges = new ArrayList(edges);
+    _edges = new ArrayList<>(edges);
     _length = length;
   }
   
@@ -63,7 +71,7 @@ public class Path<V> implements Comparable<Path<V>> {
    @
    @ post \result != null;
    @*/
-  public Node getStart() {
+  public Node<V> start() {
     return _start;
   }
   
@@ -82,7 +90,7 @@ public class Path<V> implements Comparable<Path<V>> {
    @ post (\forall int i; i > 0 && i <= \result.size();
    @         \result.get(i) == getEdges().get(i-1).getEndFor(\result.get(i-1)))
    @*/
-  public List<Node<V>> getNodes() {
+  public List<Node<V>> nodes() {
     final ArrayList<Node<V>> result = new ArrayList<>();
     result.add(_start);
     Node<V> current = _start;
@@ -107,7 +115,7 @@ public class Path<V> implements Comparable<Path<V>> {
    @ TODO consistency
    @*/
   public List<Edge<V>> getEdges() {
-    return new ArrayList(_edges);
+    return new ArrayList<>(_edges);
   }
   
   /**
@@ -122,12 +130,12 @@ public class Path<V> implements Comparable<Path<V>> {
    @ pre edge.startsIn(\old(getEnd()));
    @*/
   public void addEdge(Edge<V> edge) {
-  	Weight weight = edge.get(Weight.class);
-  	if(weight != null) {
-  		_edges.add(edge);
-  		_end = edge.endFor(_end);
-  		_length += weight.weight();
-  	}
+    _edges.add(edge);
+    _end = edge.endFor(_end);
+    Weight weight = edge.get(Weight.class);
+    if(weight != null) {
+      _length += weight.weight();
+    }
   }
   
   /**
@@ -165,21 +173,37 @@ public class Path<V> implements Comparable<Path<V>> {
     return _edges.size();
   }
   
+  /**
+   * The edges of which this path consists.
+   */
   private List<Edge<V>> _edges;
   
   /**
-   * Return the weight of this path.
+   * @return the length of this path.
    */
-  public double getLength() {
+  public double length() {
     return _length;
   }
   
+  /**
+   * A cache for the length of the path.
+   */
   private double _length;
   
+  /**
+   * The start of the path.
+   */
   private Node<V> _start;
   
+  /**
+   * The end of the path.
+   */
   private Node<V> _end;
 
+  /**
+   * Compare the length of the path with the length of the given path.
+   * @{inheritDoc}
+   */
   /*@
     @ also public behavior
     @
@@ -190,7 +214,7 @@ public class Path<V> implements Comparable<Path<V>> {
     if(equals(o)) {
       return 0;
     }
-    else if((getLength() < o.getLength())){
+    else if((length() < o.length())){
         return -1;
     }
     else {
@@ -223,8 +247,8 @@ public class Path<V> implements Comparable<Path<V>> {
         }
         result.append(o.toString());
       }
-    }.applyTo(getNodes());
-    result.append(" : "+getLength());
+    }.applyTo(nodes());
+    result.append(" : "+length());
     return result.toString();
   }
 }

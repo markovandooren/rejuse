@@ -1,10 +1,15 @@
 package be.kuleuven.cs.distrinet.rejuse.graph.test;
 
 import junit.framework.TestCase;
+
+import java.util.List;
+
 import be.kuleuven.cs.distrinet.rejuse.graph.BidiEdgeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.DefaultNodeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.Edge;
+import be.kuleuven.cs.distrinet.rejuse.graph.Graph;
 import be.kuleuven.cs.distrinet.rejuse.graph.Node;
+import be.kuleuven.cs.distrinet.rejuse.graph.Path;
 import be.kuleuven.cs.distrinet.rejuse.graph.UniEdgeFactory;
 import be.kuleuven.cs.distrinet.rejuse.graph.Weight;
 import be.kuleuven.cs.distrinet.rejuse.graph.WeightedEdgeFactory;
@@ -206,5 +211,25 @@ public class TestGraph extends TestCase {
     graph.addEdge("z", "q", 43);
     
     return graph;
+  }
+  
+  
+  public void testNoCycles() {
+    Graph<Integer> graph = new Graph<>(new UniEdgeFactory<>());
+    for(int i = 0; i < 10; i++) {
+      graph.addNode(i);
+    }
+    for(int i = 0; i < 9; i++) {
+      graph.addEdge(i, i+1);
+    }
+    List<Path<Integer>> simpleCycles = graph.simpleCycles();
+    assertTrue(simpleCycles.isEmpty());
+    graph.addEdge(8, 0);
+    simpleCycles = graph.simpleCycles();
+    assertEquals(1,simpleCycles.size());
+    
+    graph.addEdge(5, 2);
+    simpleCycles = graph.simpleCycles();
+    assertEquals(2,simpleCycles.size());
   }
 }
