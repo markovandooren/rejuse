@@ -477,6 +477,14 @@ public class Graph<V> {
     return result;
   }
 
+  /**
+   * Return all simple cycles in this graph. The implementation
+   * uses the algorithm of Szwarcfiter and Lauer, which computes
+   * all simply cycles in O(N+E*(C+1)) where N is the number of nodes,
+   * E is the number of edges, and C is the number of simple cycles.
+   * 
+   * @return A non-null list with all simple cycles in this graph.
+   */
   public List<Path<V>> simpleCycles() {
     List<Path<V>> result = new ArrayList<>();
     Set<Node<V>> visitedRoots = new HashSet<>();
