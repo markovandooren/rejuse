@@ -47,6 +47,12 @@ public class Contracts {
     notNull(o, "");
   }
   
+  public final static void notNull(Object... o) {
+    for(Object object: o) {
+      notNull(object,"");
+    }
+  }
+  
   public final static void check(boolean bool, String message) {
     if(! bool) {
       throw new IllegalArgumentException(message);
