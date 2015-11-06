@@ -9,8 +9,8 @@ public abstract class StaticProperty<E, F extends Property<E,F>> extends Propert
   
   protected static abstract class InverseProperty<E, F extends Property<E,F>> extends StaticProperty<E,F> {
   	
-  	public InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
-			super(name, universe, family, inverse);
+  	public InverseProperty(String name, PropertyMutex<F> family, F inverse) {
+			super(name, family, inverse);
 		}
 
 		public Set<F> implicitlyContradictedProperties() {
@@ -55,8 +55,8 @@ public abstract class StaticProperty<E, F extends Property<E,F>> extends Propert
    @ post (\exists Property p; universe.properties().contains(p);
    @       inverse() == p && p.name().equals("not "+name())) 
    @*/
-  public StaticProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex) {
-    super(name, universe, mutex);
+  public StaticProperty(String name, PropertyMutex<F> mutex) {
+    super(name, mutex);
   }
 
 	/**
@@ -80,8 +80,8 @@ public abstract class StaticProperty<E, F extends Property<E,F>> extends Propert
    @ post (\exists Property p; universe.properties().contains(p);
    @       inverse() == p && p.name().equals("not "+name())) 
    @*/
-  public StaticProperty(String name, PropertyUniverse<F> universe) {
-    super(name, universe, new PropertyMutex<F>());
+  public StaticProperty(String name) {
+    super(name, new PropertyMutex<F>());
   }
 
   /**
@@ -104,8 +104,8 @@ public abstract class StaticProperty<E, F extends Property<E,F>> extends Propert
    @ post universe.properties().contains(this);
    @ post inverse() == inverse;
    @*/
-  protected StaticProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> family, F inverse) {
-    super(name, universe, family, inverse);
+  protected StaticProperty(String name, PropertyMutex<F> family, F inverse) {
+    super(name, family, inverse);
   }
   
 //  protected void createInverse(String name, PropertyUniverse<F> universe) {

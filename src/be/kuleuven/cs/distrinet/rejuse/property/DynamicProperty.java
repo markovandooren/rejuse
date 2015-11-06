@@ -16,8 +16,8 @@ import be.kuleuven.cs.distrinet.rejuse.logic.ternary.Ternary;
 public abstract class DynamicProperty<E,F extends Property<E,F>> extends PropertyImpl<E,F> {
 
   protected static abstract class InverseProperty<E,F extends Property<E,F>> extends DynamicProperty<E, F> {
-		public InverseProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
-			super(name, universe, mutex, inverse);
+		public InverseProperty(String name, PropertyMutex<F> mutex, F inverse) {
+			super(name, mutex, inverse);
 		}
 
 		@Override
@@ -44,20 +44,20 @@ public abstract class DynamicProperty<E,F extends Property<E,F>> extends Propert
 		}
 	}
 
-	public DynamicProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex) {
-    super(name, universe, mutex);
+	public DynamicProperty(String name, PropertyMutex<F> mutex) {
+    super(name, mutex);
   }
   
-  protected DynamicProperty(String name, PropertyUniverse<F> universe, PropertyMutex<F> mutex, F inverse) {
-    super(name, universe, mutex, inverse);
+  protected DynamicProperty(String name, PropertyMutex<F> mutex, F inverse) {
+    super(name, mutex, inverse);
   }
   
-	public DynamicProperty(String name, PropertyUniverse<F> universe) {
-    super(name, universe, new PropertyMutex<F>());
+	public DynamicProperty(String name) {
+    super(name, new PropertyMutex<F>());
   }
   
-  protected DynamicProperty(String name, PropertyUniverse<F> universe, F inverse) {
-    super(name, universe, new PropertyMutex<F>(), inverse);
+  protected DynamicProperty(String name, F inverse) {
+    super(name, new PropertyMutex<F>(), inverse);
   }
   
 //  protected void createInverse(String name, PropertyUniverse<F> universe) {

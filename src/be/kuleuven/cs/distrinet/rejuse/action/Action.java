@@ -56,6 +56,7 @@ public abstract class Action<T, E extends Exception> {
 			doPerform((T) object);
 		}
 	}
+		
 	
 	/**
 	 * Apply the action to the given collection. No

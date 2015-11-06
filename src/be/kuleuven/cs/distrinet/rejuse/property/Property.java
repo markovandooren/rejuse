@@ -62,16 +62,16 @@ public interface Property<E, F extends Property<E,F>> {
 	  @*/
 	public void setName(String name);
 
-	/**
-	 * Return the universe to which this property is attached.
-	 * @return
-	 */
-	/*@
-	  @ behavior
-	  @
-	  @ post \result != null;
-	  @*/
-	public PropertyUniverse<F> universe();
+//	/**
+//	 * Return the universe to which this property is attached.
+//	 * @return
+//	 */
+//	/*@
+//	  @ behavior
+//	  @
+//	  @ post \result != null;
+//	  @*/
+//	public PropertyUniverse<F> universe();
 
 	/**
 	 * Return the inverse of this property.
@@ -329,6 +329,8 @@ public interface Property<E, F extends Property<E,F>> {
   public SingleAssociation<F,F> inverseLink();
   
   public void flushCache();
+  
+  public void flushCache(Set<Property<E,F>> flushed);
   
   public void flushLocalCache();
 
