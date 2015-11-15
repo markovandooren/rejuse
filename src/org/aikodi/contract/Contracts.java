@@ -1,5 +1,6 @@
 package org.aikodi.contract;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -61,6 +62,16 @@ public class Contracts {
   
   public final static void notNull(Object o, String message) {
     check(o != null, message);
+  }
+  
+  /**
+   * Check whether the given collection is null or contains null.
+   * @param collection The collection to be checked.
+   * @throws IllegalArgumentException The collection is null or the collection contains null.
+   */
+  public final static void checkCollection(Collection<?> collection) {
+  	notNull(collection);
+  	check(! collection.contains(null), "A collection should not contain null.");
   }
 
 }
