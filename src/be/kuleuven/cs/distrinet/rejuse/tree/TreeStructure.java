@@ -3,6 +3,7 @@ package be.kuleuven.cs.distrinet.rejuse.tree;
 import static be.kuleuven.cs.distrinet.rejuse.collection.CollectionOperations.filter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
@@ -83,6 +84,24 @@ public abstract class TreeStructure<T> {
     return nearest(predicate, node());
   }
 
+  public <E extends Exception> List<T> nearestDescendants(Predicate<? super T,E> predicate) throws E {
+		List<TreeStructure<? extends T>> tmp = branches();
+		List<T> result = new ArrayList<>();
+		Iterator<TreeStructure<? extends T>> iter = tmp.iterator();
+		while(iter.hasNext()) {
+			T e = iter.next().node();
+			if(predicate.eval(e)) {
+				result.add((T)e);
+				iter.remove();
+			}
+		}
+		for (TreeStructure<? extends T> e : tmp) {
+			result.addAll(e.nearestDescendants(predicate));
+		}
+		return result;
+  }
+
+  
   private <X extends T, E extends Exception> X nearest(UniversalPredicate<X, E> predicate, T el) throws E {
     while ((el != null) && (! predicate.eval(el))) {
       el = tree(el).parent();
@@ -141,9 +160,9 @@ public abstract class TreeStructure<T> {
   }
 
   public <X> List<X> children(Class<X> c) {
-    List result = children();
+    List<? extends T> result = children();
     filter(result, child -> c.isInstance(child));
-    return result;
+    return (List)result;
   }
 
   public <X, E extends Exception>  void apply(Action<X,E> action) throws E {
