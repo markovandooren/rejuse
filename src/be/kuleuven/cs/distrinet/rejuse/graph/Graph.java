@@ -485,7 +485,7 @@ public class Graph<V> {
    * 
    * @return A non-null list with all simple cycles in this graph.
    */
-  public List<Path<V>> simpleCycles() {
+  private List<Path<V>> oldSimpleCycles() {
     List<Path<V>> result = new ArrayList<>();
     Set<Node<V>> visitedRoots = new HashSet<>();
     Graph<V>.IndexedStack<Node<V>> stack = new IndexedStack<>();
@@ -539,6 +539,33 @@ public class Graph<V> {
     return result;
   }
 
+  public List<Path<V>> simpleCycles() {
+  	List<Path<V>> result = new ArrayList<>();
+  	Set<Node<V>> done = new HashSet<>();
+  	Set<Node<V>> all = nodes();
+  	for(Node<V> node: all) {
+  		accumulate(result, new Path<V>(node), done);
+  		done.add(node);
+  	}
+  	return result;
+  }
+  
+  private void accumulate(List<Path<V>> paths, Path<V> current, Set<Node<V>> done) {
+  	if(current.length() > 0 && current.start().equals(current.getEnd())) {
+  		paths.add(current);
+  	} else {
+  		Node<V> last = current.getEnd();
+  		for(Edge<V> edge: last.outgoingEdges()) {
+  			Node<V> destination = edge.endFor(last);
+				if((! done.contains(destination)) && (current.start().equals(destination) || (! current.visits(destination)))) {
+  				Path<V> newPath = current.clone();
+  				newPath.addEdge(edge);
+  				accumulate(paths, newPath, done);
+  			}
+  		}
+  	}
+  }
+  
   private class IndexedStack<T> {
     private Stack<T> _stack = new Stack<>();
     private Map<T,Integer> _indices = new HashMap<>();

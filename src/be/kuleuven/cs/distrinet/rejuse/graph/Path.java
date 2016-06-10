@@ -34,7 +34,7 @@ public class Path<V> implements Comparable<Path<V>> {
     _start= start;
     _end = start;
     _edges = new ArrayList<>();
-    _length = 0;
+    _weight = 0;
   }
   
   /**
@@ -58,10 +58,35 @@ public class Path<V> implements Comparable<Path<V>> {
     _start= start;
     _end = start;
     _edges = new ArrayList<>(edges);
-    _length = length;
+    _weight = length;
   }
   
+  /**
+   * Check whether the given edge is a part of this path.
+   * 
+   * @param edge The edge to be checked.
+   * @return True if the edge is part of this path. False otherwise.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre edge != null;
+   @
+   @ post \result == getEdges().contains(edge);
+   @*/
+  public boolean traverses(Edge<V> edge) {
+  	return _edges.contains(edge);
+  }
   
+  public boolean visits(Node<V> node) {
+  	boolean result = false;
+  	Node<V> current = _start;
+  	for(int i=0; ! result && i < _edges.size(); i++) {
+  		result = current.equals(node);
+  		current = _edges.get(i).endFor(current);
+  	}
+  	return result;
+  }
   
   /**
    * Return the start node for this path. 
@@ -134,7 +159,7 @@ public class Path<V> implements Comparable<Path<V>> {
     _end = edge.endFor(_end);
     Weight weight = edge.get(Weight.class);
     if(weight != null) {
-      _length += weight.weight();
+      _weight += weight.weight();
     }
   }
   
@@ -182,13 +207,17 @@ public class Path<V> implements Comparable<Path<V>> {
    * @return the length of this path.
    */
   public double length() {
-    return _length;
+    return _edges.size();
+  }
+  
+  public double weight() {
+  	return _weight;
   }
   
   /**
    * A cache for the length of the path.
    */
-  private double _length;
+  private double _weight;
   
   /**
    * The start of the path.
@@ -214,9 +243,12 @@ public class Path<V> implements Comparable<Path<V>> {
     if(equals(o)) {
       return 0;
     }
-    else if((length() < o.length())){
+    else if((weight() < o.weight())){
         return -1;
     }
+    else if((length() < o.length())){
+      return -1;
+  }
     else {
       return 1;
     }
@@ -228,7 +260,7 @@ public class Path<V> implements Comparable<Path<V>> {
    @ TODO: specs   
    @*/
   public Path<V> clone() {
-    return new Path<V>(_start, _edges, _length);
+    return new Path<V>(_start, _edges, _weight);
   }
   
   /**

@@ -7,6 +7,14 @@ import java.util.List;
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
 import be.kuleuven.cs.distrinet.rejuse.contract.Contracts;
 
+/**
+ * A class of predicate that can be applied to any object, but can only return
+ * true for objects that are a subtype of type parameter T.
+ * @author Marko van Dooren
+ *
+ * @param <T>
+ * @param <E>
+ */
 public abstract class UniversalPredicate<T, E extends Exception> implements Predicate<Object,E> {
 
   public static <T,E extends Exception> UniversalPredicate<T,E> of(Class<T> kind, Predicate<? super T,E> predicate) {
@@ -26,10 +34,7 @@ public abstract class UniversalPredicate<T, E extends Exception> implements Pred
 	
 	@Override
 	public boolean eval(Object object) throws E {
-		if(type().isInstance(object)) {
-			return uncheckedEval((T)object);
-		}
-		return false;
+		return type().isInstance(object) && uncheckedEval((T)object);
 	}
 	
 	public <O extends E> O evalAndCast(O object) throws E {

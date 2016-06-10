@@ -72,28 +72,12 @@ import be.kuleuven.cs.distrinet.rejuse.predicate.SafePredicate;
  * to a new Set (e.g. TreeSet). The general method <code>getOtherEnds()</code> must return a <code>List</code>
  * because in some bindings the order may be important.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
- * @release $Name$
  */
-public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO> {
-
-  /* The revision of this class */
-  public final static String CVS_REVISION ="$Revision$";
-
-  //@ public invariant contains(null) == false;
-  //@ public invariant getObject() != null;
-
-  /*@ 
-   @ public invariant (\forall Relation e; contains(e);
-   @                    e.contains(this));
-   @*/
+public class OrderedMultiAssociation<FROM,TO> extends AbstractOrderedMultiAssociation<FROM,TO> {
 
   /**
-   * Initialize an empty ReferenceSet for the given object.
+   * Initialize an empty OrderedMultiAssociation for the given object.
    *
    * @param object
    *        The object on this side of the binding
@@ -110,78 +94,41 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
     super(object);
   }
 
-  public OrderedMultiAssociation(FROM object, int initialSize) {
-    super(object);
-    _initialSize = initialSize;
-  }
-
-
-  private int _initialSize;
-
-  private void initElement() {
-    _elements = new ArrayList<Association<? extends TO,? super FROM>>(_initialSize);  	
-  }
-
   /**
-   * {@inheritDoc}
+   * Initialize an empty OrderedMultiAssociation for the given object with the
+   * given capacity. Note that the capacity is not the size. This constructor
+   * is useful to avoid internal copying when adding elements if you already
+   * know roughly how many elements will be added. 
+   *
+   * @param object The object on this side of the binding
+   * @param initialCapacity The initial internal capacity.
    */
-  public void remove(Association<? extends TO,? super FROM> other) {
-    checkLock();
-    checkLock(other);
-    if (contains(other)) {
-      other.unregister(this);
-      // Skip a redundant contains check.
-      unregisterPrivate(other);
-    }
+  /*@
+   @ public behavior
+   @
+   @ pre object != null;
+   @
+   @ post getObject() == object;
+   @ post (\forall Relation r;; !contains(r));
+   @*/
+  public OrderedMultiAssociation(FROM object, int initialCapacity) {
+    super(object, initialCapacity);
   }
-
-  @Override
-  public /*@ pure @*/ List<TO> getOtherEnds() {
-    if(isCaching()) {
-      if(_cache == null) {
-        if(_elements != null) {
-          Builder<TO> builder = ImmutableList.<TO>builder();
-          for(Association<? extends TO,? super FROM> element: _elements) {
-            builder.add(element.getObject());
-          }
-          _cache = builder.build();
-        } else {
-          _cache = Collections.EMPTY_LIST;
-        }
-      }
-      return _cache;
-    } else {
-      return doGetOtherEnds();
-    }
-  }
-
-  protected /*@ pure @*/ List<TO> doGetOtherEnds() {
-    List<TO> result = new ArrayList<TO>(size());
-    addOtherEndsTo(result);
-    //	  increase();
-    return result;
-  }
-
 
   /**
-   * {@inheritDoc} 
+   * Add the given Relation to this ReferenceSet.
+   *
+   * @param element
+   *        The Relation to be added.
    */
-  public void clear() {
-    checkLock();
-    if(_elements != null) {
-      Collection<Association<? extends TO,? super FROM>> rels = new ArrayList<Association<? extends TO,? super FROM>>(_elements);
-      for(Association<? extends TO,? super FROM> rel : rels) {
-        checkLock(rel);
-      }
-      for(Association<? extends TO,? super FROM> rel : rels) {
-        remove(rel);
-      }
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */  
+ /*@
+   @ public behavior
+   @
+   @ pre element != null;
+   @
+   @ post registered(\old(getOtherRelations()), element);
+   @ post element.registered(\old(element.getOtherRelations()),this);
+   @*/  
   public void add(Association<? extends TO,? super FROM> element) {
     checkLock();
     checkLock(element);
@@ -194,267 +141,45 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
     }
   }
 
+  
   /**
-   * {@inheritDoc}
-   */  
-  public void addInFront(Association<? extends TO,? super FROM> element) {
-    checkLock();
-    checkLock(element);
-    if(element != null) {
-      boolean added = element.register(this);
-      // Skip a redundant contains check.
-      if(added) {
-        registerInFrontPrivate(element);
-      }
-    }
-  }
-
-  /**
-   * @element the element to be added
-   * @index the base-1 index
-   */  
-  public void addAtIndex(Association<? extends TO,? super FROM> element, int baseOneIndex) {
-    if(! contains(element)) {
-      checkLock();
-      checkLock(element);
-      if(element != null) {
-        element.register(this);
-        // Skip a redundant contains check.
-        registerAtIndexPrivate(element, baseOneIndex);
-      }
-    }
-  }
-
-  public void addBefore(TO existing, Association<? extends TO,? super FROM> toBeAdded) {
-    addAtIndex(toBeAdded, indexOf(existing));
-  }
-
-  public void addAfter(TO existing, Association<? extends TO,? super FROM> toBeAdded) {
-    addAtIndex(toBeAdded, indexOf(existing)+1);
-  }
-
-  /**
-   * Replace the given element with a new element
-   */
-  /*@
-   @ public behavior
-   @
-   @ pre element != null;
-   @ pre newElement != null;
-   @
-   @ post replaced(\old(getOtherRelations()), oldAssociation, newAssociation);
-   @ post oldAssociation.unregistered(\old(other.getOtherAssociations()), this);
-   @ post newAssociation.registered(\old(oldAssociation.getOtherAssociations()),this);
-   @*/
-  public void replace(Association<? extends TO,? super FROM> oldAssociation, Association<? extends TO,? super FROM> newAssociation) {
-    if(_elements != null) {
-      int index = _elements.indexOf(oldAssociation);
-      if(index != -1) {
-        checkLock();
-        checkLock(oldAssociation);
-        checkLock(newAssociation);
-        _elements.set(index, newAssociation);
-        newAssociation.register(this);
-        oldAssociation.unregister(this);
-        fireElementReplaced(oldAssociation.getObject(), newAssociation.getObject());
-      }
-    }
-  }
-
-  public void addOtherEndsTo(Collection<? super TO> collection) {
-    if(_elements != null) {
-      for(Association<? extends TO,? super FROM> element: _elements) {
-        collection.add(element.getObject());
-      }
-    }
-  }
-
-  public TO lastElement() {
-    int size = size();
-    if(size > 0) {
-      return _elements.get(size-1).getObject();
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * @param index the index of the requested element.
-   */
-  public TO elementAt(int index) {
-    if(index < 0 || index >= size()) {
-      throw new IllegalArgumentException();
-    }
-    // No check needed, if _elements is null, the size is 0
-    // so the check above will pass and an exception is thrown.
-    return _elements.get(index).getObject();
-  }
-
-  /**
-   * Return the index of the given element. Indices start at 1. Return -1 if the element is not present in this association.
-   */
-  /*@
-   @ public behavior
-   @
-   @ post elementAt(\result).equals(element);
-   @*/
-  public int indexOf(TO element) {
-    int index = -1;
-    if(_elements != null) {
-      for(int i = 0; i < _elements.size(); i++) {
-        if(_elements.get(i).getObject().equals(element)) {
-          index = i;
-          break;
-        }
-      }
-    }
-    return index;
-  }
-
-  /**
-   * Return a set containing the Relations at the
-   * other side of this binding.
-   */
-  /*@
-   @ also public behavior
-   @
-   @ post (\forall Relation s;;
-   @       contains(s) <==> \result.contains(s));
-   @ post \result != null;
-   @*/
-  public /*@ pure @*/ List<Association<? extends TO,? super FROM>> getOtherAssociations() {
-    return new ArrayList<Association<? extends TO,? super FROM>>(_elements);
-  }
-
-  @Override
-  protected List<Association<? extends TO, ? super FROM>> internalAssociations() {
-    return _elements;
-  }
-
-  @Override
-  protected void unregister(Association<? extends TO,? super FROM> association) {
-    //    if(contains(association)) {
-    unregisterPrivate(association);
-    //    }
-  }
-
-  private void unregisterPrivate(Association<? extends TO, ? super FROM> association) {
-    if(_elements != null) {
-      boolean removed = _elements.remove(association);
-      if(removed) {
-        fireElementRemoved(association.getObject());
-      }
-    }
-  }
-
-
-  @Override
-  protected boolean register(Association<? extends TO,? super FROM> association) {
-    if(! contains(association)) {
-      registerPrivate(association);
-      return true;
-    }
-    return false;
-  }
-
-  private void registerPrivate(Association<? extends TO, ? super FROM> association) {
-    elements().add(association);
-    fireElementAdded(association.getObject());
-  }
-
-  private void registerInFrontPrivate(Association<? extends TO, ? super FROM> association) {
-    elements().add(0,association);
-    fireElementAdded(association.getObject());
-  }
-
-  private void registerAtIndexPrivate(Association<? extends TO, ? super FROM> association,int index) {
-    elements().add(index-1,association);
-    fireElementAdded(association.getObject());
-  }
-
-  private List<Association<? extends TO,? super FROM>> elements() {
-    if(_elements == null) {
-      initElement();
-    }
-    return _elements;
-  }
-
-  /*@
-   @ also public behavior
-   @
-   @ post \result == (contains(registered)) &&
-   @                 (\forall Relation r; r != registered;
-   @                   oldConnections.contains(r) == contains(r)
-   @                 );
-   @ //TODO: order
-   @*/
-  public /*@ pure @*/ boolean registered(List<Association<? extends TO,? super FROM>> oldConnections, Association<? extends TO,? super FROM> registered) {
-    boolean result = (oldConnections != null) &&
-        (contains(registered)) &&
-        (_elements != null);
-    if(result) {
-      for(Association<? extends TO,? super FROM> o: _elements)  {
-        if(! contains(o)) {
-          result = false;
-          break;
-        }
-      }
-    }
-    return result;
-  }
-
-  /*@
-   @ also public behavior
-   @
-   @ post \result == (oldConnections.contains(unregistered)) &&
-   @                 (! contains(unregistered)) &&
-   @                 (\forall Relation r; r != unregistered;
-   @                   oldConnections.contains(r) == contains(r));
-   @ // TODO: order
-   @*/
-  public /*@ pure @*/ boolean unregistered(List<Association<? extends TO,? super FROM>> oldConnections, final Association<? extends TO,? super FROM> unregistered) {
-    // FIXME : implementation is not correct
-    return (oldConnections != null) &&
-        (oldConnections.contains(unregistered)) &&
-        (! contains(unregistered)) &&
-        new SafePredicate<Association<? extends TO,? super FROM>>() {
-      public boolean eval(Association<? extends TO,? super FROM> o) {
-        return (o == unregistered) || contains(o);
-      }
-    }.forAll(oldConnections);
-  }
-
-  /*@
-   @ also protected behavior
-   @
-   @ post \result == (relation != null);
-   @*/
-  protected /*@ pure @*/ boolean isValidElement(Association<? extends TO,? super FROM> relation) {
-    return (relation != null);
-  }
-
-  /**
-   * Return the size of the ReferenceSet
-   */
-  /*@
-     @ public behavior
-     @
-     @ post \result == getOtherRelations().size();
-     @*/
-  public /*@ pure @*/ int size() {
-    return _elements == null ? 0 :_elements.size();
-  }
-
-  /**
-   * Check whether or not the given element is connected to
-   * this ReferenceSet.
+   * Remove the given Relation from this ReferenceSet.
    *
    * @param element
-   *        The element of which one wants to know if it is in
-   *        this ReferenceSet.
+   *        The Relation to be removed.
    */
-  public /*@ pure @*/ boolean contains(Association<? extends TO,? super FROM> element) {
-    return _elements == null ? false : _elements.contains(element);
+ /*@
+   @ public behavior
+   @
+   @ pre other != null;
+   @
+   @ post unregistered(\old(getOtherRelations()), other);
+   @ post other.unregistered(\old(other.getOtherRelations()), this);
+   @*/  
+  public void remove(Association<? extends TO,? super FROM> other) {
+    checkLock();
+    checkLock(other);
+    if (contains(other)) {
+      other.unregister(this);
+      // Skip a redundant contains check.
+      unregisterInternal(other);
+    }
+  }
+
+  /**
+   * {@inheritDoc} 
+   */
+  public void clear() {
+    checkLock();
+    if(isStored()) {
+      Collection<Association<? extends TO,? super FROM>> rels = new ArrayList<>(internalAssociations());
+      for(Association<? extends TO,? super FROM> rel : rels) {
+        checkLock(rel);
+      }
+      for(Association<? extends TO,? super FROM> rel : rels) {
+        remove(rel);
+      }
+    }
   }
 
   /**
@@ -466,21 +191,37 @@ public class OrderedMultiAssociation<FROM,TO> extends AbstractMultiAssociation<F
    @                      o instanceof Relation);
    @*/
   private ArrayList<Association<? extends TO,? super FROM>> _elements;
+  
+  public Association<? extends TO,? super FROM> associationAt(int index) {
+    if(index < 0 || index >= size()) {
+      throw new IllegalArgumentException();
+    }
+  	return _elements.get(index);
+  }
+  
+  protected void setAssociationAt(int index, Association<? extends TO,? super FROM> association) {
+    _elements.set(index, association);
+  }
+  
+  public int indexOfAssociation(Association<? extends TO,? super FROM> association) {
+  	return _elements.indexOf(association);
+  }
+
+  protected boolean isStored() {
+  	return _elements != null;
+  }
 
   @Override
-  public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
-    if(_elements != null) {
-      for(Association<? extends TO,? super FROM> element: _elements) {
-        action.perform(element.getObject());
-      }
-    }
+  protected List<Association<? extends TO, ? super FROM>> internalAssociations() {
+    return _elements;
   }
 
-  private List<TO> _cache;
-
-  public void flushCache() {
-    _cache = null;
+  protected void initStorage() {
+    _elements = new ArrayList<Association<? extends TO,? super FROM>>(initialCapacity());  	
   }
 
+  protected boolean removeAssociation(Association<? extends TO,? super FROM> association) {
+  	return _elements.remove(association);
+  }
 }
 
