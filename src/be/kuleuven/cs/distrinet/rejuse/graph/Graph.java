@@ -1,6 +1,7 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,8 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import be.kuleuven.cs.distrinet.rejuse.action.Action;
 import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
@@ -477,165 +479,247 @@ public class Graph<V> {
 		return result;
 	}
 
-	private static class CycleSet<V> {
-		private List<CycleNode<V>> _cycleNodes;
-		
-		public CycleSet(Graph<V> graph) {
-			
-		}
+
+	/**
+	 * Return all simple cycles in this graph. If there are multiple edges between nodes,
+	 * separate paths will be generated for each edges if they are in a loop. 
+	 * Use {@link Graph#simpleCycles()} to restrict the algorithm purely to nodes. 
+	 * 
+	 * The implementation uses the algorithm of Szwarcfiter and Lauer, which computes
+	 * all simply cycles in O(N+E*(C+1)) where N is the number of nodes,
+	 * E is the number of edges, and C is the number of simple cycles.
+	 * 
+	 * The cycles are computed by constructing a graph G' in which the edges of
+	 * this graph are also represented as nodes. Because each edge is now a separate
+	 * node that is connected with single edges to its nodes, this automatically separates 
+	 * the cycles. When a path is found, it is constructed using the edges whose nodes are
+	 * in G'.
+	 * 
+	 * @return A non-null list with all simple cycles in this graph.
+	 */
+	public List<Path<V>> simpleCycles() {
+		Map<Node<V>, GCycleNode<V>> map = new HashMap<>();
+		Set<Node<V>> nodes = nodes();
+		nodes.forEach(n -> {
+			GCycleNode<V> cycleNode = new GCycleNode<>(n);
+			map.put(n, cycleNode);
+		});
+		nodes.forEach(c -> {
+			List<EdgeNode<V>> edgeNodes = new ArrayList<>();
+			c.outgoingEdges().forEach(e -> {
+				EdgeNode<V> edgeNode = new EdgeNode<>(e);
+				edgeNodes.add(edgeNode);
+				List<GCycleNode<V>> next = new ArrayList<>();
+				next.add(map.get(e.endFor(c)));
+				edgeNode.setA(next);
+			});
+			map.get(c).setA(edgeNodes);
+			//c.setA(c.object().directSuccessorNodes().stream().map(s -> map.get(s)).collect(Collectors.toSet()));
+		});
+		List<Path<V>> result = new ArrayList<>();
+		IndexedStack<GCycleNode<V>> stack = new IndexedStack<>();
+		IndexedStack<EdgeNode<V>> edges = new IndexedStack<>();
+		nodes.forEach(n -> map.get(n).cycle(0, stack, result, edges));
+		return result;
+//		.stream().map(
+//				l -> {
+//					Stream<GCycleNode<V>> filter = l.stream().filter(ln -> ln.object() instanceof Node);
+//					List x = filter.collect(Collectors.toList());
+//					return filter
+//				.map(n -> ((Node<V>)n.object()).object()).collect(Collectors.toList());
+//				}
+//				
+//				).collect(Collectors.toList());
 	}
 
-//public List<List<V>> simpleCycles() {
-//List<CycleNode<Node<V>>> nodes = new ArrayList<>();
-//Map<Node<V>, CycleNode<Node<V>>> map = new HashMap<>();
-//nodes().forEach(n -> {
-//	CycleNode<Node<V>> cycleNode = new CycleNode<>(n);
-//	nodes.add(cycleNode);
-//	map.put(n, cycleNode);
-//});
-//nodes.forEach(c -> c.setA(c.object().directSuccessorNodes().stream().map(s -> map.get(s)).collect(Collectors.toSet())));
-//List<List<CycleNode<Node<V>>>> result = new ArrayList<>();
-//IndexedStack<CycleNode<Node<V>>> stack = new IndexedStack<>();
-//nodes.forEach(n -> n.cycle(0, stack, result));
-//return result.stream().map(l -> l.stream().map(n -> n.object().object()).collect(Collectors.toList())).collect(Collectors.toList());
-//}
-//
-//private static class CycleNode<V> {
-//private V _node;
-//private boolean _mark;
-//private Set<CycleNode<V>> _B = new HashSet<>();
-//private Set<CycleNode<V>> _A = new HashSet<>();
-//private long _position;
-//private boolean _reach;
-//
-//public CycleNode(V node) {
-//	_node = node;
-//}
-//
-//private void setA(Set<CycleNode<V>> set) {
-//		_A = new HashSet<>(set);
-//}
-//
-//public void noCycle(CycleNode<V> y) {
-//	y.addB(this);
-//	_A.remove(y);
-//}
-//
-//public void unmark() {
-//	_mark = false;
-//	_B.forEach(y -> {
-//		y.addA(this);
-//		if(y.marked()) {
-//			y.unmark();
-//		}
-//	});
-//	_B.clear();
-//}
-//
-//private void mark() {
-//	_mark = true;
-//}
-//
-//public boolean cycle(int q, IndexedStack<CycleNode<V>> stack, List<List<CycleNode<V>>> paths) {
-//	// v == this;
-//	boolean f = false;
-//	mark();
-//	stack.push(this);
-//	int t = stack.size();
-//	_position = t;
-//	if(! reach()) {
-//		q = t;
-//	}
-//	Set<CycleNode<V>> copy = new HashSet<>(_A);
-//	for(CycleNode<V> w : copy) {
-//		if(! w.marked()) {
-//			boolean result = w.cycle(q, stack, paths);
-//			if(result) {
-//				f = true;
-//			} else {
-//				noCycle(w);
+	private static class EdgeNode<V> extends GCycleNode<V> {
+
+		public EdgeNode(Edge<V> node) {
+			super(node);
+		}
+		
+		public Edge<V> edge() {
+			return (Edge<V>) object();
+		}
+		
+		@Override
+		protected void pop(IndexedStack<EdgeNode<V>> edgeNodes) {
+			edgeNodes.pop();
+		}
+		
+		@Override
+		protected void push(IndexedStack<EdgeNode<V>> edgeNodes) {
+			edgeNodes.push(this);
+		}
+		
+		protected Path<V> createPath(IndexedStack<GCycleNode<V>> stack, GCycleNode<V> w, IndexedStack<EdgeNode<V>> edgeNodes) {
+			Path<V> path = new Path((Node<V>) w.object());
+			int start = edgeNodes.index((EdgeNode<V>)stack.at(stack.index(w)+1));
+			for(int i = start; i < edgeNodes.size(); i++) {
+				path.addEdge(edgeNodes.at(i).edge());
+			}
+//			int end = stack.index(w);
+//			int nb = Math.abs(end-start);
+//			int increment = (end-start)/nb;
+//			for(int i=0; i <= nb; i++) {
+//				int index = start + i * increment;
+//				path.add(stack.at(index));
 //			}
-//		} else {
-//			if(w.position() <= q ) {
-//				// output cycle
-//				List<CycleNode<V>> path = new ArrayList<>();
-//				int start = stack.index(this);
-//				int end = stack.index(w);
-//				for(int i=start; i<=end;i++) {
-//				  path.add(stack.at(i));
-//				}
-//				path.add(this);
-//				paths.add(path);
-//				f = true;
-//			} else {
-//				noCycle(w);
-//			}
-//		}
-//	};
-//	stack.pop();
-//	if(f) {
-//		unmark();
-//	}
-//	setReach();
-//	_position = Long.MAX_VALUE;
-//	return f;
-//}
-//
-//public V object() {
-//	return _node;
-//}
-//
-//private long position() {
-//	return _position;
-//}
-//
-//private boolean reach() {
-//	return _reach;
-//}
-//
-//private void setReach() {
-//	_reach = true;
-//}
-//
-//private void unsetReach() {
-//	_reach = false;
-//}
-//
-//
-//public boolean marked() {
-//	return _mark;
-//}
-//
-//public Set<CycleNode<V>> B() {
-//	return new HashSet<>(_B);
-//}
-//
-//public boolean hasA(CycleNode<V> node) {
-//	return _A.contains(node);
-//}
-//
-//private void addA(CycleNode<V> node) {
-//	_A.add(node);
-//}
-//
-//private void addB(CycleNode<V> node) {
-//	_B.add(node);
-//}
-//
-//}
+//			path.add(this);
+			return path;
+		}
+	}
+	
+	private static class GCycleNode<V> {
+		private Object _node;
+		private boolean _mark;
+		private Set<GCycleNode<V>> _B = new HashSet<>();
+		private Set<GCycleNode<V>> _A = new HashSet<>();
+		private long _position;
+		private boolean _reach;
+
+		public GCycleNode(Object node) {
+			_node = node;
+		}
+
+		protected void setA(Collection<? extends GCycleNode<V>> set) {
+			_A = new HashSet<>(set);
+		}
+		
+		@Override
+		public String toString() {
+			return object().toString();
+		}
+
+		public void noCycle(GCycleNode<V> y) {
+			y.addB(this);
+			_A.remove(y);
+		}
+
+		public void unmark() {
+			_mark = false;
+			_B.forEach(y -> {
+				y.addA(this);
+				if(y.marked()) {
+					y.unmark();
+				}
+			});
+			_B.clear();
+		}
+
+		private void mark() {
+			_mark = true;
+		}
+
+		public boolean cycle(int q, IndexedStack<GCycleNode<V>> stack, List<Path<V>> paths, IndexedStack<EdgeNode<V>> edgeNodes) {
+			// v == this;
+			boolean f = false;
+			mark();
+			stack.push(this);
+			push(edgeNodes);
+			int t = stack.size();
+			_position = t;
+			if(! reach()) {
+				q = t;
+			}
+			Set<GCycleNode<V>> copy = new HashSet<>(_A);
+			for(GCycleNode<V> w : copy) {
+				if(! w.marked()) {
+					boolean result = w.cycle(q, stack, paths, edgeNodes);
+					if(result) {
+						f = true;
+					} else {
+						noCycle(w);
+					}
+				} else {
+					if(w.position() <= q ) {
+						// output cycle
+						Path<V> path = createPath(stack, w, edgeNodes);
+						paths.add(path);
+						f = true;
+					} else {
+						noCycle(w);
+					}
+				}
+			};
+			stack.pop();
+			pop(edgeNodes);
+			if(f) {
+				unmark();
+			}
+			setReach();
+			_position = Long.MAX_VALUE;
+			return f;
+		}
+		
+		protected void push(IndexedStack<EdgeNode<V>> edgeNodes) {
+		}
+
+		protected void pop(IndexedStack<EdgeNode<V>> edgeNodes) {
+		}
+		
+		protected Path<V> createPath(IndexedStack<GCycleNode<V>> stack, GCycleNode<V> w, IndexedStack<EdgeNode<V>> edgeNodes) {
+			throw new Error();
+		}
+
+		public Object object() {
+			return _node;
+		}
+
+		private long position() {
+			return _position;
+		}
+
+		private boolean reach() {
+			return _reach;
+		}
+
+		private void setReach() {
+			_reach = true;
+		}
+
+		private void unsetReach() {
+			_reach = false;
+		}
+
+
+		public boolean marked() {
+			return _mark;
+		}
+
+		public Set<GCycleNode<V>> B() {
+			return new HashSet<>(_B);
+		}
+
+		public boolean hasA(GCycleNode<V> node) {
+			return _A.contains(node);
+		}
+
+		private void addA(GCycleNode<V> node) {
+			_A.add(node);
+		}
+
+		private void addB(GCycleNode<V> node) {
+			_B.add(node);
+		}
+
+	}
 	
 	
 	/**
-	 * Return all simple cycles in this graph. The implementation
+	 * Return all simple cycles in this graph <b>when only considering
+	 * adjacency of nodes</b>. If there are multiple edges between nodes,
+	 * no separate paths will be returned. A path consists purely of a sequence
+	 * of nodes. Use {@link Graph#simpleCycles()} to also involve the edges. 
+	 * 
+	 * The implementation
 	 * uses the algorithm of Szwarcfiter and Lauer, which computes
 	 * all simply cycles in O(N+E*(C+1)) where N is the number of nodes,
 	 * E is the number of edges, and C is the number of simple cycles.
 	 * 
-	 * The algorithm supports multiple edges between nodes.
-	 * 
 	 * @return A non-null list with all simple cycles in this graph.
 	 */
-	public List<List<V>> simpleCycles() {
+	public List<List<V>> simpleCyclesByNodes() {
 		List<CycleNode<V>> nodes = new ArrayList<>();
 		Map<Node<V>, CycleNode<V>> map = new HashMap<>();
 		nodes().forEach(n -> {
@@ -710,13 +794,7 @@ public class Graph<V> {
 				} else {
 					if(w.position() <= q ) {
 						// output cycle
-						List<V> path = new ArrayList<>();
-						path.add(node().object());
-						int end = stack.index(this);
-						int start = stack.index(w);
-						for(int i=start; i<=end;i++) {
-						  path.add(stack.at(i).node().object());
-						}
+						List<V> path = createPath(stack, w);
 						paths.add(path);
 						f = true;
 					} else {
@@ -731,6 +809,17 @@ public class Graph<V> {
 			setReach();
 			_position = Long.MAX_VALUE;
 			return f;
+		}
+
+		private List<V> createPath(IndexedStack<CycleNode<V>> stack, CycleNode<V> w) {
+			List<V> path = new ArrayList<>();
+			path.add(node().object());
+			int end = stack.index(this);
+			int start = stack.index(w);
+			for(int i=start; i<=end;i++) {
+			  path.add(stack.at(i).node().object());
+			}
+			return path;
 		}
 
 		private Node<V> node() {
@@ -774,46 +863,6 @@ public class Graph<V> {
 			_B.add(node);
 		}
 
-	}
-
-	private int cycle(Node<V> root, Set<Node<V>> visitedRoots, Node<V> current, int q, IndexedStack<Node<V>> path, Set<Node<V>> mark, Map<Node<V>,Node<V>> reach, IndexedStack<Edge<V>> edgePath, List<Path<V>> paths) {
-		int result = nbNodes() + 1;
-		path.push(current);
-		mark.add(current);
-		if(reach.get(current) == null) {
-			q = nbNodes()+1;
-		} else if(q == nbNodes()+1) {
-			q = path.size()-1;
-		}
-		for(Edge<V> e: current.outgoingEdges()) {
-			Node<V> w = e.endFor(current);
-			Node<V> reachOfW = reach.get(w);
-			if(! visitedRoots.contains(reachOfW)) {
-				if(! mark.contains(w)) {
-					edgePath.push(e);
-					int g = cycle(root, visitedRoots, w, q, path, mark, reach,edgePath,paths);
-					edgePath.pop();
-					if(g < result) {
-						result = g;
-					}
-				} else {
-					int index = path.index(w);
-					if(index < q) {
-						Path<V> p = new Path<>(w);
-						edgePath.forEachFrom(index, edge -> p.addEdge(edge));
-						p.addEdge(e);
-						paths.add(p);
-						result = index;
-					}
-				}
-			}
-		}
-		if(path.index(current) >= result) {
-			mark.remove(current);
-		}
-		path.pop();
-		reach.put(current, root);
-		return result;
 	}
 
 	public List<Path<V>> inefficientCycles() {
