@@ -222,7 +222,7 @@ public class TestGraph extends TestCase {
     for(int i = 0; i < 9; i++) {
       graph.addEdge(i, i+1);
     }
-    List<Path<Integer>> simpleCycles = graph.simpleCycles();
+    List<List<Integer>> simpleCycles = graph.simpleCycles();
     assertTrue(simpleCycles.isEmpty());
     graph.addEdge(8, 0);
     simpleCycles = graph.simpleCycles();
