@@ -72,8 +72,8 @@ public abstract class Edge<V> {
 	public abstract Set<Node<V>> startNodes();
 
 	/**
-	 * Return the node that is used as a start node when the given node is the
-	 * end of travering this edge.
+	 * Return the node from which the given node is reached after
+	 * traversing this edge.
 	 * 
 	 * @param end
 	 *        The end node.
@@ -85,6 +85,18 @@ public abstract class Edge<V> {
 	  @*/
 	public abstract Node<V> startFor(Node<V> end);
 
+	/**
+	 * Return the node that is reach when this edge is traversed starting
+	 * from the given node.
+	 * 
+	 * @param end
+	 *        The start node.
+	 */
+	/*@
+	  @ public behavior
+	  @
+	  @ pre endsIn(end);
+	  @*/
 	public abstract Node<V> endFor(Node<V> end);
 	
 	public Node<V> opposite(Node<V> node) {
