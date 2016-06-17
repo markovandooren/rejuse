@@ -1,7 +1,9 @@
 package be.kuleuven.cs.distrinet.rejuse.graph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import be.kuleuven.cs.distrinet.rejuse.java.collections.Visitor;
 
@@ -33,8 +35,8 @@ public class Path<V> implements Comparable<Path<V>> {
   public Path(Node<V> start) {
     _start= start;
     _end = start;
-    _edges = new ArrayList<>();
     _weight = 0;
+    _nodes.add(_start);
   }
   
   /**
@@ -57,7 +59,8 @@ public class Path<V> implements Comparable<Path<V>> {
   protected Path(Node<V> start, List<Edge<V>> edges, double length) {
     _start= start;
     _end = start;
-    _edges = new ArrayList<>(edges);
+    _nodes.add(_start);
+    edges.forEach(e -> addEdge(e));
     _weight = length;
   }
   
@@ -75,17 +78,18 @@ public class Path<V> implements Comparable<Path<V>> {
    @ post \result == getEdges().contains(edge);
    @*/
   public boolean traverses(Edge<V> edge) {
-  	return _edges.contains(edge);
+  	return _edgeSet.contains(edge);
   }
   
   public boolean visits(Node<V> node) {
-  	boolean result = false;
-  	Node<V> current = _start;
-  	for(int i=0; ! result && i < _edges.size(); i++) {
-  		result = current.equals(node);
-  		current = _edges.get(i).endFor(current);
-  	}
-  	return result;
+//  	boolean result = false;
+//  	Node<V> current = _start;
+//  	for(int i=0; ! result && i < _edges.size(); i++) {
+//  		result = current.equals(node);
+//  		current = _edges.get(i).endFor(current);
+//  	}
+//  	return result;
+  	return _nodes.contains(node);
   }
   
   /**
@@ -156,11 +160,13 @@ public class Path<V> implements Comparable<Path<V>> {
    @*/
   public void addEdge(Edge<V> edge) {
     _edges.add(edge);
+    _edgeSet.add(edge);
     _end = edge.endFor(_end);
     Weight weight = edge.get(Weight.class);
     if(weight != null) {
       _weight += weight.weight();
     }
+    _nodes.add(_end);
   }
   
   /**
@@ -198,10 +204,13 @@ public class Path<V> implements Comparable<Path<V>> {
     return _edges.size();
   }
   
+  private Set<Node<V>> _nodes = new HashSet<>();
+  
   /**
    * The edges of which this path consists.
    */
-  private List<Edge<V>> _edges;
+  private List<Edge<V>> _edges = new ArrayList<>();
+  private Set<Edge<V>> _edgeSet = new HashSet<>();
   
   /**
    * @return the length of this path.
