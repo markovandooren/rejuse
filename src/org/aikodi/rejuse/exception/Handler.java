@@ -5,7 +5,7 @@ package org.aikodi.rejuse.exception;
 
 import java.io.PrintStream;
 
-import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+import org.aikodi.rejuse.action.Nothing;
 
 /**
  * @author Marko van Dooren
