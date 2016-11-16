@@ -4,6 +4,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
+/**
+ * A class with methods for defensive programming.
+ * 
+ * @author Marko van Dooren
+ */
 public class Contracts {
 
   /**
@@ -44,16 +49,38 @@ public class Contracts {
         IntStream.range(0, resultSize).allMatch(i -> result.get(i) == original.get(i));
   }
   
+  /** 
+   * Check if the given object is null.
+   * 
+   * @param o The object to check.
+   * 
+   * @throws IllegalArgumentException The object is null.
+   */
   public final static void notNull(Object o) {
     notNull(o, "");
   }
   
+  /** 
+   * Check if the given array of objects contains a null reference.
+   * 
+   * @param o The array to check.
+   * 
+   * @throws IllegalArgumentException One of the objects in the array is null.
+   */
   public final static void notNull(Object... o) {
     for(Object object: o) {
       notNull(object,"");
     }
   }
   
+  /**
+   * Check if the given boolean is true.
+   * 
+   * @param bool The boolean value to check.
+   * @param message The message of the exception in case the boolean is false.
+   * 
+   * @throws IllegalArgumentException The boolean value is false.
+   */
   public final static void check(boolean bool, String message) {
     if(! bool) {
       throw new IllegalArgumentException(message);

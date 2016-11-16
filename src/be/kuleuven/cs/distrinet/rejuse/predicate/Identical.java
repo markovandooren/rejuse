@@ -1,19 +1,14 @@
 package be.kuleuven.cs.distrinet.rejuse.predicate;
 
+import be.kuleuven.cs.distrinet.rejuse.action.Nothing;
+
 /**
  * <p>A class of predicate that check whether or not the given argument
  * is the same as some object.</p>
  *
  * <center><img src="doc-files/Identical.png"/></center>
- *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
- * @author  Marko van Dooren
- * @release $Name$
  */
-public class Identical extends SafePredicate<Object> {
+public class Identical extends AbstractPredicate<Object, Nothing> {
 
   /**
    * <p>Initialize a new Identical with the given object</p>

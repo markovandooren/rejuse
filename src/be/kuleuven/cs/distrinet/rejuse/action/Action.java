@@ -75,12 +75,6 @@ public abstract class Action<T, E extends Exception> {
 		}
 	}
 	
-	public void applySafely(Collection<?> collection) throws E {
-		for(Object o: collection) {
-			perform(o);
-		}
-	}
-	
 	/**
 	 * Return a class object that represents the type of
 	 * objects on which this action can operate.
@@ -96,7 +90,4 @@ public abstract class Action<T, E extends Exception> {
 	
 	private Class<T> _type;
 	
-	public boolean mustProceed() {
-		return true;
-	}
 }
