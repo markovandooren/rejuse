@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rejuse
-Bundle-SymbolicName: rejuse.distrinet.cs.kuleuven.be;singleton:=true
+Bundle-SymbolicName: org.aikodi.rejuse;singleton:=true
 Bundle-Version: 1.0.12
 Bundle-ClassPath: bin/.,
  .,
@@ -107,7 +107,7 @@ Export-Package: be.kuleuven.cs.distrinet.rejuse.graph.adapter,
  org.junit.runners.model,
  org.junit.runners.parameterized,
  org.junit.validator
-Bundle-Vendor: distrinet.cs.kuleuven.be
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Aikodi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.junit;bundle-version="4.10.0"
