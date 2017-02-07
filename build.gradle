@@ -3,6 +3,10 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
+configurations {
+  deployerJars
+}
+
 uploadArchives {
     repositories.mavenDeployer {
         configuration = configurations.deployerJars
@@ -30,10 +34,6 @@ sourceSets {
       srcDir 'build/tmp/src_for_doc'
     }
   }
-}
-
-configurations {
-  deployerJars
 }
 
 dependencies {
