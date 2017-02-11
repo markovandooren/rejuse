@@ -377,6 +377,16 @@ public abstract class TreeStructure<T> {
     return result;
   }
 
+	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E {
+		List<T> tmp = children(predicate);
+		predicate.filter(tmp);
+		List<X> result = (List<X>)tmp;
+		for (T e : children()) {
+			result.addAll(tree(e).descendants(predicate));
+		}
+		return result;
+	}
+  
   public <X> List<X> children(Class<X> c) {
     List<? extends T> result = children();
     filter(result, child -> c.isInstance(child));
