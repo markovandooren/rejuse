@@ -17,9 +17,15 @@ public interface Handler<I extends Exception, O extends Exception> {
     public void execute() throws E;
   }
   
+  public interface ExecutorWithTwoExceptions<E extends Exception, N extends Exception> {
+  	public void execute() throws E, N;
+  }
+  
   public void handle(I exception) throws O;
   
   public <E extends I> void execute(Executor<E> e) throws O;
+  
+  public <E extends I, N extends Exception> void execute(ExecutorWithTwoExceptions<E, N> e) throws O, N;
   
   public static <I extends Exception> Handler<I,Nothing> resume() {
     Handler<I, Nothing> handler = new Handler<I, Nothing>() {
@@ -36,6 +42,15 @@ public interface Handler<I extends Exception, O extends Exception> {
           
         }
       }
+
+//			@Override
+			public <E extends I, N extends Exception> void execute(ExecutorWithTwoExceptions<E, N> e) {
+        try {
+          e.execute();
+        }catch(Exception exception) {
+          
+        }
+			}
     };
     return handler;
   }
@@ -55,6 +70,15 @@ public interface Handler<I extends Exception, O extends Exception> {
           exception.printStackTrace(stream);
         }
       }
+
+//			@Override
+			public <E extends I, N extends Exception> void execute(ExecutorWithTwoExceptions<E, N> e) {
+        try {
+          e.execute();
+        }catch(Exception exception) {
+          exception.printStackTrace(stream);
+        }
+			}
     };
     return handler;
   }
@@ -73,6 +97,12 @@ public interface Handler<I extends Exception, O extends Exception> {
       public <E extends I> void execute(Executor<E> e) throws E {
         e.execute();
       }
+
+//			@Override
+			public <E extends I, N extends Exception> void execute(
+					org.aikodi.rejuse.exception.Handler.ExecutorWithTwoExceptions<E, N> e) throws I, N {
+				e.execute();
+			}
       
     };
     return handler;

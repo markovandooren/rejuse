@@ -20,14 +20,14 @@ import com.google.common.collect.ImmutableList;
  *
  * @param <T> The type of the nodes in the tree structure.
  */
-public class PrunedTreeStructure<T> extends TreeStructure<T> {
+public class PrunedTreeStructure<T,N extends Exception> extends TreeStructure<T, N> {
 
-	public PrunedTreeStructure(TreeStructure<T> underLyying, TreePredicate<T, Nothing> predicate) {
+	public PrunedTreeStructure(TreeStructure<T, N> underLyying, TreePredicate<T, Nothing> predicate) {
 		_underLying = underLyying;
 		_predicate = predicate;
 	}
 	
-	private TreeStructure<T> _underLying;
+	private TreeStructure<T, N> _underLying;
 	
 	@Override
 	public T node() {
@@ -40,7 +40,7 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 	}
 
 	@Override
-	public List<? extends T> children() {
+	public List<? extends T> children() throws N {
 		if(canSucceedBeyond(node())) {
 			return _underLying.children();
 		} else {
@@ -55,7 +55,7 @@ public class PrunedTreeStructure<T> extends TreeStructure<T> {
 	private TreePredicate<T, Nothing> _predicate;
 
 	@Override
-	public TreeStructure<T> tree(T element) {
+	public TreeStructure<T, N> tree(T element) {
 	  return new PrunedTreeStructure<>(_underLying.tree(element), _predicate);
 	}
 	

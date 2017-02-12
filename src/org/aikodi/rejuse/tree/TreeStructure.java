@@ -19,7 +19,7 @@ import org.aikodi.rejuse.predicate.UniversalPredicate;
  *
  * @param <T> The type of the node in the tree.
  */
-public abstract class TreeStructure<T> {
+public abstract class TreeStructure<T, N extends Exception> {
 
   /**
    * @return the node at this place in the tree.
@@ -50,7 +50,7 @@ public abstract class TreeStructure<T> {
     @ post \result != null;
     @ post result.stream().allMatch(e -> e.parent() == this);
     @*/
-  public abstract List<? extends T> children();
+  public abstract List<? extends T> children() throws N;
 
   /**
    * Return the branches of this node.
@@ -58,9 +58,9 @@ public abstract class TreeStructure<T> {
    * @return A list containing the branches of this node. 
    *         The result is not null. The result does not contain null.
    */
-  public List<TreeStructure<? extends T>> branches() {
+  public List<TreeStructure<? extends T,N>> branches() throws N {
     List<? extends T> children = children();
-    List<TreeStructure<? extends T>> result = new ArrayList<>(children.size());
+    List<TreeStructure<? extends T,N>> result = new ArrayList<>(children.size());
     for(T child: children) {
       result.add(tree(child));
     }
@@ -73,7 +73,7 @@ public abstract class TreeStructure<T> {
    * @param element The element from which the retrieve the tree structure.
    * @return the tree structor of the given element.
    */
-  public abstract TreeStructure<T> tree(T node);
+  public abstract TreeStructure<T,N> tree(T node);
 
   
   
@@ -141,13 +141,14 @@ public abstract class TreeStructure<T> {
    *
    * @param <T> The type of the elements for which the predicate can match.
    * @param c The type of the descendants that should be returned.
+   * @throws N 
    */
   /*@
      @ public behavior
      @
      @ post \result != null;
      @*/
-  public <X extends T> List<X> nearestDescendants(Class<X> c) {
+  public <X extends T> List<X> nearestDescendants(Class<X> c) throws N {
 		List<? extends T> tmp = children();
 		List<X> result = new ArrayList<>();
 		Iterator<? extends T> iter = tmp.iterator();
@@ -171,6 +172,7 @@ public abstract class TreeStructure<T> {
    * 
    * @param <T> The type of the elements for which the predicate can match.
    * @param predicate The predicate that must be satisfied.
+   * @throws N 
    */
  /*@
    @ public behavior
@@ -179,10 +181,10 @@ public abstract class TreeStructure<T> {
    @
    @ post \result != null;
    @*/
-  public <E extends Exception> List<T> nearestDescendants(Predicate<? super T,E> predicate) throws E {
-		List<TreeStructure<? extends T>> tmp = branches();
+  public <E extends Exception> List<T> nearestDescendants(Predicate<? super T,E> predicate) throws E, N {
+		List<TreeStructure<? extends T,N>> tmp = branches();
 		List<T> result = new ArrayList<>();
-		Iterator<TreeStructure<? extends T>> iter = tmp.iterator();
+		Iterator<TreeStructure<? extends T,N>> iter = tmp.iterator();
 		while(iter.hasNext()) {
 			T e = iter.next().node();
 			if(predicate.eval(e)) {
@@ -190,7 +192,7 @@ public abstract class TreeStructure<T> {
 				iter.remove();
 			}
 		}
-		for (TreeStructure<? extends T> e : tmp) {
+		for (TreeStructure<? extends T,N> e : tmp) {
 			result.addAll(e.nearestDescendants(predicate));
 		}
 		return result;
@@ -202,6 +204,7 @@ public abstract class TreeStructure<T> {
    * 
    * @param <T> The type of the elements for which the predicate can match.
    * @param predicate The predicate that must be satisfied.
+   * @throws N 
    */
  /*@
    @ public behavior
@@ -210,7 +213,7 @@ public abstract class TreeStructure<T> {
    @
    @ post \result != null;
    @*/
-  public <X extends T, E extends Exception> List<X> nearestDescendants(UniversalPredicate<T,E> predicate) throws E {
+  public <X extends T, E extends Exception> List<X> nearestDescendants(UniversalPredicate<T,E> predicate) throws E, N {
 		List<? extends T> tmp = children();
 		List<X> result = new ArrayList<>();
 		Iterator<? extends T> iter = tmp.iterator();
@@ -319,7 +322,7 @@ public abstract class TreeStructure<T> {
    @ post parent() != null && (parent().farthestAncestor(c) != null) ==> \result == parent().farthestAncestor(c);
    @*/
   public <X extends T> X farthestAncestor(Class<X> c) {
-		TreeStructure<T> el = tree(parent());
+		TreeStructure<T,N> el = tree(parent());
 		X anc = null;
 		while(el != null) {
 			while ((el != null) && (! c.isInstance(el.node()))){
@@ -369,15 +372,23 @@ public abstract class TreeStructure<T> {
     return el == ancestor;
   }
 
-  public <X> List<X> descendants(Class<X> c) {
-    List<X> result = children(c);
+  /**
+   * Return all descendants of a given type.
+   * 
+   * @param type The type of the requested descendants.
+   * 
+   * @return All descendants of the requested type.
+   * @throws N 
+   */
+  public <X> List<X> descendants(Class<X> type) throws N {
+    List<X> result = children(type);
     for (T e : children()) {
-      result.addAll(tree(e).descendants(c));
+      result.addAll(tree(e).descendants(type));
     }
     return result;
   }
 
-	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E {
+	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E, N {
 		List<T> tmp = children(predicate);
 		predicate.filter(tmp);
 		List<X> result = (List<X>)tmp;
@@ -387,7 +398,7 @@ public abstract class TreeStructure<T> {
 		return result;
 	}
   
-  public <X> List<X> children(Class<X> c) {
+  public <X> List<X> children(Class<X> c) throws N {
     List<? extends T> result = children();
     filter(result, child -> c.isInstance(child));
     return (List)result;
@@ -398,6 +409,7 @@ public abstract class TreeStructure<T> {
    * 
    * @param type The type of the children to which the predicate must be applied.
    * @param predicate A predicate that determines which children should be returned.
+   * @throws N 
    */
   /*@
      @ public behavior
@@ -407,7 +419,7 @@ public abstract class TreeStructure<T> {
      @ post \result != null;
      @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
      @*/
-  public <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E {
+  public <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E, N {
     List<? extends T> children = children();
     List<X> result = new ArrayList<>(children.size());
     for(T child: children) {
@@ -422,6 +434,7 @@ public abstract class TreeStructure<T> {
    * Return all children of this element that satisfy the given predicate.
    * 
    * @param predicate A predicate that determines which children should be returned.
+   * @throws N 
    */
  /*@
    @ public behavior
@@ -431,7 +444,7 @@ public abstract class TreeStructure<T> {
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
    @*/
-  public <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E {
+  public <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E, N {
 		List<? extends T> tmp = children();
 		filter(tmp,predicate);
 		return (List<T>)tmp;
@@ -441,6 +454,7 @@ public abstract class TreeStructure<T> {
    * Check whether this element has a descendant that satisfies the given predicate.
    * 
    * @param predicate The predicate of which must be determined whether any descendants satisfy it.
+   * @throws Exception 
    */
  /*@
    @ public behavior
@@ -449,7 +463,7 @@ public abstract class TreeStructure<T> {
    @
    @ post \result == (\exists T t; descendants().contains(t); predicate.eval(t));
    @*/
-  public <X extends T, E extends Exception> boolean hasDescendant(UniversalPredicate<X,E> predicate) throws E {
+  public <X extends T, E extends Exception> boolean hasDescendant(UniversalPredicate<X,E> predicate) throws Exception {
     return (! children(predicate).isEmpty()) || exists(children(), c -> tree(c).hasDescendant(predicate));
   }
 
@@ -458,6 +472,7 @@ public abstract class TreeStructure<T> {
    * 
    * @param type The class object representing the type the descendants.
    * @param predicate The predicate of which we want to know whether it is satisfied by a descendant.
+   * @throws N 
    */
  /*@
    @ public behavior
@@ -466,7 +481,7 @@ public abstract class TreeStructure<T> {
    @
    @ post \result == ! descendants(type, predicate).isEmpty();
    @*/
-  public <X extends T, E extends Exception> boolean hasDescendant(Class<X> type, Predicate<X,E> predicate) throws E {
+  public <X extends T, E extends Exception> boolean hasDescendant(Class<X> type, Predicate<X,E> predicate) throws E, N {
     List<X> result = children(type, predicate);
     if (!result.isEmpty()) {
       return true;
@@ -479,13 +494,13 @@ public abstract class TreeStructure<T> {
     return false;
   }
   
-  public <X, E extends Exception>  void apply(Action<X,E> action) throws E {
+  public <X, E extends Exception>  void apply(Action<X,E> action) throws E, N {
     T node = node();
     if(action.type().isInstance(node)) {
       action.perform((T)node);
     }
     for (T e : children()) {
-      TreeStructure<? extends T> tree = tree(e);
+      TreeStructure<? extends T,N> tree = tree(e);
       tree.apply(action);
     }
   }
