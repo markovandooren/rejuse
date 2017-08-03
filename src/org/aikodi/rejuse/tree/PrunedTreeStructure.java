@@ -40,7 +40,7 @@ public class PrunedTreeStructure<T,N extends Exception> extends TreeStructure<T,
 	}
 
 	@Override
-	public List<? extends T> children() throws N {
+	public List<T> children() throws N {
 		if(canSucceedBeyond(node())) {
 			return _underLying.children();
 		} else {

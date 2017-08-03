@@ -37,6 +37,9 @@ public abstract class Association<FROM,TO> implements IAssociation<FROM, TO> {
    @ post getObject() == object;
    @*/
   public Association(FROM object) {
+  	if(object == null) {
+  		throw new IllegalArgumentException("The parent of an association end cannot be null.");
+  	}
     _object = object;
   }
 

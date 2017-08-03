@@ -27,7 +27,7 @@ public class GuardedTreeStructure<T, I extends Exception, O extends Exception> e
 	}
 
 	@Override
-	public List<? extends T> children() throws O {
+	public List<T> children() throws O {
 		List<T> result = new ArrayList<>();
 		Executor<I> executor = () -> result.addAll(_original.children());
 		_handler.execute(executor);

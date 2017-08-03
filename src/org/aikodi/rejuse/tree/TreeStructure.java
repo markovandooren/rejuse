@@ -50,7 +50,7 @@ public abstract class TreeStructure<T, N extends Exception> {
     @ post \result != null;
     @ post result.stream().allMatch(e -> e.parent() == this);
     @*/
-  public abstract List<? extends T> children() throws N;
+  public abstract List<T> children() throws N;
 
   /**
    * Return the branches of this node.
@@ -292,6 +292,78 @@ public abstract class TreeStructure<T, N extends Exception> {
 		return result;
 
   }
+  
+  /**
+   * Return a list of all ancestors. The direct parent is in front of the list, the
+   * furthest ancestor is last.
+   */
+  /*@
+     @ public behavior
+     @
+     @ post \result != null;
+     @ post parent() == null ==> \result.isEmpty();
+     @ post parent() != null ==> \result.get(0) == parent();
+     @ post parent() != null ==> \result.subList(1,\result.size()).equals(parent().ancestors());
+     @*/
+  public List<T> ancestors() {
+		if (parent()!=null) {
+			List<T> result = tree(parent()).ancestors();
+			result.add(0, parent());
+			return result;
+		} else {
+			return new ArrayList<>();
+		}
+  }
+
+  /**
+   * Return a list of all ancestors of the given type. A closer ancestors will have a lower index than a 
+   * farther ancestor.
+   * 
+   * @param c The kind of the ancestors that should be returned.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ post parent() == null ==> \result.isEmpty();
+   @ post parent() != null && c.isInstance(parent()) ==> \result.get(0) == parent()
+   @                       && \result.subList(1,\result.size()).equals(parent().ancestors(c));
+   @ post parent() != null && ! c.isInstance(parent()) ==> \result.equals(parent().ancestors(c));
+   @*/
+  public <X extends T> List<X> ancestors(Class<X> c) {
+ 		List<X> result = new ArrayList<>();
+ 		X el = nearestAncestor(c);
+ 		while (el != null){
+ 			result.add(el);
+ 			el = tree(el).nearestAncestor(c);
+ 		}
+ 		return result;
+  }
+  
+  /**
+   * Return the nearest ancestor of type T. Null if no such ancestor can be found.
+   * @param <T>
+   *        The type of the ancestor to be found
+   * @param c
+   *        The class object of type T (T.class)
+   * @return
+   */
+ /*@
+   @ public behavior
+   @
+   @ post parent() == null ==> \result == null;
+   @ post parent() != null && c.isInstance(parent()) ==> \result == parent();
+   @ post parent() != null && (! c.isInstance(parent())) ==> \result == parent().nearestAncestor(c);
+   @*/
+  public <X extends T> X nearestAncestor(Class<X> c) {
+		T el = parent();
+		while ((el != null) && (! c.isInstance(el))){
+			el = tree(el).parent();
+		}
+		return (X) el;
+  }
+
+
 
   /**
    * Return the farthest ancestor.
@@ -364,14 +436,64 @@ public abstract class TreeStructure<T, N extends Exception> {
     return anc;
   }
   
-  public boolean hasAncestorOrSelf(T ancestor) {
-    T el = node();
-    while ((el != null) && (el != ancestor)){
-      el = tree(el).parent();
-    }
-    return el == ancestor;
+  /**
+   * Check whether the given element is an ancestor of this element.
+   * 
+   * @param ancestor The potential ancestor.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre c != null;
+   @
+   @ post \result == ancestors().contains(ancestor);
+   @*/
+  public boolean hasAncestor(T ancestor) {
+    T el = parent();
+    return el == null ? false : tree(el).hasAncestorOrSelf(ancestor);
   }
 
+  /**
+   * Check whether the given element is this element in the tree
+   * or an ancestor of this element.
+   * 
+   * @param ancestor The potential ancestor.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre c != null;
+   @
+   @ post \result == equals(ancestor) || ancestors().contains(ancestor);
+   @*/
+  public boolean hasAncestorOrSelf(T ancestor) {
+    T el = node();
+    while ((el != null) && (! el.equals(ancestor))){
+      el = tree(el).parent();
+    }
+    return el == null || el.equals(ancestor);
+  }
+
+  /**
+   * Recursively return all children of this element.
+   * (The children, and the children of the children,...).
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ post (\forall T e; \result.contains(e) <=> children().contains(e) ||
+   @          (\exists T c; children().contains(c); tree(c).descendants().contains(e)));
+   @*/ 
+  public List<T> descendants() throws N {
+    List<T> result = children();
+    for (T e : children()) {
+      result.addAll(tree(e).descendants());
+    }
+    return result;
+  }
+
+  
   /**
    * Return all descendants of a given type.
    * 
@@ -380,6 +502,12 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @return All descendants of the requested type.
    * @throws N 
    */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && type.isInstance(e));
+   @*/
   public <X> List<X> descendants(Class<X> type) throws N {
     List<X> result = children(type);
     for (T e : children()) {
