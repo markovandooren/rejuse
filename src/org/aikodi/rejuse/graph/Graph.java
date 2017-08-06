@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.action.Nothing;
 import org.aikodi.rejuse.predicate.Predicate;
 
@@ -334,13 +334,13 @@ public class Graph<V> {
 
 	private Map<V,Node<V>> _nodeMap;
 
-	public <E extends Exception> void applyToObjects(Action<? super V, E> action) throws E {
+	public <E extends Exception> void applyToObjects(UniversalConsumer<? super V, E> action) throws E {
 		for(V v: _nodeMap.keySet()) {
 			action.perform(v);
 		}
 	}
 
-	public <E extends Exception> void traverse(V start, Action<? super V, ? extends E> nodeAction, Action<? super Edge<V>,? extends E> edgeAction) throws E {
+	public <E extends Exception> void traverse(V start, UniversalConsumer<? super V, ? extends E> nodeAction, UniversalConsumer<? super Edge<V>,? extends E> edgeAction) throws E {
 		Node<V> initial = node(start);
 		if(initial == null) {
 			return;
@@ -366,7 +366,7 @@ public class Graph<V> {
 		}
 	}
 
-	public <E extends Exception> void traverseAll(Action<? super V, ? extends E> nodeAction, Action<? super Edge<V>,? extends E> edgeAction) throws E {
+	public <E extends Exception> void traverseAll(org.aikodi.rejuse.function.Consumer<? super V, ? extends E> nodeAction, org.aikodi.rejuse.function.Consumer<? super Edge<V>,? extends E> edgeAction) throws E {
 		LinkedList<Node<V>> todo = new LinkedList<>();
 		todo.addAll(_nodeMap.values());
 
@@ -376,10 +376,10 @@ public class Graph<V> {
 		Set<Edge<V>> traversedEdges= new HashSet<>();
 		while(! todo.isEmpty()) {
 			Node<V> current = todo.removeFirst();
-			nodeAction.perform(current.object());
+			nodeAction.accept(current.object());
 			for(Edge<V> edge: current.outgoingEdges()) {
 				if(! traversedEdges.contains(edge)) {
-					edgeAction.perform(edge);
+					edgeAction.accept(edge);
 					traversedEdges.add(edge);
 				}
 			}
@@ -514,22 +514,12 @@ public class Graph<V> {
 				edgeNode.setA(next);
 			});
 			map.get(c).setA(edgeNodes);
-			//c.setA(c.object().directSuccessorNodes().stream().map(s -> map.get(s)).collect(Collectors.toSet()));
 		});
 		List<Path<V>> result = new ArrayList<>();
 		IndexedStack<GCycleNode<V>> stack = new IndexedStack<>();
 		IndexedStack<EdgeNode<V>> edges = new IndexedStack<>();
 		nodes.forEach(n -> map.get(n).cycle(0, stack, result, edges));
 		return result;
-//		.stream().map(
-//				l -> {
-//					Stream<GCycleNode<V>> filter = l.stream().filter(ln -> ln.object() instanceof Node);
-//					List x = filter.collect(Collectors.toList());
-//					return filter
-//				.map(n -> ((Node<V>)n.object()).object()).collect(Collectors.toList());
-//				}
-//				
-//				).collect(Collectors.toList());
 	}
 
 	private static class EdgeNode<V> extends GCycleNode<V> {

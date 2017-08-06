@@ -7,7 +7,7 @@ package org.aikodi.rejuse.action;
  *
  * @param <T> The type of the objects on which the action can operate.
  */
-public abstract class SafeAction<T> extends Action<T, Nothing>{
+public abstract class SafeAction<T> extends UniversalConsumer<T, Nothing>{
 
 	public SafeAction(Class<T> type) {
 		super(type);

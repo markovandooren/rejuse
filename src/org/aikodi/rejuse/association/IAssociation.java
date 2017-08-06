@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 
 public interface IAssociation<FROM, TO> {
 
@@ -197,6 +197,6 @@ public interface IAssociation<FROM, TO> {
 	 * 
 	 * @throws E Thrown when the action throws an exception.
 	 */
-	public abstract <E extends Exception> void apply(Action<? super TO,E> action) throws E;
+	public abstract <E extends Exception> void apply(UniversalConsumer<? super TO,E> action) throws E;
 
 }

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.predicate.SafePredicate;
 
 /**
@@ -325,7 +325,7 @@ public class MultiAssociation<FROM,TO> extends AbstractMultiAssociation<FROM,TO>
   }
   
   @Override
-	public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
+	public <E extends Exception> void apply(UniversalConsumer<? super TO, E> action) throws E {
   	for(Association<? extends TO,? super FROM> element: _elements) {
   		action.perform(element.getObject());
   	}

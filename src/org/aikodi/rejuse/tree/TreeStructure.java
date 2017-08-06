@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
+import org.aikodi.rejuse.function.Consumer;
 import org.aikodi.rejuse.predicate.Predicate;
 import org.aikodi.rejuse.predicate.UniversalPredicate;
 
@@ -341,6 +342,26 @@ public abstract class TreeStructure<T, N extends Exception> {
   }
   
   /**
+   * Return a list of all ancestors of the given type. A closer ancestors will have a lower index than a 
+   * farther ancestor.
+   * 
+   * @param predicate A predicate that determines which ancestors should be returned.
+   */
+ /*@
+   @ public behavior
+   @
+   @ post \result != null;
+   @ post parent() == null ==> \result.isEmpty();
+   @ post parent() != null && predicate.eval(parent()) ==> \result.get(0) == parent()
+   @                       && \result.subList(1,\result.size()).equals(parent().ancestors(c));
+   @ post parent() != null && ! predicate.eval(parent()) ==> 
+   @                       \result.equals(parent().ancestors(c));
+   @*/
+  public <X extends T, E extends Exception> List<X> ancestors(UniversalPredicate<X, E> predicate) throws E {
+		return predicate.downCastedList(ancestors());
+  }
+
+  /**
    * Return the nearest ancestor of type T. Null if no such ancestor can be found.
    * @param <T>
    *        The type of the ancestor to be found
@@ -474,6 +495,86 @@ public abstract class TreeStructure<T, N extends Exception> {
     return el == null || el.equals(ancestor);
   }
 
+	/**
+	 * Return all children of this element that are of the given type.
+	 * 
+	 * @param type The kind of the children that should be returned.
+	 */
+ /*@
+	 @ public behavior
+	 @
+	 @ post \result != null;
+	 @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && c.isInstance(e));
+	 @*/
+  public <X> List<X> children(Class<X> type) throws N {
+    List<T> result = children();
+    filter(result, child -> type.isInstance(child));
+    return (List)result;
+  }
+
+  /**
+   * Return all children of this element that satisfy the given predicate.
+   * 
+   * @param type The type of the children to which the predicate must be applied.
+   * @param predicate A predicate that determines which children should be returned.
+   * @throws N 
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre predicate != null;
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
+   @*/
+  public <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E, N {
+    List<? extends T> children = children();
+    List<X> result = new ArrayList<>(children.size());
+    for(T child: children) {
+      if(type.isInstance(child) && predicate.eval((X) child)) {
+        result.add((X) child);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Return all children of this element that satisfy the given predicate.
+   * 
+   * @param predicate A predicate that determines which children should be returned.
+   * @throws N 
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre predicate != null;
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
+   @*/
+  public <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E, N {
+		List<? extends T> tmp = children();
+		filter(tmp,predicate);
+		return (List<T>)tmp;
+  }
+
+  /**
+   * Return all children of this element that are of the given type, and satisfy the given predicate.
+   * 
+   * @param predicate A predicate that determines which ancestors should be returned.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre predicate != null;
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e));
+   @*/
+  public <X extends T, E extends Exception> List<X> children(UniversalPredicate<X,E> predicate) throws E, N {
+		return predicate.downCastedList(children());
+  }
+
   /**
    * Recursively return all children of this element.
    * (The children, and the children of the children,...).
@@ -516,53 +617,10 @@ public abstract class TreeStructure<T, N extends Exception> {
     return result;
   }
 
-	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E, N {
-		List<T> tmp = children(predicate);
-		predicate.filter(tmp);
-		List<X> result = (List<X>)tmp;
-		for (T e : children()) {
-			result.addAll(tree(e).descendants(predicate));
-		}
-		return result;
-	}
-  
-  public <X> List<X> children(Class<X> c) throws N {
-    List<? extends T> result = children();
-    filter(result, child -> c.isInstance(child));
-    return (List)result;
-  }
-
   /**
-   * Return all children of this element that satisfy the given predicate.
+   * Recursively return all descendants of this element that satisfy the given predicate.
    * 
-   * @param type The type of the children to which the predicate must be applied.
-   * @param predicate A predicate that determines which children should be returned.
-   * @throws N 
-   */
-  /*@
-     @ public behavior
-     @
-     @ pre predicate != null;
-     @
-     @ post \result != null;
-     @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
-     @*/
-  public <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E, N {
-    List<? extends T> children = children();
-    List<X> result = new ArrayList<>(children.size());
-    for(T child: children) {
-      if(type.isInstance(child) && predicate.eval((X) child)) {
-        result.add((X) child);
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Return all children of this element that satisfy the given predicate.
-   * 
-   * @param predicate A predicate that determines which children should be returned.
-   * @throws N 
+   * @param predicate A predicate that determines which descendants are returned.
    */
  /*@
    @ public behavior
@@ -570,14 +628,88 @@ public abstract class TreeStructure<T, N extends Exception> {
    @ pre predicate != null;
    @
    @ post \result != null;
-   @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
+   @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && predicate.eval(e));
    @*/
-  public <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E, N {
-		List<? extends T> tmp = children();
-		filter(tmp,predicate);
-		return (List<T>)tmp;
+	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E, N {
+		List<X> result = children(predicate);
+		predicate.filter(result);
+		for (T e : children()) {
+			result.addAll(tree(e).descendants(predicate));
+		}
+		return result;
+	}
+	
+  /**
+   * Recursively return all descendants of this element that satisfy the given predicate.
+   * 
+   * @param predicate A predicate that determines which descendants are returned.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre predicate != null;
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && predicate.eval(e));
+   @*/
+  public <E extends Exception> List<T> descendants(Predicate<? super T,E> predicate) throws E, N {
+		// Do not compute all descendants, and apply predicate afterwards.
+		// That is way too expensive.
+		List<T> tmp = children();
+		predicate.filter(tmp);
+		List<T> result = (List<T>)tmp;
+		for (T child : children()) {
+			result.addAll(tree(child).descendants(predicate));
+		}
+		return result;
+	}
+
+  /**
+   * Recursively return all descendants of this element that are of the given type, and satisfy the given predicate.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre predicate != null;
+   @
+   @ post \result != null;
+   @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && c.isInstance(e) && predicate.eval(e));
+   @*/
+  public <X extends T, E extends Exception> List<X> descendants(Class<X> c, Predicate<X,E> predicate) throws E, N {
+		List<X> result = children(c);
+		predicate.filter(result);
+		for (T e : children()) {
+			result.addAll(tree(e).descendants(c, predicate));
+		}
+		return result;
   }
 
+  /**
+   * Check whether this element has a descendant of the given type.
+   * 
+   * @param c The class object representing the type the descendants.
+   */
+ /*@
+   @ public behavior
+   @
+   @ pre type != null;
+   @
+   @ post \result == ! descendants(type).isEmpty();
+   @*/
+	public <X extends T> boolean hasDescendant(Class<X> type) throws N {
+		List<T> children = children();
+		if(children.stream().anyMatch(child -> type.isInstance(child))) {
+			return true;
+		}
+		for(T child: children) {
+			if(tree(child).hasDescendant(type)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+  
   /**
    * Check whether this element has a descendant that satisfies the given predicate.
    * 
@@ -622,7 +754,13 @@ public abstract class TreeStructure<T, N extends Exception> {
     return false;
   }
   
-  public <X, E extends Exception>  void apply(Action<X,E> action) throws E, N {
+  /**
+   * Recursively apply the given action to this element and all of its 
+   * descendants, but only if their type conforms to T.
+   * 
+   * @param action The action to apply.
+   */
+  public <X, E extends Exception>  void apply(UniversalConsumer<X,E> action) throws E, N {
     T node = node();
     if(action.type().isInstance(node)) {
       action.perform((T)node);
@@ -630,6 +768,23 @@ public abstract class TreeStructure<T, N extends Exception> {
     for (T e : children()) {
       TreeStructure<? extends T,N> tree = tree(e);
       tree.apply(action);
+    }
+  }
+
+  /**
+   * Recursively pass this element and all of its descendants to
+   * the given consumer if their type conforms to T.
+   * 
+   * @param kind A class object representing the type of elements to be 
+   *             passed to the consumer.
+   * @param consumer The consumer to which the elements must be provided.
+   */
+  public <X extends T, E extends Exception> void apply(Class<X> kind, Consumer<X,E> consumer) throws E, N {
+	  if(kind.isInstance(this)) {
+	     consumer.accept((X)this);
+	  }
+    for (T e : children()) {
+       tree(e).apply(kind, consumer);
     }
   }
 

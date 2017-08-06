@@ -4,7 +4,7 @@ package org.aikodi.rejuse.action;
  * A class of exceptions that cannot be thrown.
  * 
  * The purpose of this class is to serve as a type parameter
- * for {@link Action} classes. Note that even when {@link Nothing}
+ * for {@link UniversalConsumer} classes. Note that even when {@link Nothing}
  * is used as a parameter, any unchecked throwable can be thrown
  * by the action. However, by using Nothing, you indicate that
  * no unchecked exception will be thrown either. You cannot

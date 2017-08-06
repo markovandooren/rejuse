@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.action.Nothing;
 import org.aikodi.rejuse.predicate.AbstractPredicate;
 
@@ -351,7 +351,7 @@ public abstract class AbstractOrderedMultiAssociation<FROM,TO> extends AbstractM
   }
 
   @Override
-  public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
+  public <E extends Exception> void apply(UniversalConsumer<? super TO, E> action) throws E {
     if(isStored()) {
       for(Association<? extends TO,? super FROM> e: internalAssociations()) {
         action.perform(e.getObject());

@@ -1,7 +1,15 @@
 package org.aikodi.rejuse.logic.ternary;
 
+import org.aikodi.rejuse.action.UniversalConsumer;
+
 public enum Ternary {
   TRUE() {
+  	
+  	@Override
+  	public boolean isTrue() {
+  		return true;
+  	}
+  	
     public Ternary and(Ternary other) {
       return other;
     }
@@ -16,6 +24,12 @@ public enum Ternary {
 
   },
   FALSE() {
+
+  	@Override
+  	public boolean isFalse() {
+  		return false;
+  	}
+  	
     public Ternary and(Ternary other) {
       return FALSE;
     }
@@ -29,6 +43,12 @@ public enum Ternary {
     }
   },
   UNKNOWN() {
+  	
+  	@Override
+  	public boolean isUnknown() {
+  		return true;
+  	}
+  	
     public Ternary and(Ternary other) {
       Ternary result;
       if(other == FALSE) {
@@ -53,6 +73,22 @@ public enum Ternary {
     }
 
   };
+	
+	public boolean isTrue() {
+		return false;
+	}
+	
+	public void ifTrue() {
+		
+	}
+
+	public boolean isFalse() {
+		return false;
+	}
+
+	public boolean isUnknown() {
+		return false;
+	}
 
   public abstract Ternary and(Ternary other);
 

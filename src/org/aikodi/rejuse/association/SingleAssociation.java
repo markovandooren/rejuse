@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 
 import java.util.ArrayList;
 
@@ -333,7 +333,7 @@ public class SingleAssociation<FROM,TO> extends Association<FROM,TO> {
 	}
 	
 	@Override
-	public <E extends Exception> void apply(Action<? super TO, E> action) throws E {
+	public <E extends Exception> void apply(UniversalConsumer<? super TO, E> action) throws E {
 		if (_other != null) {
 			action.perform(_other.getObject());
 		}

@@ -2,7 +2,7 @@ package org.aikodi.rejuse.tree;
 
 import java.util.List;
 
-import org.aikodi.rejuse.action.Action;
+import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.predicate.TypePredicate;
 import org.aikodi.rejuse.predicate.UniversalPredicate;
 
@@ -113,7 +113,7 @@ public abstract class FunctionalTreeStructure<T> {
 		return new TypePredicate<X>(c).downCastedList(children(element));
 	}
 
-	public <X extends T, E extends Exception>  void apply(T element, Action<X,E> action) throws E {
+	public <X extends T, E extends Exception>  void apply(T element, UniversalConsumer<X,E> action) throws E {
 		if(action.type().isInstance(element)) {
 			action.perform((T)element);
 		}
