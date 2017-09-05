@@ -24,11 +24,6 @@ repositories {
 }
 
 sourceSets {
-  main {
-    java {
-      srcDir 'src'
-    }
-  }
   dok {
     java {
       srcDir 'build/tmp/src_for_doc'

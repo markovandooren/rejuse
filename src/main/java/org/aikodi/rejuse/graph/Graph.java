@@ -548,14 +548,6 @@ public class Graph<V> {
 			for(int i = start; i < edgeNodes.size(); i++) {
 				path.addEdge(edgeNodes.at(i).edge());
 			}
-//			int end = stack.index(w);
-//			int nb = Math.abs(end-start);
-//			int increment = (end-start)/nb;
-//			for(int i=0; i <= nb; i++) {
-//				int index = start + i * increment;
-//				path.add(stack.at(index));
-//			}
-//			path.add(this);
 			return path;
 		}
 	}
@@ -763,7 +755,6 @@ public class Graph<V> {
 		}
 
 		public boolean cycle(int q, IndexedStack<CycleNode<V>> stack, List<List<V>> paths) {
-			// v == this;
 			boolean f = false;
 			mark();
 			stack.push(this);
@@ -806,7 +797,7 @@ public class Graph<V> {
 			path.add(node().object());
 			int end = stack.index(this);
 			int start = stack.index(w);
-			for(int i=start; i<=end;i++) {
+			for(int i=start; i <= end; i++) {
 			  path.add(stack.at(i).node().object());
 			}
 			return path;
@@ -827,11 +818,6 @@ public class Graph<V> {
 		private void setReach() {
 			_reach = true;
 		}
-
-		private void unsetReach() {
-			_reach = false;
-		}
-
 
 		public boolean marked() {
 			return _mark;
@@ -885,9 +871,6 @@ public class Graph<V> {
 				}
 			}
 		}
-//		if(paths.size() == size && ! introduceCycle.contains(last)) {
-//			cannotIntroduceCycle.add(last);
-//		}
 	}
 
 	private static class IndexedStack<T> {
@@ -924,9 +907,6 @@ public class Graph<V> {
 			return _indices.size();
 		}
 
-		public void forEachFrom(int i, Consumer<? super T> consumer) {
-			_stack.subList(i, _stack.size()).forEach(consumer);
-		}
 	}
 
 
