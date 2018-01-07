@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.aikodi.rejuse.action.Nothing;
-import org.aikodi.rejuse.java.collections.CollectionOperator;
 
 /*@ model import org.jutil.java.collections.Collections; @*/
 
@@ -35,7 +34,7 @@ import org.aikodi.rejuse.java.collections.CollectionOperator;
  * <p>In case your predicate doesn't wrap another one, use <a href="PrimitivePredicate.html"><code>PrimitivePredicate</code></a>. If it also doesn't throw
  * exceptions, extend <a href="PrimitiveTotalPredicate.html"><code>PrimitiveTotalPredicate</code></a>.</p>
  */
-public interface Predicate<T, E extends Exception> extends CollectionOperator {
+public interface Predicate<T, E extends Exception> {
 
 	/**
 	 * Evaluate this Predicate for the given object.

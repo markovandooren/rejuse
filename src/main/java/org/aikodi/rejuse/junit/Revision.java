@@ -10,12 +10,7 @@ package org.aikodi.rejuse.junit;
  *   <img src="doc-files/Revision.png"/>
  * </center>
  *
-  * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
- * @release $Name$
  */
 public interface Revision extends Comparable<Revision> {
 

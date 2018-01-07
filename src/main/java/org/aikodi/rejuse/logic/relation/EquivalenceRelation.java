@@ -12,7 +12,7 @@ package org.aikodi.rejuse.logic.relation;
  *
  * @param <E>
  */
-public abstract class EquivalenceRelation<E> extends Relation<E> {
+public interface EquivalenceRelation<E> extends Relation<E> {
 
 	/*@
 	  @ invariant (\forall E e; ; contains(e,e));

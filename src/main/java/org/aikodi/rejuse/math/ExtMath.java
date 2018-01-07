@@ -3,13 +3,8 @@ package org.aikodi.rejuse.math;
 /**
  * This is a general utility class for mathematical stuff.
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
  * @author  Tom Schrijvers
- * @release $Name$
  */
 public abstract class ExtMath {
 
@@ -43,7 +38,7 @@ public abstract class ExtMath {
 
 	/**
 	 * <p>Compute a^b when b is positive.
-	 * This metod is significantly faster than ExtMath.pow, but introduces 
+	 * This method is significantly faster than ExtMath.pow, but introduces 
 	 * slightly different result than ExtMath.pow (Although I've only seen 
 	 * differences in the last digit up to now, and also ExtMath.pow doesn't 
 	 * always return the exact same result as Matlab).</p>
@@ -123,17 +118,17 @@ public abstract class ExtMath {
 			result = power(a,b);
 		}
 		
-		int reps=100000;
+		int reps=100000000;
 
 		long startMath=System.currentTimeMillis();
 		for(int i=1; i<=reps;i++) {
-			result = java.lang.Math.pow(a,b);
+			result = java.lang.Math.pow(i / a,b);
 		}
 		long stopMath=System.currentTimeMillis();
 
 		long startPower=System.currentTimeMillis();
 		for(int i=1; i<=reps;i++) {
-			result = power(a,b);
+			result = power(i / a,b);
 		}
 		long stopPower=System.currentTimeMillis();
 	  System.out.println("java.lang.Math.pow : "+(stopMath-startMath)+"ms");	
@@ -141,16 +136,16 @@ public abstract class ExtMath {
 
 		startMath=System.currentTimeMillis();
 		for(int i=1; i<=reps;i++) {
-			result = java.lang.Math.pow(c,d);
+			result = java.lang.Math.pow(i % c,d);
 		}
 		stopMath=System.currentTimeMillis();
 
 		startPower=System.currentTimeMillis();
 		for(int i=1; i<=reps;i++) {
-			result = lpower(c,d);
+			result = lpower(i % c,d);
 		}
 		stopPower=System.currentTimeMillis();
-	  System.out.println("java.lang.Math.pow : "+(stopMath-startMath)+"ms");	
-	  System.out.println("power : "+(stopPower-startPower)+"ms");	
+	  System.out.println("java.lang.Math.pow : " + (stopMath - startMath) + "ms");	
+	  System.out.println("power : " + (stopPower-startPower) + "ms");	
 	}
 }

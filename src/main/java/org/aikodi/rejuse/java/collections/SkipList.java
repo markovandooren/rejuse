@@ -67,13 +67,8 @@ import java.util.Random;
  * <p>For more information, go to 
  * <a href="ftp://ftp.cs.umd.edu/pub/skipLists">ftp://ftp.cs.umd.edu/pub/skipLists</a>.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Marko van Dooren
  * @author  Tom Schrijvers
- * @release $Name$
  */
 public class SkipList<E> extends AbstractCollection<E> {
 

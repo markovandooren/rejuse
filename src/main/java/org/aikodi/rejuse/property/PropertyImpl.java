@@ -3,12 +3,15 @@ package org.aikodi.rejuse.property;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.aikodi.rejuse.action.Nothing;
 import org.aikodi.rejuse.association.AssociationListener;
 import org.aikodi.rejuse.association.MultiAssociation;
 import org.aikodi.rejuse.association.SingleAssociation;
-import org.aikodi.rejuse.java.collections.SafeAccumulator;
-import org.aikodi.rejuse.java.collections.SafeTransitiveClosure;
+import org.aikodi.rejuse.java.collections.Sets;
+import org.aikodi.rejuse.java.collections.TransitiveClosure;
 import org.aikodi.rejuse.logic.ternary.Ternary;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>A class representing properties of model elements. Properties can be explicitly assigned to objects by in
@@ -223,7 +226,7 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @               \result.containsAll(p.directlyImpliedProperties()));
    @*/
   public Set<F> impliedProperties() {
-    return new SafeTransitiveClosure<F>() {
+    return new TransitiveClosure<F, Nothing>() {
       public void addConnectedNodes(F p, Set<F> acc) {
         acc.addAll(p.directlyImpliedProperties());
       }
@@ -326,7 +329,7 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
    @*/
   public Set<F> impliedByProperties() {
     if(_impliedByCache == null) {
-      _impliedByCache = new SafeTransitiveClosure<F>() {
+      _impliedByCache = new TransitiveClosure<F, Nothing>() {
         public void addConnectedNodes(F p, Set<F> acc) {
           acc.addAll(p.directlyImpliedByProperties());
         }
@@ -440,36 +443,18 @@ public abstract class PropertyImpl<E,F extends Property<E,F>> implements Propert
       // 1) all implied properties including the current property
       Set<F> implied = impliedProperties();
       // 2) all properties directly contradicting these properties
-      final Set<F> directlyContradicted = new SafeAccumulator<F, Set<F>>() {
-
-        @Override
-        public Set<F> accumulate(F element, Set<F> acc) {
-          acc.addAll(element.directlyContradictedProperties());
-          return acc;
-        }
-
-        @Override
-        public Set<F> initialAccumulator() {
-          return new HashSet<F>();
-        }
-
-      }.accumulate(implied);
-
+      Set<F> directlyContradicted = implied.stream().reduce(Sets.empty(), (acc,  element) -> {
+      	acc.addAll(element.directlyContradictedProperties());
+      	return acc;
+      }, Sets.union());
+      
+      
       // 3) add all properties implying the properties in directlyContradicted
-      _contradictedByCache = new SafeAccumulator<F, Set<F>>() {
-
-        @Override
-        public Set<F> accumulate(F element, Set<F> acc) {
-          acc.addAll(element.impliedByProperties());
-          return acc;
-        }
-
-        @Override
-        public Set<F> initialAccumulator() {
-          return new HashSet<F>(directlyContradicted);
-        }
-
-      }.accumulate(directlyContradicted);
+      _contradictedByCache = directlyContradicted.stream().reduce(Sets.clone(directlyContradicted), (acc, element) -> {
+        acc.addAll(element.impliedByProperties());
+        return acc;
+      }, Sets.union());
+      
     }
     return _contradictedByCache;
   }

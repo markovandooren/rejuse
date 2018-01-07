@@ -2,7 +2,9 @@ package org.aikodi.rejuse.predicate;
 
 import java.util.regex.Pattern;
 
-public class GlobPredicate extends SafePredicate<String> {
+import org.aikodi.rejuse.action.Nothing;
+
+public class GlobPredicate implements Predicate<String, Nothing> {
 
 	public GlobPredicate(String glob, char delimiter) {
 		_pattern = globToRegex(glob, delimiter);

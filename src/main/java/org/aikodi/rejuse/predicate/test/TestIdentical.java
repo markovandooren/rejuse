@@ -1,12 +1,12 @@
 package org.aikodi.rejuse.predicate.test;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 import org.aikodi.rejuse.predicate.Identical;
 
-public class TestIdentical extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestIdentical extends TestCase {
 
   public TestIdentical(String name) {
-    super(name, new CVSRevision("1.2"));
+    super(name);
   }
 
   public void setup() {

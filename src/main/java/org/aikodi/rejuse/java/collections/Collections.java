@@ -43,7 +43,7 @@ public abstract class Collections {
    @ post \result == (\exists int i; i >= 0 && i < collection.toArray().length;
    @                     collection.toArray()[i] == element);
    @*/
-  public static /*@ pure @*/ boolean containsExplicitly(Collection collection, Object element) {
+  public static /*@ pure @*/ boolean containsExplicitly(Collection<?> collection, Object element) {
     Object[] array = collection.toArray();
     boolean found = false;
     for (int i=0 ; i < array.length && (! found); i++) {
@@ -70,24 +70,13 @@ public abstract class Collections {
    @ post \result == (\num_of int i; i >= 0 && i < collection.toArray().length;
    @                    collection.toArray()[i] == element);
    @*/
-  public static /*@ pure @*/ int nbExplicitOccurrences(Object element, Collection collection) {
+  public static /*@ pure @*/ long nbExplicitOccurrences(Object element, Collection<?> collection) {
     if(collection == null) {
       return 0;
     }
-    Object[] array = collection.toArray();
-    int count = 0;
-    for(int i=0; i < array.length; i++) {
-      if(array[i]==element) {
-        count++;
-      }
-    }
-    return count;
+    return collection.stream().filter(o -> o == element).count();
   }
     
-  // MvDMvDMvD:
-  // It inherits from java.util.Collections
-  // * in order to have all functionality in a single class.
-  
   /**
    * Check whether the two given collections contain the same elements.
    * Test are done with ==
@@ -114,7 +103,7 @@ public abstract class Collections {
    @        (\forall Object o; containsExplicitly(first, o);
    @          nbExplicitOccurrences(o, first) == nbExplicitOccurrences(o, second));
    @*/
-  public static /*@ pure @*/ boolean identical(final Collection first, final Collection second) {
+  public static /*@ pure @*/ boolean identical(final Collection<?> first, final Collection<?> second) {
     //MvDMvDMvD : add testcase for {A,B,B} and {A,A,B}
     if ((first == null) && (second == null)) {
       return true;
@@ -125,65 +114,7 @@ public abstract class Collections {
     if (first.size() != second.size()) {
       return false;
     }
-    // Bigger indent makes it look better.
-     return new ForAll() {
-              public boolean criterion(final Object element) {
-               // MvDMvDMvD : inefficient, but works for now
-               return nbExplicitOccurrences(element, first) == nbExplicitOccurrences(element, second);
-             }
-    }.in(first);
+    return first.stream().allMatch(element -> nbExplicitOccurrences(element, first) == nbExplicitOccurrences(element, second)); 
   }
   
-  /**
-   * Check whether the two given maps contain the same entries.
-   * Test are done with ==
-   *
-   * @param first
-   *        The first map
-   * @param second
-   *        The second map
-   */
- /*@
-   @ // True if both maps are null
-   @ post ((first == null) && (second == null)) ==> \result == true;
-   @
-   @ // False if only one of both is null.
-   @ post ((first == null) || (second == null)) &&
-   @      !((first == null) && (second == null)) ==> \result ==false;
-   @
-   @ // If both maps are non-null, true if both maps
-   @ // have the same size and contains the same (key,value) pairs.
-   @ post ((first != null) && (second != null)) ==>
-   @        \result == (first.size() == second.size()) &&
-   @                   (\forall Object k; first.containsKey(k);
-   @                       second.containsKey(k) && second.get(k) == first.get(k)) &&
-   @        first.size() == second.size();
-   @ post (\forall Map.Entry e1; first.entrySet().contains(e1);
-   @        (\exists Map.Entry e2; second.entrySet().contains(e2);
-   @          (e1.getKey() == e2.getKey()) && (first.get(e1) == second.get(e2))));
-   @ // MvDMvDMvD : this spec is not complete enough : second.containsKey(k)
-   @ // is too vague
-   @ // a,a,b will be equal to b,b,a
-   @*/
-  public static /*@ pure @*/ boolean identical(final Map first, final Map second) {
-    if ((first == null) && (second == null)) {
-      return true;
-    }
-    if ((first == null) || (second == null)) {
-      return false;
-    }
-    if (first.size() != second.size()) {return false;}
-    // Bigger indent makes it look better.
-     return new ForAll() {
-              public boolean criterion(final Object element) {
-                return new Exists() {
-                         public boolean criterion(Object element2) {
-                          return (((Map.Entry)element).getValue() == ((Map.Entry)element2).getValue()) &&
-                                 (((Map.Entry)element).getKey() == ((Map.Entry)element2).getKey());
-                        }
-                }.in(second.entrySet());
-             }
-    }.in(first.entrySet());
-
-  }
 }

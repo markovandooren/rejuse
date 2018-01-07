@@ -1,15 +1,7 @@
 package org.aikodi.rejuse.association;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-
-import org.aikodi.rejuse.action.UniversalConsumer;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.predicate.SafePredicate;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 
 /**
  * <p>A class of Relation components for implementing a binding in which the object of

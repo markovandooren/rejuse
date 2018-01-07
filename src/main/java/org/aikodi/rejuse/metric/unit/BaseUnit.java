@@ -43,7 +43,6 @@ public class BaseUnit extends SpecialUnit {
    @*/
   public BaseUnit(String name, String symbol, BaseDimension baseDimension) throws InitializationException {
     super(name, symbol, baseDimension);
-    Unit.addStandardUnit(this);
   }
 
 /**************
@@ -55,6 +54,7 @@ public class BaseUnit extends SpecialUnit {
    @
    @ post \result == true;
    @*/
+  @Override
   public /*@ pure @*/ boolean convertsIsomorphToBaseUnit() {
     return true;
   }
@@ -67,6 +67,7 @@ public class BaseUnit extends SpecialUnit {
    @
    @ post \result == value;
    @*/
+  @Override
   public final /*@ pure @*/ double convertToBase(double value) {
     return value;
   }
@@ -79,6 +80,7 @@ public class BaseUnit extends SpecialUnit {
    @
    @ post \result == value;
    @*/
+  @Override
   public final /*@ pure @*/ double convertFromBase(double value) {
     return value;
   }
@@ -88,7 +90,8 @@ public class BaseUnit extends SpecialUnit {
    @
    @ post \result == this;
    @*/
-  public /*@ pure @*/ Unit getBaseUnit() {
+  @Override
+  public /*@ pure @*/ Unit baseUnit() {
     return this;
   }
 }

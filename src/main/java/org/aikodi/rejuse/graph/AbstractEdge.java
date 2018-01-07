@@ -159,8 +159,9 @@ public abstract class AbstractEdge<V> extends Edge<V> {
 	private Node<V> _first;
 	private Node<V> _second;
 	
-	private Map<Class,Object> _metadata;
+	private Map<Class<?>,Object> _metadata;
 	
+	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> key) {
 		if(_metadata == null) {
 			return null;

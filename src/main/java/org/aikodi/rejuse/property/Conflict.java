@@ -1,5 +1,7 @@
 package org.aikodi.rejuse.property;
 
+import org.aikodi.contract.Contract;
+
 /**
  * A class representing a conflict between two properties.
  * 
@@ -23,22 +25,28 @@ public class Conflict<P extends Property<?,P>> {
    @ post second() == second;
    @*/
 	public Conflict(P first, P second) {
+		Contract.requireNotNull(first);
+		Contract.requireNotNull(second);
 		_first = first;
 		_second = second;
 	}
 
 	private P _first;
 
+	/**
+	 * @return The first property of the conflict.
+	 */
 	public P first() {
 		return _first;
 	}
 
 	private P _second;
 
+	/**
+	 * @return The second property of the conflict.
+	 */
 	public P second() {
 		return _second;
 	}
-
-	
 
 }

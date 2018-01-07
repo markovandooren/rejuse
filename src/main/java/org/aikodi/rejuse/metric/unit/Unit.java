@@ -1,21 +1,15 @@
 package org.aikodi.rejuse.metric.unit;
 
-import java.util.Set;
-
-import org.aikodi.rejuse.InitializationException;
-import org.aikodi.rejuse.java.collections.MapAccumulator;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.metric.Prefix;
-import org.aikodi.rejuse.metric.dimension.BasicDimension;
-import org.aikodi.rejuse.metric.dimension.Dimension;
-import org.aikodi.rejuse.metric.dimension.Dimensionless;
-import org.aikodi.rejuse.predicate.SafePredicate;
-
-import java.util.HashSet;
-import java.util.Map;
 import java.util.HashMap;
 /*@ import org.jutil.java.collections.Collections; @*/
 /*@ import org.jutil.metric.quantity.BaseDimension; @*/
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.aikodi.rejuse.InitializationException;
+import org.aikodi.rejuse.metric.Prefix;
+import org.aikodi.rejuse.metric.dimension.Dimension;
 
 /**
  * A class of units.
@@ -41,11 +35,28 @@ import java.util.HashMap;
  * However, when converting a value to the standard value, 'foot' will be converted to 'meter' because 'meter' 
  * is a <a href="SpecialUnit.html">base unit</a>, and 'foot' is not.</p>
  *
- * @version $Revision$
- * @date    $Date$
  * @author  Marko van Dooren
  */
 public /*@ pure @*/ abstract class Unit {
+
+  /**
+   * <p>A map containing all different types of units every constructed. For
+   * each equivalence class (determined by <code>equal()</code>), the first instance
+   * is kept in this map.</p>
+   *
+   * <p>The reason for choosing a map is that you can only check if an element equal
+   * to another one is in a set, but you cannot easily get a reference to the one that
+   * is in the set in order to replace to entry that is not in the set. If we use a map instead
+   * we can invoke <code>get(EntryNotInMap)</code> in order to accomplish that.</p>
+   */
+ /*@
+   @ private invariant _units != null;
+   @ private invariant _units.keySet().contains(One.getPrototype());
+   @ private invariant (\forall Object o; _units.containsKey(o); o instanceof Unit);
+   @ private invariant (\forall Map.Entry me; _units.entrySet().contains(me);
+   @                      me.getKey() == me.getValue());
+   @*/
+ private static Map<Unit, Unit> _units = new HashMap<>();
 
   /**
    * Initialize a new unit with the given name, symbol and quantity.
@@ -90,7 +101,7 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  public /*@ pure @*/ String getName() {
+  public /*@ pure @*/ String name() {
     return _name;
   }
 
@@ -114,7 +125,7 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  public /*@ pure @*/ String getSymbol() {
+  public /*@ pure @*/ String symbol() {
     return _symbol;
   }
 
@@ -138,7 +149,7 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  public /*@ pure @*/ Dimension getDimension() {
+  public /*@ pure @*/ Dimension dimension() {
     return _dimension;
   }
 
@@ -162,7 +173,7 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ pre baseUnit != null;
    @*/
-  public abstract /*@ pure @*/ double getExponent(SpecialUnit baseUnit);
+  public abstract /*@ pure @*/ int exponentOf(SpecialUnit baseUnit);
 
   /**
    * Return the set of base units for which this Unit
@@ -175,7 +186,7 @@ public /*@ pure @*/ abstract class Unit {
    @ post (\forall SpecialUnit bu;;
    @        (\result.contains(bu)) == (getExponent(bu) != 0));
    @*/
-  public abstract /*@ pure @*/ Set getSpecialUnits();
+  public abstract /*@ pure @*/ Set<SpecialUnit> components();
 
   /**
    * See superclass
@@ -229,7 +240,7 @@ public /*@ pure @*/ abstract class Unit {
    @ post \result == getQuantity().equals(other.getQuantity());
    @*/
   public /*@ pure @*/ boolean isCompatibleWith(Unit other) {
-    return (other == this) || getDimension().equals(other.getDimension());
+    return (other == this) || dimension().equals(other.dimension());
   }
   
 /**********
@@ -244,8 +255,7 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  public Prefix getPrefix() {
-    //default implementation
+  public Prefix prefix() {
     return Prefix.ONE;
   }
 
@@ -276,7 +286,7 @@ public /*@ pure @*/ abstract class Unit {
   public /*@ pure @*/ Unit inverse() {
     if(_inverse == null) {
       _inverse = makeInverse();
-      _inverse = getPrototype(_inverse);
+      _inverse = prototype(_inverse);
       // The next statement is not "safe". It can't introduce
       // any real problem, but we aren't sure this Dimension is
       // a prototype while _inverse now is a reference to a prototype.
@@ -298,17 +308,12 @@ public /*@ pure @*/ abstract class Unit {
    @ post \result.times(this).getBaseUnits().isEmpty();
    @*/
   protected /*@ pure @*/ Unit makeInverse() {
-    final Map inverseMap = new HashMap();
+    final Map<SpecialUnit, Integer> inverseMap = new HashMap<>();
     // For every key in the key set (which only contains BaseQuantities)
     // get the double value, create a new double value that equals the inverse
     // and add it to the new map
-    new Visitor() {
-      public void visit(Object o) {
-        Double inverse = new Double(-getExponent((SpecialUnit)o));
-        inverseMap.put(o, inverse);
-      }
-    }.applyTo(getSpecialUnits());
-    return new CompositeUnit(createName(inverseMap), createSymbol(inverseMap), getDimension().inverse(), inverseMap);
+    components().forEach(o -> inverseMap.put(o, -exponentOf(o)));
+    return new CompositeUnit(createName(inverseMap), createSymbol(inverseMap), dimension().inverse(), inverseMap);
   }
 
   /**
@@ -324,13 +329,12 @@ public /*@ pure @*/ abstract class Unit {
    @ post (\forall SpecialUnit b; b != null;
    @       \result.getExponent(b) == exponent * getExponent(b));
    @*/
-  public /*@ pure @*/ Unit pow(double exponent) {
+  public /*@ pure @*/ Unit pow(int exponent) {
     // This is not very efficient
-    Double power = new Double(exponent);
-    Unit result = (Unit)_powerMap.get(power);
+    Unit result = (Unit)_powerMap.get(exponent);
     if(result == null) {
-      result = getPrototype(makePower(exponent));
-      addPower(power, result);
+      result = prototype(makePower(exponent));
+      addPower(exponent, result);
     }
     return result;
   }
@@ -349,18 +353,13 @@ public /*@ pure @*/ abstract class Unit {
    @ post (\forall SpecialUnit b;;
    @        \result.getExponent(b) == power * getExponent(b));
    @*/
-  protected /*@ pure @*/ Unit makePower(final double power) {
-    final Map powerMap = new HashMap();
+  protected /*@ pure @*/ Unit makePower(final int power) {
+    final Map<SpecialUnit, Integer> powerMap = new HashMap<>();
     // For every key in the key set (which only contains BaseQuantities)
     // get the double value, create a new double value that equals the inverse
     // and add it to the new map
-    new Visitor() {
-      public void visit(Object o) {
-        Double inverse = new Double(power * getExponent((SpecialUnit)o));
-        powerMap.put(o, inverse);
-      }
-    }.applyTo(getSpecialUnits());
-    return new CompositeUnit(createName(powerMap), createSymbol(powerMap), getDimension().pow(power), powerMap);
+    components().forEach(o -> powerMap.put(o, power * exponentOf(o)));
+    return new CompositeUnit(createName(powerMap), createSymbol(powerMap), dimension().pow(power), powerMap);
   }
   
   /**
@@ -381,7 +380,7 @@ public /*@ pure @*/ abstract class Unit {
   public /*@ pure @*/ Unit times(Unit other) {
     Unit result = (Unit) _productMap.get(other);
     if(result == null) {
-      result = getPrototype(makeProduct(other));
+      result = prototype(makeProduct(other));
       // Add the result to our own cache
       addProduct(other, result);
       // Add the result to the cache of the other unit
@@ -409,20 +408,17 @@ public /*@ pure @*/ abstract class Unit {
    @        \result.getExponent(b) == getExponent(b) + other.getExponent(b));
    @*/
   protected /*@ pure @*/ Unit makeProduct(final Unit other) {
-    final Map productMap = new HashMap();
-    Set allBase = new HashSet();
-    allBase.addAll(getSpecialUnits());
-    allBase.addAll(other.getSpecialUnits());
-    new Visitor() {
-      public void visit(Object o) {
-        double sum = getExponent((SpecialUnit)o) + other.getExponent((SpecialUnit)o);
+    final Map<SpecialUnit, Integer> productMap = new HashMap<>();
+    Set<SpecialUnit> allBase = new HashSet<>();
+    allBase.addAll(components());
+    allBase.addAll(other.components());
+    allBase.forEach(o -> {
+        int sum = exponentOf(o) + other.exponentOf(o);
         if(sum != 0) {
-          Double objectSum = new Double(sum);
-          productMap.put(o, objectSum);
+          productMap.put(o, sum);
         }
-      }
-    }.applyTo(allBase);
-    return new CompositeUnit(createName(productMap), createSymbol(productMap), getDimension().times(other.getDimension()), productMap);
+      });
+    return new CompositeUnit(createName(productMap), createSymbol(productMap), dimension().times(other.dimension()), productMap);
   }
 
   /**
@@ -443,7 +439,7 @@ public /*@ pure @*/ abstract class Unit {
   public /*@ pure @*/ Unit dividedBy(Unit other) {
     Unit result = (Unit) _divisionMap.get(other);
     if(result == null) {
-      result = getPrototype(makeQuotient(other));
+      result = prototype(makeQuotient(other));
       // Add the result to our own cache
       addDivision(other, result);
       // Add the result to the cache of the other unit
@@ -471,36 +467,18 @@ public /*@ pure @*/ abstract class Unit {
    @        \result.getExponent(q) == getExponent(q) + other.getExponent(q));
    @*/
   protected /*@ pure @*/ Unit makeQuotient(final Unit other) {
-    final Map divisionMap = new HashMap();
-    Set allBase = new HashSet();
+    final Map<SpecialUnit, Integer> divisionMap = new HashMap<>();
+    Set <SpecialUnit> allBase = new HashSet<>();
     // This is dirty
-    allBase.addAll(getSpecialUnits());
-    allBase.addAll(other.getSpecialUnits());
-    new Visitor() {
-      public void visit(Object o) {
-        double diff = getExponent((SpecialUnit)o) - other.getExponent((SpecialUnit)o);
+    allBase.addAll(components());
+    allBase.addAll(other.components());
+    allBase.forEach(o -> {
+        int diff = exponentOf(o) - other.exponentOf((SpecialUnit)o);
         if(diff != 0) {
-          Double objectDiff = new Double(diff);
-          divisionMap.put(o, objectDiff);
+          divisionMap.put(o, diff);
         }
-      }
-    }.applyTo(allBase);
-    return new CompositeUnit(createName(divisionMap), createSymbol(divisionMap), getDimension().dividedBy(other.getDimension()), divisionMap);
-  }
-
-  /**
-   * Set the inverse of this unit to the given unit.
-   *
-   * @param inverse
-   *        The inverse of this unit.
-   */
- /*@
-   @ private behavior
-   @
-   @ post inverse() == inverse;
-   @*/
-  private void setInverse(Unit inverse) {
-    _inverse = inverse;
+      });
+    return new CompositeUnit(createName(divisionMap), createSymbol(divisionMap), dimension().dividedBy(other.dimension()), divisionMap);
   }
 
   /**
@@ -531,8 +509,8 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \fresh(\result);
    @*/
-  /*@ pure @*/ Map getProductMap() {
-    return new HashMap(_productMap);
+  /*@ pure @*/ Map<Unit, Unit> getProductMap() {
+    return new HashMap<>(_productMap);
   }
 
   /**
@@ -556,18 +534,6 @@ public /*@ pure @*/ abstract class Unit {
   }
 
   /**
-   * Return the division map of this Unit.
-   */
- /*@
-   @ behavior
-   @
-   @ post \fresh(\result);
-   @*/
-  /*@ pure @*/ Map getDivisionMap() {
-    return new HashMap(_divisionMap);
-  }
-
-  /**
    * Add the given pair to the power map of this Unit.
    *
    * @param power
@@ -581,20 +547,8 @@ public /*@ pure @*/ abstract class Unit {
    @ post getPowerMap().containsKey(power);
    @ post getPowerMap().get(power) == result;
    @*/
-  void addPower(Double power, Unit result) {
+  void addPower(int power, Unit result) {
     _powerMap.put(power, result);
-  }
-
-  /**
-   * Return the division map of this Unit.
-   */
- /*@
-   @ behavior
-   @
-   @ post \fresh(\result);
-   @*/
-  /*@ pure @*/ Map getPowerMap() {
-    return new HashMap(_powerMap);
   }
 
   /**
@@ -615,7 +569,7 @@ public /*@ pure @*/ abstract class Unit {
    @                     (e.getKey() instanceof Unit) &&
    @                     (e.getValue() instanceof Unit));
    @*/
-  private HashMap _productMap = new HashMap();
+  private Map<Unit, Unit> _productMap = new HashMap<>();
   
   /**
    * A map containing the results of dividing this
@@ -630,7 +584,7 @@ public /*@ pure @*/ abstract class Unit {
    @                     (e.getKey() instanceof Unit) &&
    @                     (e.getValue() instanceof Unit));
    @*/
-  private HashMap _divisionMap = new HashMap();
+  private Map<Unit, Unit> _divisionMap = new HashMap<>();
 
   /**
    * A map containting the results of raising this Unit
@@ -644,7 +598,7 @@ public /*@ pure @*/ abstract class Unit {
    @                     (e.getKey() instanceof Double) &&
    @                     (e.getValue() instanceof Unit));
    @*/
-  private HashMap _powerMap = new HashMap();
+  private Map<Integer, Unit> _powerMap = new HashMap<>();
   
 
 /**************
@@ -679,7 +633,7 @@ public /*@ pure @*/ abstract class Unit {
     if(equals(unit)) {
       return true;
     }
-    else if(! getDimension().equals(getDimension())) {
+    else if(! dimension().equals(dimension())) {
       return false;
     }
     return convertsIsomorphToBaseUnit() && unit.convertsIsomorphToBaseUnit();
@@ -765,7 +719,7 @@ public /*@ pure @*/ abstract class Unit {
 
   /**
    * Return the standard unit of the quantity of this unit. Since this also
-   * applies to composite units, the returntype is <code>Unit</unit>. 
+   * applies to composite units, the return type is <code>Unit</unit>. 
    * The standard unit of a composite is a composite unit itself.
    */
  /*@
@@ -777,201 +731,12 @@ public /*@ pure @*/ abstract class Unit {
    @ post (\forall SpecialUnit b; \result.getExponent(b) != 0;
    @         b instanceof BaseUnit);
    @*/
-  public abstract /*@ pure @*/ Unit getBaseUnit() throws InitializationException;
+  public abstract /*@ pure @*/ Unit baseUnit() throws InitializationException;
 
-  /**
-   * Return the standard unit for the given basic quantity.
-   *
-   * @param basicQuantity
-   *        The basic quantity for which the standard unit is
-   *        requested.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \result == getStandardUnitMap().get(basicQuantity);
-   @
-   @ signals (InitializationException) getStandardUnitMap().get(basicQuantity) == null;
-   @*/
-  public static /*@ pure @*/ Unit getBaseUnit(BasicDimension basicQuantity) throws InitializationException {
-    Unit result = (Unit) _standardUnits.get(basicQuantity);
-    if (result == null) {
-      throw new InitializationException("A standard unit for a basic quantity could not be found. The basic quantity is "+basicQuantity.getName());
-    }
-    return result;
-  }
-  
-  /**
-   * Return a map that maps base quantities to their standard unit.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \fresh(\result);
-   @ post (\forall Map.Entry me; \result.entrySet().contains(me);
-   @        (me.getKey() instanceof BasicDimension) &&
-   @        ((me.getValue() instanceof BaseUnit) || (me.getValue() instanceof One)) &&
-   @        ((BaseUnit)me.getValue()).getQuantity() == (Dimension)me.getKey() &&
-   @        (\result.get(Dimensionless.getPrototype()) == One.getPrototype()));
-   @*/
-  public static /*@ pure @*/ Map getBaseUnitMap() {
-    HashMap result = new HashMap();
-    result.putAll(_standardUnits);
-    return result;
-  }
-
-  /**
-   * Add the given standard unit to the set of all
-   * standard units.
-   *
-   * @param standardUnit
-   *        The standard unit to add.
-   */
- /*@
-   @ behavior
-   @
-   @ pre standardUnit != null;
-   @ pre ! getStandardUnitMap().containsKey(standardUnit.getQuantity());
-   @
-   @ post (\forall BaseDimension b; b != standardUnit.getQuantity();
-   @        (getStandardUnitMap().keySet().contains(b) == 
-   @        \old(getStandardUnitMap().keySet().contains(b))) &&
-   @        (getStandardUnit(b) == \old(getStandardUnit(b))));
-   @ post getStandardUnitMap().get(standardUnit.getQuantity()) == standardUnit;
-   @
-   @ // The map already contains the base quantity of the given standard unit.
-   @ signals (InitializationException) getStandardUnitMap().containsKey(standardUnit.getQuantity());
-   @*/
-  static void addStandardUnit(BaseUnit standardUnit) {
-
-    _standardUnits.put(standardUnit.getDimension(), standardUnit);
-  }
-
- /*@
-   @ private invariant _standardUnits != null;
-   @ private invariant _standardUnits.keySet().contains(Dimensionless.getPrototype());
-   @ private invariant (\forall Map.Entry me; _standardUnits.entrySet().contains(me);
-   @                      (me.getKey() instanceof BasicDimension) &&
-   @                      ((me.getValue() instanceof BaseUnit) || (me.getValue() instanceof One)) &&
-   @                      ((BaseUnit)me.getValue()).getQuantity() == (BasicDimension)me.getKey() &&
-   @                      (_standardUnits.get(Dimensionless.getPrototype()) == One.getPrototype()));
-   @*/
-  private static Map _standardUnits = new HashMap();
-
-  {
-   // This line caused class One to be loaded, but
-   // since that is a subclass of this class, this piece of initialisation code
-   // will be run again when One calls its super constructor. One.getPrototype()
-   // will still be null at this point.
-   //
-   // Therefore we add a dummy invocation of One.getPrototype() to force loading
-   // of class One, which will add its prototype to the standard units map.
-   //
-   // What an awful hack. Better solutions are welcome !!!
-   //
-   //_standardUnits.put(One.getPrototype().getQuantity(), One.getPrototype());
-   One.getPrototype();
-  }
-
-  static void init(One one) {
-   _standardUnits.put(one.getDimension(), one);
-   _units.put(one, one);
-  }
 
 /******************
  * STATIC METHODS *
  ******************/
-
-  /**
-   * Compute the quantity of the unit represented by the given
-   * (SpecialUnit -> Double) map.
-   *
-   * @param map
-   *        The (SpecialUnit -> Double) map representing the unit
-   *        of which the quantity must be computed.
-   */
- /*@
-   @ public behavior
-   @
-   @ pre validUnitMap(map);
-   @
-   @ post \result.equals(new BaseUnitMapConvertor().convert(map));
-   @*/
-  public static /*@ pure @*/ Dimension computeQuantity(Map map) {
-    return new BaseUnitMapConvertor().convert(map);
-  }
-
-  /**
-   * A class of map accumulators that convert a (SpecialUnit -> Double)
-   * map into the quantity of the unit of which the map represents
-   * the composition.
-   */
-  public static class BaseUnitMapConvertor extends MapAccumulator {
-
-        /**
-         * The pair is valid when the key is a non-null SpecialUnit
-         * and the value is a non-null, non-zero Double object.
-         */
-       /*@
-         @ also public behavior
-         @
-         @ post \result == (key != null) && 
-         @                 (value != null) && 
-         @                 (key instanceof SpecialUnit) &&
-         @                 (value instanceof Double) &&
-         @                 (((Double)value).doubleValue() != 0);
-         @*/
-        public /*@ pure @*/ boolean isValidPair(Object key, Object value) {
-          return (key != null) && 
-                 (value != null) && 
-                 (key instanceof SpecialUnit) &&
-                 (value instanceof Double) &&
-                 (((Double)value).doubleValue() != 0);
-        }
-
-        /**
-         * The accumulation starts with the dimensionless quantity.
-         */
-       /*@
-         @ also public behavior
-         @
-         @ post \result == Dimensionless.getPrototype();
-         @*/
-        public /*@ pure @*/ Object initialAccumulator() {
-          return Dimensionless.getPrototype();
-        }
-
-        /**
-         * When accumulating, the accumulator is multiplied by the 'key' quantity
-         * raised to the 'value'th power.
-         */
-       /*@
-         @ also public behavior
-         @
-         @ post \result == ((Dimension)key).pow(((Double)value).doubleValue()).times((Dimension)accumulator);
-         @*/
-        public /*@ pure @*/ Object accumulate(Object key, Object value, Object accumulator) {
-          return ((Dimension)key).pow(((Double)value).doubleValue()).times((Dimension)accumulator);
-        }
-
-        /**
-         * Convert the given (SpecialUnit -> Double) map to the quantity of the unit
-         * of which the given map represents the composition.
-         *
-         * @param map
-         *        The map to convert.
-         */
-       /*@
-         @ public behavior
-         @
-         @ pre map != null;
-         @
-         @ post (* FIXME *);
-         @*/
-        public /*@ pure @*/ Dimension convert(Map map) {
-          return (Dimension) accumulate(map);
-        }
-  }
 
   /**
    * Create a string representing the name of a unit
@@ -988,16 +753,9 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  protected static /*@ pure @*/ String createName(Map map) {
+  protected static /*@ pure @*/ String createName(Map<? extends Unit, Integer> map) {
     final StringBuffer temp = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        Map.Entry entry = (Map.Entry)o;
-        SpecialUnit baseUnit = (SpecialUnit)entry.getKey();
-        Double exponent = (Double)entry.getValue();
-        temp.append(baseUnit.getName()+"^("+exponent+")");
-      }
-    }.applyTo(map.entrySet());
+    map.entrySet().forEach(entry -> temp.append(entry.getKey().name()+"^("+entry.getValue()+")"));
     return temp.toString();
   }
 
@@ -1016,16 +774,11 @@ public /*@ pure @*/ abstract class Unit {
    @
    @ post \result != null;
    @*/
-  protected static /*@ pure @*/ String createSymbol(Map map) {
+  protected static /*@ pure @*/ String createSymbol(Map<? extends Unit, Integer> map) {
     final StringBuffer temp = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        Map.Entry entry = (Map.Entry)o;
-        SpecialUnit baseUnit = (SpecialUnit)entry.getKey();
-        Double exponent = (Double)entry.getValue();
-        temp.append(baseUnit.getSymbol()+"^("+exponent+")");
-      }
-    }.applyTo(map.entrySet());
+    map.entrySet().forEach(entry -> {
+        temp.append(entry.getKey().symbol()+"^("+entry.getValue()+")");
+      });
     return temp.toString();
   }
 
@@ -1054,9 +807,9 @@ public /*@ pure @*/ abstract class Unit {
    @        (getAllUnits().contains(\result)) &&
    @        (\result.equals(unit));
    @*/
-  public static synchronized Unit getPrototype(Unit unit) {
+  public static synchronized Unit prototype(Unit unit) {
     ensureUnit(unit);
-    return (Unit)_units.get(unit);
+    return _units.get(unit);
   }
 
   /**
@@ -1081,126 +834,5 @@ public /*@ pure @*/ abstract class Unit {
     }
   }
 
-  /**
-   * Return a set containing all units that are computed using the
-   * methods in this class, including the first instances of each type of 
-   * base unit.
-   */
- /*@
-   @ public behavior
-   @
-   @ post \fresh(\result);
-   @ post (\forall Object o; Collections.containsExplicitly(\result, o);
-   @        o instanceof Unit);
-   @*/
-  public static synchronized /*@ pure @*/ Set getAllUnits() {
-    return _units.keySet();
-  }
-
-  /**
-   * Check whether or not the given map is a valid mapping
-   * of BaseUnits to Doubles for a unit.
-   *
-   * @param map
-   *        The map to check
-   */
- /*@
-   @ public behavior
-   @
-   @ // The map may not be null, all entries in the map must have a non-null
-   @ // SpecialUnit as key, and a non-null, non-zero Double as value.
-   @ post \result == (map != null) &&
-   @                 (\forall Object o; map.entrySet().contains(o);
-   @                   (o.getKey() instanceof SpecialUnit) &&
-   @                   (o.getValue() instanceof Double) &&
-   @                   (((Double)o.getValue()).doubleValue() != 0));
-   @*/
-  public static /*@ pure @*/ boolean validUnitMap(Map map) {
-    if (map == null) {
-      return false;
-    }
-    Set entries = map.entrySet();
-    return new SafePredicate<Map.Entry>() {
-      public boolean eval(Map.Entry o) {
-        return (o.getKey() instanceof SpecialUnit) &&
-               (o.getValue() instanceof Double) &&
-               (((Double)o.getValue()).doubleValue() != 0);
-      }
-    }.forAll(entries);
-  }
-
-   /**
-    * <p>A map containing all different types of units every constructed. For
-    * each equivalence class (determined by <code>equal()</code>), the first instance
-    * is kept in this map.</p>
-    *
-    * <p>The reason for choosing a map is that you can only check if an element equal
-    * to another one is in a set, but you cannot easily get a reference to the one that
-    * is in the set in order to replace to entry that is not in the set. If we use a map instead
-    * we can invoke <code>get(EntryNotInMap)</code> in order to accomplish that.</p>
-    */
-  /*@
-    @ private invariant _units != null;
-    @ private invariant _units.keySet().contains(One.getPrototype());
-    @ private invariant (\forall Object o; _units.containsKey(o); o instanceof Unit);
-    @ private invariant (\forall Map.Entry me; _units.entrySet().contains(me);
-    @                      me.getKey() == me.getValue());
-    @*/
-  private static Map _units = new HashMap();
-
-  /**
-   * A class of predicate that evaluate to <code>true</code> when
-   * the given object is a unit that converts isomorph to this unit.
-   */
-  public static class ConvertsIsomorphTo extends SafePredicate {
-
-    /**
-     * Initialize a new ConvertsIsomorphTo with the given unit
-     *
-     * @param unit
-     *        The unit of the new ConvertsIsomorphTo predicate.
-     */
-   /*@
-     @ public behavior
-     @
-     @ pre unit != null;
-     @
-     @ post getUnit() == unit;
-     @*/
-    public /*@ pure @*/ ConvertsIsomorphTo(Unit unit) {
-      _unit = unit;
-    }
-
-    /**
-     * Return the unit of this Unit.
-     */
-   /*@
-     @ public behavior
-     @
-     @ post \result != null;
-     @*/
-    public /*@ pure @*/ Unit getUnit() {
-      return _unit;
-    }
-
-    /**
-     * The unit of this predicate
-     */
-   /*@
-     @ private invariant _unit != null;
-     @*/
-    private Unit _unit;
-
-   /*@
-     @ also public behavior
-     @
-     @ post \result == (o instanceof Unit) &&
-     @                 ((Unit)o).convertsIsomorphTo(getUnit());
-     @*/
-    public /*@ pure @*/ boolean eval(Object o) {
-      return (o instanceof Unit) &&
-             ((Unit)o).convertsIsomorphTo(_unit);
-    }
-  }
 }
 

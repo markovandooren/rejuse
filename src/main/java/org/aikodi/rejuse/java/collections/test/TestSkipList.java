@@ -5,8 +5,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.aikodi.rejuse.java.collections.SkipList;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
+
+import junit.framework.TestCase;
 
 /* 
  * @path    $Source$
@@ -16,7 +16,7 @@ import org.aikodi.rejuse.junit.JutilTest;
  * @release $Name$
  */
 
-public class TestSkipList extends JutilTest {
+public class TestSkipList extends TestCase {
   
 	public static void main(String[] args) {
 		TestSkipList blah = new TestSkipList("test");
@@ -31,7 +31,7 @@ public class TestSkipList extends JutilTest {
   }
 	
   public TestSkipList(String name) {
-    super(name, new CVSRevision("1.7.8.2"));
+    super(name);
   }
 
 	public void setUp() {

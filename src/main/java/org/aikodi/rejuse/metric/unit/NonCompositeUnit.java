@@ -38,7 +38,7 @@ public abstract class NonCompositeUnit extends Unit {
   /**
    * see superclass
    */
-  public /*@ pure @*/ Unit prefix(Prefix prefix) {
+  public /*@ pure @*/ PrefixUnit prefix(Prefix prefix) {
     return new PrefixUnit(this, prefix);
   }
   

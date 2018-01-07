@@ -1,7 +1,7 @@
 package org.aikodi.rejuse.metric.dimension;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.aikodi.rejuse.predicate.SafePredicate;
 
@@ -48,9 +48,9 @@ public final class Dimensionless extends BasicDimension {
             (other instanceof Dimension) &&
              new SafePredicate<BaseDimension>() {
                public boolean eval(BaseDimension o) {
-                 return ((Dimension)other).getExponent((BaseDimension)o) == 0;
+                 return ((Dimension)other).exponentOf((BaseDimension)o) == 0;
                }
-             }.forAll(((Dimension)other).getBaseDimensions())
+             }.forAll(((Dimension)other).baseDimensions())
            );
   }
 
@@ -62,7 +62,7 @@ public final class Dimensionless extends BasicDimension {
    @
    @ post \result == 0;
    @*/
-  public /*@ pure @*/ double getExponent(BaseDimension dimension) {
+  public /*@ pure @*/ int exponentOf(BaseDimension dimension) {
     return 0;
   }
 
@@ -74,8 +74,8 @@ public final class Dimensionless extends BasicDimension {
    @
    @ post \result.size() == 0;
    @*/
-  public /*@ pure @*/ Set getBaseDimensions() {
-    return new TreeSet();
+  public /*@ pure @*/ Set<BaseDimension> baseDimensions() {
+    return new HashSet<>();
   }
 
   /**
@@ -86,13 +86,13 @@ public final class Dimensionless extends BasicDimension {
    @
    @ post \result == PROTOTYPE;
    @*/
-  public static /*@ pure @*/ Dimensionless getPrototype() {
+  public static /*@ pure @*/ Dimensionless instance() {
     return PROTOTYPE;
   }
 
   /*@
     @ public invariant PROTOTYPE != null;
     @*/
-  public final static Dimensionless PROTOTYPE = new Dimensionless();
+  private final static Dimensionless PROTOTYPE = new Dimensionless();
 }
 

@@ -3,14 +3,13 @@ import java.util.Set;
 
 import org.aikodi.rejuse.association.MultiAssociation;
 import org.aikodi.rejuse.association.SingleAssociation;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 
-public class TestOneMany extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestOneMany extends TestCase {
 
   public TestOneMany(String name) {
-    super(name, org.aikodi.rejuse.association.MultiAssociation.class, new CVSRevision("1.9"));
+    super(name);
   }
 
   public void test() {
@@ -83,7 +82,7 @@ private class A {
     return _name;
   }
 
-  private SingleAssociation _a;
+  private SingleAssociation<A, B> _a;
   private String _name;
 }
 
@@ -93,7 +92,7 @@ private class B {
     _name = name;
   }
 
-  public Set getA() {
+  public Set<A> getA() {
     return _b.getOtherEnds();
   }
 
@@ -115,11 +114,7 @@ private class B {
 
   public String toString() {
     final StringBuffer result = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        result.append(((A)o).getName());
-      }
-    }.applyTo(getA());
+    getA().forEach(o -> result.append(o.getName()));
     return result.toString();
   }
 

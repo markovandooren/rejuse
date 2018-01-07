@@ -1,9 +1,9 @@
 package org.aikodi.rejuse.metric;
 
-//import java.util.HashSet;
-import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+//import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class of objects representing prefixes. Examples are kilo, nano,...
@@ -287,11 +287,10 @@ public class Prefix {
    @*/
   public /*@ pure @*/ Prefix pow(int exponent) {
     // This is not very efficient
-    Integer power = new Integer(exponent);
-    Prefix result = (Prefix)_powerMap.get(power);
+    Prefix result = _powerMap.get(exponent);
     if(result == null) {
       result = getPrototype(makePower(exponent));
-      addPower(power, result);
+      addPower(exponent, result);
     }
     return result;
   }
@@ -461,21 +460,6 @@ public class Prefix {
   }
 
   /**
-   * Set the inverse of this prefix to the given prefix.
-   *
-   * @param inverse
-   *        The inverse of this prefix.
-   */
- /*@
-   @ private behavior
-   @
-   @ post inverse() == inverse;
-   @*/
-  private void setInverse(Prefix inverse) {
-    _inverse = inverse;
-  }
-
-  /**
    * Add the given pair to the product map of this prefix.
    *
    * @param prefix
@@ -503,8 +487,8 @@ public class Prefix {
    @
    @ post \fresh(\result);
    @*/
-  /*@ pure @*/ Map getProductMap() {
-    return new HashMap(_productMap);
+  /*@ pure @*/ Map<Prefix, Prefix> getProductMap() {
+    return new HashMap<>(_productMap);
   }
 
   /**
@@ -535,8 +519,8 @@ public class Prefix {
    @
    @ post \fresh(\result);
    @*/
-  /*@ pure @*/ Map getDivisionMap() {
-    return new HashMap(_divisionMap);
+  /*@ pure @*/ Map<Prefix, Prefix> getDivisionMap() {
+    return new HashMap<>(_divisionMap);
   }
 
   /**
@@ -553,7 +537,7 @@ public class Prefix {
    @ post getPowerMap().containsKey(power);
    @ post getPowerMap().get(power) == result;
    @*/
-  void addPower(Integer power, Prefix result) {
+  void addPower(int power, Prefix result) {
     _powerMap.put(power, result);
   }
 
@@ -565,8 +549,8 @@ public class Prefix {
    @
    @ post \fresh(\result);
    @*/
-  /*@ pure @*/ Map getPowerMap() {
-    return new HashMap(_powerMap);
+  /*@ pure @*/ Map<Integer, Prefix> getPowerMap() {
+    return new HashMap<>(_powerMap);
   }
 
   /**
@@ -587,7 +571,7 @@ public class Prefix {
    @                     (e.getKey() instanceof Prefix) &&
    @                     (e.getValue() instanceof Prefix));
    @*/
-  private HashMap _productMap = new HashMap();
+  private HashMap<Prefix, Prefix> _productMap = new HashMap<>();
   
   /**
    * A map containing the results of dividing this
@@ -597,15 +581,11 @@ public class Prefix {
    */
  /*@
    @ private invariant _divisionMap != null;
-   @ private invariant (\forall Map.Entry e; _productMap.entrySet().contains(e);
-   @                     (e != null) &&
-   @                     (e.getKey() instanceof Prefix) &&
-   @                     (e.getValue() instanceof Prefix));
    @*/
-  private HashMap _divisionMap = new HashMap();
+  private HashMap<Prefix, Prefix> _divisionMap = new HashMap<>();
 
   /**
-   * A map containting the results of raising this Prefix
+   * A map containing the results of raising this Prefix
    * to a certain power. The key of the map is the exponent,
    * the value is the result.
    */
@@ -616,7 +596,7 @@ public class Prefix {
    @                     (e.getKey() instanceof Double) &&
    @                     (e.getValue() instanceof Prefix));
    @*/
-  private HashMap _powerMap = new HashMap();
+  private HashMap<Integer, Prefix> _powerMap = new HashMap<>();
   
 
 /********

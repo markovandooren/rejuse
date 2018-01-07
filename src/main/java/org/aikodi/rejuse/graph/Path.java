@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.aikodi.rejuse.java.collections.Visitor;
-
 /**
  * <p>A path in a graph. A path consists of a sequence of
  * nodes that are connected by edges.</p>
@@ -273,23 +271,20 @@ public class Path<V> implements Comparable<Path<V>> {
   }
   
   /**
-   * See superclass
+   * {@inheritDoc}
    */
   public String toString() {
-    final StringBuffer result = new StringBuffer();
-    new Visitor() {
-      private boolean first = true;
-      public void visit(Object o) {
-        if(! first) {
-          result.append(" -> ");
-        }
-        else {
-          first = false;
-        }
-        result.append(o.toString());
-      }
-    }.applyTo(nodes());
-    result.append(" : "+length());
+    final StringBuilder result = new StringBuilder();
+    boolean first = true;
+		for (Object o : nodes()) {
+			if (!first) {
+				result.append(" -> ");
+			} else {
+				first = false;
+			}
+			result.append(o.toString());
+		}
+		result.append(" : " + length());
     return result.toString();
   }
 }

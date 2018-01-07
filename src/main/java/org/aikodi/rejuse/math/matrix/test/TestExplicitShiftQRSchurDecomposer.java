@@ -1,11 +1,11 @@
 package org.aikodi.rejuse.math.matrix.test;
 
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 import org.aikodi.rejuse.math.matrix.ExplicitShiftQRSchurDecomposer;
 import org.aikodi.rejuse.math.matrix.HouseholderHessenbergReducer;
 import org.aikodi.rejuse.math.matrix.Matrix;
 import org.aikodi.rejuse.math.matrix.SchurDecomposition;
+
+import junit.framework.TestCase;
 
 /** 
  * @path    $Source$
@@ -14,10 +14,10 @@ import org.aikodi.rejuse.math.matrix.SchurDecomposition;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class TestExplicitShiftQRSchurDecomposer extends JutilTest{
+public class TestExplicitShiftQRSchurDecomposer extends TestCase {
 
   public TestExplicitShiftQRSchurDecomposer(String name) {
-    super(name, new CVSRevision("1.4"));
+    super(name);
   }
 
 	private Matrix A;  

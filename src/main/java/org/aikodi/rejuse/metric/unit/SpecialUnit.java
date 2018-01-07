@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.aikodi.rejuse.java.collections.Sets;
 import org.aikodi.rejuse.metric.dimension.Dimension;
 
 /**
@@ -57,22 +58,17 @@ public abstract class SpecialUnit extends NonCompositeUnit {
    @ post (this.equals(baseUnit)) ==> \result == 1;
    @ post (! this.equals(baseUnit)) ==> \result == 0;
    @*/
-  public /*@ pure @*/ double getExponent(SpecialUnit baseUnit) {
-    if(this.equals(baseUnit)) {
-      return 1.0;
-    }
-    else {
-      return 0;
-    }
+  @Override
+  public /*@ pure @*/ int exponentOf(SpecialUnit baseUnit) {
+    return this.equals(baseUnit) ? 1 : 0;
   }
 
   /**
    * See superclass
    */
-  public /*@ pure @*/ Set getSpecialUnits() {
-    Set result = new HashSet();
-    result.add(this);
-    return result;
+  @Override
+  public /*@ pure @*/ Set<SpecialUnit> components() {
+    return Sets.of(this);
   }
 
   /**
@@ -92,8 +88,8 @@ public abstract class SpecialUnit extends NonCompositeUnit {
     return (other == this) ||
            (
             (other instanceof CompositeUnit) &&
-            (((CompositeUnit)other).getSpecialUnits().size() == 1) &&
-            (((CompositeUnit)other).getExponent(this) == 1)
+            (((CompositeUnit)other).components().size() == 1) &&
+            (((CompositeUnit)other).exponentOf(this) == 1)
            ); 
   }
 
@@ -105,9 +101,9 @@ public abstract class SpecialUnit extends NonCompositeUnit {
    * See superclass
    */
   protected /*@ pure @*/ Unit makeInverse() {
-    Map map = new HashMap();
-    map.put(this, new Double(-1));
-    return new CompositeUnit(createName(map), createSymbol(map), getDimension().inverse(), map);
+    Map<SpecialUnit, Integer> map = new HashMap<>();
+    map.put(this, -1);
+    return new CompositeUnit(createName(map), createSymbol(map), dimension().inverse(), map);
   }
 }
 

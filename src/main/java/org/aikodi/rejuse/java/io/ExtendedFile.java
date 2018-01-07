@@ -17,10 +17,6 @@ import java.io.IOException;
  *   <img src="doc-files/File.png"/>
  * </center>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Tom Schrijvers
  * @author  Marko van Dooren
  * @release $Name$

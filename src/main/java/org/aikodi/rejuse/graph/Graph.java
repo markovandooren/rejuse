@@ -10,12 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.action.Nothing;
+import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.predicate.Predicate;
 
 /**
@@ -573,11 +570,6 @@ public class Graph<V> {
 			return object().toString();
 		}
 
-		public void noCycle(GCycleNode<V> y) {
-			y.addB(this);
-			_A.remove(y);
-		}
-
 		public void unmark() {
 			_mark = false;
 			_B.forEach(y -> {
@@ -604,14 +596,17 @@ public class Graph<V> {
 			if(! reach()) {
 				q = t;
 			}
-			Set<GCycleNode<V>> copy = new HashSet<>(_A);
-			for(GCycleNode<V> w : copy) {
+
+			Iterator<GCycleNode<V>> iterator = _A.iterator();
+			while(iterator.hasNext()) {
+				GCycleNode<V> w = iterator.next();
 				if(! w.marked()) {
 					boolean result = w.cycle(q, stack, paths, edgeNodes);
 					if(result) {
 						f = true;
 					} else {
-						noCycle(w);
+						w.addB(this);
+						iterator.remove();
 					}
 				} else {
 					if(w.position() <= q ) {
@@ -620,7 +615,8 @@ public class Graph<V> {
 						paths.add(path);
 						f = true;
 					} else {
-						noCycle(w);
+						w.addB(this);
+						iterator.remove();
 					}
 				}
 			};
@@ -660,21 +656,8 @@ public class Graph<V> {
 			_reach = true;
 		}
 
-		private void unsetReach() {
-			_reach = false;
-		}
-
-
 		public boolean marked() {
 			return _mark;
-		}
-
-		public Set<GCycleNode<V>> B() {
-			return new HashSet<>(_B);
-		}
-
-		public boolean hasA(GCycleNode<V> node) {
-			return _A.contains(node);
 		}
 
 		private void addA(GCycleNode<V> node) {
@@ -734,11 +717,6 @@ public class Graph<V> {
 			});
 		}
 
-		public void noCycle(CycleNode<V> y) {
-			y.addB(this);
-			_A.remove(y);
-		}
-
 		public void unmark() {
 			_mark = false;
 			_B.forEach(y -> {
@@ -763,14 +741,16 @@ public class Graph<V> {
 			if(! reach()) {
 				q = t;
 			}
-			Set<CycleNode<V>> copy = new HashSet<>(_A);
-			for(CycleNode<V> w : copy) {
+			Iterator<CycleNode<V>> iterator = _A.iterator();
+			while(iterator.hasNext()) {
+				CycleNode<V> w = iterator.next();
 				if(! w.marked()) {
 					boolean result = w.cycle(q, stack, paths);
 					if(result) {
 						f = true;
 					} else {
-						noCycle(w);
+						w.addB(this);
+						iterator.remove();
 					}
 				} else {
 					if(w.position() <= q ) {
@@ -779,7 +759,8 @@ public class Graph<V> {
 						paths.add(path);
 						f = true;
 					} else {
-						noCycle(w);
+						w.addB(this);
+						iterator.remove();
 					}
 				}
 			};
@@ -823,14 +804,6 @@ public class Graph<V> {
 			return _mark;
 		}
 
-		public Set<CycleNode<V>> B() {
-			return new HashSet<>(_B);
-		}
-
-		public boolean hasA(CycleNode<V> node) {
-			return _A.contains(node);
-		}
-
 		private void addA(CycleNode<V> node) {
 			_A.add(node);
 		}
@@ -854,7 +827,6 @@ public class Graph<V> {
 
 	private void accumulate(List<Path<V>> paths, Path<V> current, Set<Node<V>> done,Set<Node<V>> cannotIntroduceCycle, Set<Node<V>> introduceCycle) {
 		Node<V> last = current.getEnd();
-		int size = paths.size();
 		for(Edge<V> edge: last.outgoingEdges()) {
 			Node<V> destination = edge.endFor(last);
 			if(! (done.contains(destination) || cannotIntroduceCycle.contains(destination))) { 
@@ -893,10 +865,6 @@ public class Graph<V> {
 		public void pop() {
 			_indices.remove(peek());
 			_stack.remove(_stack.size()-1);
-		}
-
-		public boolean contains(T t) {
-			return _indices.containsKey(t);
 		}
 
 		public T at(int index) {

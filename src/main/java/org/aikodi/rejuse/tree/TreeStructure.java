@@ -19,25 +19,24 @@ import org.aikodi.rejuse.predicate.UniversalPredicate;
  * @author Marko van Dooren
  *
  * @param <T> The type of the node in the tree.
+ * @param <N> The type of exception that can be thrown when navigating the tree.
  */
-public abstract class TreeStructure<T, N extends Exception> {
+public interface TreeStructure<T, N extends Exception> {
 
   /**
    * @return the node at this place in the tree.
    */
-  public abstract T node();
+  T node();
 
   /**
-   * Return the parent of the given node.
-   * 
-   * @param node The node of which the parent is requested.
+   * Return the parent of this node.
    */
   /*@
-    @ public behavior
+    @ default behavior
     @
     @ pre node != null;
     @*/
-  public abstract T parent();
+  T parent();
 
   /**
    * Return the direct children of the given element.
@@ -46,12 +45,12 @@ public abstract class TreeStructure<T, N extends Exception> {
    * the given element as their parent according to this tree.
    */
   /*@
-    @ public behavior
+    @ default behavior
     @
     @ post \result != null;
     @ post result.stream().allMatch(e -> e.parent() == this);
     @*/
-  public abstract List<T> children() throws N;
+  List<T> children() throws N;
 
   /**
    * Return the branches of this node.
@@ -59,7 +58,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @return A list containing the branches of this node. 
    *         The result is not null. The result does not contain null.
    */
-  public List<TreeStructure<? extends T,N>> branches() throws N {
+  default List<TreeStructure<? extends T,N>> branches() throws N {
     List<? extends T> children = children();
     List<TreeStructure<? extends T,N>> result = new ArrayList<>(children.size());
     for(T child: children) {
@@ -71,31 +70,29 @@ public abstract class TreeStructure<T, N extends Exception> {
   /**
    * Return the tree structure of the given element.
    * 
-   * @param element The element from which the retrieve the tree structure.
+   * @param node The element from which the retrieve the tree structure.
    * @return the tree structor of the given element.
    */
-  public abstract TreeStructure<T,N> tree(T node);
-
-  
+  TreeStructure<T,N> tree(T node);
   
   /**
    * Return the nearest ancestor of type T that satisfies the given predicate. Null if no such ancestor can be found.
    * 
-   * @param <T>
+   * @param <X>
    *        The type of the ancestor to be found
-   * @param c
-   *        The class object of type T (T.class)
+   * @param <E>
+   *        The type of the exception that can be thrown by the predicate.
    * @return
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && predicate.eval(parent()) ==> \result == parent();
    @ post parent() != null && (! predicate.eval((T)parent())) 
    @          ==> \result == parent().nearestAncestor(predicate);
    @*/
-  public <X extends T, E extends Exception> X nearestAncestor(UniversalPredicate<X,E> predicate) throws E {
+  default <X extends T, E extends Exception> X nearestAncestor(UniversalPredicate<X,E> predicate) throws E {
     return nearest(predicate, parent());
   }
 
@@ -110,29 +107,29 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @return
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && kind.isInstance(parent()) && predicate.eval((T)parent()) ==> \result == parent();
    @ post parent() != null && ((! kind.isInstance(parent())) || (kindc.isInstance(parent()) && ! predicate.eval((T)parent())) 
    @          ==> \result == parent().nearestAncestor(kind, predicate);
    @*/
-  public <X extends T, E extends Exception> X nearestAncestor(Class<X> kind, Predicate<X, E> predicate) throws E {
+  default <X extends T, E extends Exception> X nearestAncestor(Class<X> kind, Predicate<X, E> predicate) throws E {
     return nearestIncluding(kind, predicate, parent());
   }
 
-  public <X extends T, E extends Exception> X nearestAncestorOrSelf(Class<X> kind, Predicate<X, E> predicate) throws E {
+  default <X extends T, E extends Exception> X nearestAncestorOrSelf(Class<X> kind, Predicate<X, E> predicate) throws E {
     return nearestIncluding(kind, predicate, node());
   }
 
-	private <X extends T, E extends Exception> X nearestIncluding(Class<X> kind, Predicate<X, E> predicate, T el) throws E {
+	default <X extends T, E extends Exception> X nearestIncluding(Class<X> kind, Predicate<X, E> predicate, T el) throws E {
 		while ((el != null) && ((! kind.isInstance(el)) || (! predicate.eval((X)el)))) {
       el = tree(el).parent();
     }
     return (X) el;
 	}
 
-  public <X extends T, E extends Exception> X nearestAncestorOrSelf(UniversalPredicate<X, E> predicate) throws E {
+  default <X extends T, E extends Exception> X nearestAncestorOrSelf(UniversalPredicate<X, E> predicate) throws E {
     return nearest(predicate, node());
   }
 
@@ -145,11 +142,11 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
   /*@
-     @ public behavior
+     @ default behavior
      @
      @ post \result != null;
      @*/
-  public <X extends T> List<X> nearestDescendants(Class<X> c) throws N {
+  default <X extends T> List<X> nearestDescendants(Class<X> c) throws N {
 		List<? extends T> tmp = children();
 		List<X> result = new ArrayList<>();
 		Iterator<? extends T> iter = tmp.iterator();
@@ -176,13 +173,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @*/
-  public <E extends Exception> List<T> nearestDescendants(Predicate<? super T,E> predicate) throws E, N {
+  default <E extends Exception> List<T> nearestDescendants(Predicate<? super T,E> predicate) throws E, N {
 		List<TreeStructure<? extends T,N>> tmp = branches();
 		List<T> result = new ArrayList<>();
 		Iterator<TreeStructure<? extends T,N>> iter = tmp.iterator();
@@ -208,13 +205,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @*/
-  public <X extends T, E extends Exception> List<X> nearestDescendants(UniversalPredicate<T,E> predicate) throws E, N {
+  default <X extends T, E extends Exception> List<X> nearestDescendants(UniversalPredicate<T,E> predicate) throws E, N {
 		List<? extends T> tmp = children();
 		List<X> result = new ArrayList<>();
 		Iterator<? extends T> iter = tmp.iterator();
@@ -231,7 +228,7 @@ public abstract class TreeStructure<T, N extends Exception> {
 		return result;
   }
   
-  private <X extends T, E extends Exception> X nearest(UniversalPredicate<X, E> predicate, T el) throws E {
+  default <X extends T, E extends Exception> X nearest(UniversalPredicate<X, E> predicate, T el) throws E {
     while ((el != null) && (! predicate.eval(el))) {
       el = tree(el).parent();
     }
@@ -247,13 +244,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @return
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post c.isInstance(this) ==> \result == this;
    @ post ! c.isInstance(this) && parent() != null ==> \result == parent().nearestAncestor(c);
    @ post ! c.isInstance(this) && parent() == null ==> \result == null;
    @*/
-  public <X extends T> X nearestAncestorOrSelf(Class<X> c) {
+  default <X extends T> X nearestAncestorOrSelf(Class<X> c) {
     T el = node();
     while ((el != null) && (! c.isInstance(el))){
       el = tree(el).parent();
@@ -265,13 +262,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * Return the farthest ancestor of the given type that satisfies the given predicate.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && c.isInstance(this) && parent().farthestAncestor(c) == null ==> \result == this;
    @ post parent() != null && (parent().farthestAncestor(c) != null) ==> \result == parent().farthestAncestor(c);
    @*/
-  public <X extends T, E extends Exception> X farthestAncestor(UniversalPredicate<X,E> p) throws E {
+  default <X extends T, E extends Exception> X farthestAncestor(UniversalPredicate<X,E> p) throws E {
     return farthest(p, parent());
   }
 
@@ -279,13 +276,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * Return the farthest ancestor of the given type.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && c.isInstance(this) && parent().farthestAncestor(c) == null ==> \result == this;
    @ post parent() != null && (parent().farthestAncestor(c) != null) ==> \result == parent().farthestAncestor(c);
    @*/
-  public <X extends T> X farthestAncestorOrSelf(Class<X> c) {
+  default <X extends T> X farthestAncestorOrSelf(Class<X> c) {
 		X result = farthestAncestor(c);
 		if((result == null) && (c.isInstance(this))) {
 			result = (X) this;
@@ -299,14 +296,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * furthest ancestor is last.
    */
   /*@
-     @ public behavior
+     @ default behavior
      @
      @ post \result != null;
      @ post parent() == null ==> \result.isEmpty();
      @ post parent() != null ==> \result.get(0) == parent();
      @ post parent() != null ==> \result.subList(1,\result.size()).equals(parent().ancestors());
      @*/
-  public List<T> ancestors() {
+  default List<T> ancestors() {
 		if (parent()!=null) {
 			List<T> result = tree(parent()).ancestors();
 			result.add(0, parent());
@@ -323,7 +320,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param c The kind of the ancestors that should be returned.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post \result != null;
    @ post parent() == null ==> \result.isEmpty();
@@ -331,7 +328,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    @                       && \result.subList(1,\result.size()).equals(parent().ancestors(c));
    @ post parent() != null && ! c.isInstance(parent()) ==> \result.equals(parent().ancestors(c));
    @*/
-  public <X extends T> List<X> ancestors(Class<X> c) {
+  default <X extends T> List<X> ancestors(Class<X> c) {
  		List<X> result = new ArrayList<>();
  		X el = nearestAncestor(c);
  		while (el != null){
@@ -348,7 +345,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param predicate A predicate that determines which ancestors should be returned.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post \result != null;
    @ post parent() == null ==> \result.isEmpty();
@@ -357,7 +354,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    @ post parent() != null && ! predicate.eval(parent()) ==> 
    @                       \result.equals(parent().ancestors(c));
    @*/
-  public <X extends T, E extends Exception> List<X> ancestors(UniversalPredicate<X, E> predicate) throws E {
+  default <X extends T, E extends Exception> List<X> ancestors(UniversalPredicate<X, E> predicate) throws E {
 		return predicate.downCastedList(ancestors());
   }
 
@@ -370,13 +367,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @return
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && c.isInstance(parent()) ==> \result == parent();
    @ post parent() != null && (! c.isInstance(parent())) ==> \result == parent().nearestAncestor(c);
    @*/
-  public <X extends T> X nearestAncestor(Class<X> c) {
+  default <X extends T> X nearestAncestor(Class<X> c) {
 		T el = parent();
 		while ((el != null) && (! c.isInstance(el))){
 			el = tree(el).parent();
@@ -390,12 +387,12 @@ public abstract class TreeStructure<T, N extends Exception> {
    * Return the farthest ancestor.
    */
   /*@
-     @ public behavior
+     @ default behavior
      @
      @ post parent() == null ==> \result == this;
      @ post parent() != null ==> \result == parent().furthestAncestor();
      @*/
-  public T farthestAncestor() {
+  default T farthestAncestor() {
 		T parent = parent();
 		if(parent == null) {
 			return node();
@@ -408,13 +405,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * Return the farthest ancestor of the given type.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post parent() == null ==> \result == null;
    @ post parent() != null && c.isInstance(parent()) && parent().farthestAncestor(c) == null ==> \result == parent();
    @ post parent() != null && (parent().farthestAncestor(c) != null) ==> \result == parent().farthestAncestor(c);
    @*/
-  public <X extends T> X farthestAncestor(Class<X> c) {
+  default <X extends T> X farthestAncestor(Class<X> c) {
 		TreeStructure<T,N> el = tree(parent());
 		X anc = null;
 		while(el != null) {
@@ -435,15 +432,15 @@ public abstract class TreeStructure<T, N extends Exception> {
 	}
   
   
-  public <E extends Exception, X extends T> X farthestAncestorOrSelf(UniversalPredicate<X,E> p) throws E {
+  default <E extends Exception, X extends T> X farthestAncestorOrSelf(UniversalPredicate<X,E> p) throws E {
     return farthest(p, node());
   }
 
-  public <X extends T, E extends Exception> T farthestAncestorOrSelf(Class<X> kind, Predicate<X,E> p) throws E {
+  default <X extends T, E extends Exception> T farthestAncestorOrSelf(Class<X> kind, Predicate<X,E> p) throws E {
     return farthestAncestorOrSelf(UniversalPredicate.of(kind,p));
   }
 
-  private <E extends Exception, X extends T> X farthest(UniversalPredicate<X, E> predicate, T el) throws E {
+  default <E extends Exception, X extends T> X farthest(UniversalPredicate<X, E> predicate, T el) throws E {
     // Find the first one, including self
     el = tree(el).nearestAncestorOrSelf(predicate);
     X anc = (X)el;
@@ -463,13 +460,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param ancestor The potential ancestor.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre c != null;
    @
    @ post \result == ancestors().contains(ancestor);
    @*/
-  public boolean hasAncestor(T ancestor) {
+  default boolean hasAncestor(T ancestor) {
     T el = parent();
     return el == null ? false : tree(el).hasAncestorOrSelf(ancestor);
   }
@@ -481,13 +478,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param ancestor The potential ancestor.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre c != null;
    @
    @ post \result == equals(ancestor) || ancestors().contains(ancestor);
    @*/
-  public boolean hasAncestorOrSelf(T ancestor) {
+  default boolean hasAncestorOrSelf(T ancestor) {
     T el = node();
     while ((el != null) && (! el.equals(ancestor))){
       el = tree(el).parent();
@@ -501,12 +498,12 @@ public abstract class TreeStructure<T, N extends Exception> {
 	 * @param type The kind of the children that should be returned.
 	 */
  /*@
-	 @ public behavior
+	 @ default behavior
 	 @
 	 @ post \result != null;
 	 @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && c.isInstance(e));
 	 @*/
-  public <X> List<X> children(Class<X> type) throws N {
+  default <X> List<X> children(Class<X> type) throws N {
     List<T> result = children();
     filter(result, child -> type.isInstance(child));
     return (List)result;
@@ -520,14 +517,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
    @*/
-  public <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E, N {
+  default <X extends T, E extends Exception> List<X> children(Class<X> type, Predicate<X,E> predicate) throws E, N {
     List<? extends T> children = children();
     List<X> result = new ArrayList<>(children.size());
     for(T child: children) {
@@ -545,14 +542,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e) == true);
    @*/
-  public <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E, N {
+  default <E extends Exception> List<T> children(Predicate<? super T,E> predicate) throws E, N {
 		List<? extends T> tmp = children();
 		filter(tmp,predicate);
 		return (List<T>)tmp;
@@ -564,14 +561,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param predicate A predicate that determines which ancestors should be returned.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && predicate.eval(e));
    @*/
-  public <X extends T, E extends Exception> List<X> children(UniversalPredicate<X,E> predicate) throws E, N {
+  default <X extends T, E extends Exception> List<X> children(UniversalPredicate<X,E> predicate) throws E, N {
 		return predicate.downCastedList(children());
   }
 
@@ -580,13 +577,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * (The children, and the children of the children,...).
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post \result != null;
    @ post (\forall T e; \result.contains(e) <=> children().contains(e) ||
    @          (\exists T c; children().contains(c); tree(c).descendants().contains(e)));
    @*/ 
-  public List<T> descendants() throws N {
+  default List<T> descendants() throws N {
     List<T> result = children();
     for (T e : children()) {
       result.addAll(tree(e).descendants());
@@ -604,12 +601,12 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && type.isInstance(e));
    @*/
-  public <X> List<X> descendants(Class<X> type) throws N {
+  default <X> List<X> descendants(Class<X> type) throws N {
     List<X> result = children(type);
     for (T e : children()) {
       result.addAll(tree(e).descendants(type));
@@ -623,14 +620,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param predicate A predicate that determines which descendants are returned.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && predicate.eval(e));
    @*/
-	public <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E, N {
+	default <X extends T, E extends Exception> List<X> descendants(UniversalPredicate<X,E> predicate) throws E, N {
 		List<X> result = children(predicate);
 		predicate.filter(result);
 		for (T e : children()) {
@@ -645,14 +642,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param predicate A predicate that determines which descendants are returned.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && predicate.eval(e));
    @*/
-  public <E extends Exception> List<T> descendants(Predicate<? super T,E> predicate) throws E, N {
+  default <E extends Exception> List<T> descendants(Predicate<? super T,E> predicate) throws E, N {
 		// Do not compute all descendants, and apply predicate afterwards.
 		// That is way too expensive.
 		List<T> tmp = children();
@@ -668,14 +665,14 @@ public abstract class TreeStructure<T, N extends Exception> {
    * Recursively return all descendants of this element that are of the given type, and satisfy the given predicate.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result != null;
    @ post (\forall Element e; ; \result.contains(e) <==> descendants().contains(e) && c.isInstance(e) && predicate.eval(e));
    @*/
-  public <X extends T, E extends Exception> List<X> descendants(Class<X> c, Predicate<X,E> predicate) throws E, N {
+  default <X extends T, E extends Exception> List<X> descendants(Class<X> c, Predicate<X,E> predicate) throws E, N {
 		List<X> result = children(c);
 		predicate.filter(result);
 		for (T e : children()) {
@@ -690,13 +687,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @param c The class object representing the type the descendants.
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre type != null;
    @
    @ post \result == ! descendants(type).isEmpty();
    @*/
-	public <X extends T> boolean hasDescendant(Class<X> type) throws N {
+	default <X extends T> boolean hasDescendant(Class<X> type) throws N {
 		List<T> children = children();
 		if(children.stream().anyMatch(child -> type.isInstance(child))) {
 			return true;
@@ -717,13 +714,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws Exception 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre predicate != null;
    @
    @ post \result == (\exists T t; descendants().contains(t); predicate.eval(t));
    @*/
-  public <X extends T, E extends Exception> boolean hasDescendant(UniversalPredicate<X,E> predicate) throws Exception {
+  default <X extends T, E extends Exception> boolean hasDescendant(UniversalPredicate<X,E> predicate) throws Exception {
     return (! children(predicate).isEmpty()) || exists(children(), c -> tree(c).hasDescendant(predicate));
   }
 
@@ -735,13 +732,13 @@ public abstract class TreeStructure<T, N extends Exception> {
    * @throws N 
    */
  /*@
-   @ public behavior
+   @ default behavior
    @
    @ pre c != null;
    @
    @ post \result == ! descendants(type, predicate).isEmpty();
    @*/
-  public <X extends T, E extends Exception> boolean hasDescendant(Class<X> type, Predicate<X,E> predicate) throws E, N {
+  default <X extends T, E extends Exception> boolean hasDescendant(Class<X> type, Predicate<X,E> predicate) throws E, N {
     List<X> result = children(type, predicate);
     if (!result.isEmpty()) {
       return true;
@@ -760,7 +757,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    * 
    * @param action The action to apply.
    */
-  public <X, E extends Exception>  void apply(UniversalConsumer<X,E> action) throws E, N {
+  default <X, E extends Exception>  void apply(UniversalConsumer<X,E> action) throws E, N {
     T node = node();
     if(action.type().isInstance(node)) {
       action.perform((T)node);
@@ -779,7 +776,7 @@ public abstract class TreeStructure<T, N extends Exception> {
    *             passed to the consumer.
    * @param consumer The consumer to which the elements must be provided.
    */
-  public <X extends T, E extends Exception> void apply(Class<X> kind, Consumer<X,E> consumer) throws E, N {
+  default <X extends T, E extends Exception> void apply(Class<X> kind, Consumer<X,E> consumer) throws E, N {
 	  if(kind.isInstance(this)) {
 	     consumer.accept((X)this);
 	  }

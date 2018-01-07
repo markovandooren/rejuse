@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Vector;
 
 import org.aikodi.rejuse.java.collections.Collections;
-import org.aikodi.rejuse.java.collections.Exists;
 import org.aikodi.rejuse.java.collections.Filter;
 import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
+
+import junit.framework.TestCase;
  
 /* 
  * @path    $Source$
@@ -18,16 +18,16 @@ import org.aikodi.rejuse.junit.JutilTest;
  * @release $Name$
  */
 
-public class TestFilter extends JutilTest {
+public class TestFilter extends TestCase {
   public TestFilter(String name) {
-    super(name, new CVSRevision("1.13"));
+    super(name);
   }
   
-  private Vector $intVector;
+  private Vector<Integer> $intVector;
   public void setUp() {
     $intVector = new Vector();
     for(int i=0; i<37; i++) {
-      $intVector.add(new Integer(i));
+      $intVector.add(i);
     }
   }
   
@@ -45,7 +45,7 @@ public class TestFilter extends JutilTest {
       public boolean criterion(Object element) {
         return false;
       }
-    }.discard($intVector);
+    }.removeNonMatchingElementIn($intVector);
     assertTrue(Collections.identical($intVector,clone));
 
     new Filter() {
@@ -54,25 +54,17 @@ public class TestFilter extends JutilTest {
       }
     }.retain($intVector);
     assertTrue($intVector.size()==30);
-    boolean bool = new Exists() {
-      public boolean criterion(Object element) {
-        return ((Integer)element).intValue()>=30;
-      }
-    }.in($intVector);
+    boolean bool = $intVector.stream().anyMatch(element -> element >= 30);
     assertTrue(! bool);
     
     new Filter() {
       public boolean criterion(Object element) {
         return ((Integer) element).intValue() < 20;
       }
-    }.discard($intVector);
+    }.removeNonMatchingElementIn($intVector);
     
     assertTrue($intVector.size() == 10);
-    bool = new Exists() {
-      public boolean criterion(Object element) {
-        return ((Integer)element).intValue()<20;
-      }
-    }.in($intVector);
+    bool = $intVector.stream().anyMatch(element -> element < 30);
     assertTrue(! bool);    
     
     
@@ -88,7 +80,7 @@ public class TestFilter extends JutilTest {
       public boolean criterion(Object element) {
         return false;
       }
-    }.discard(nullCollection);
+    }.removeNonMatchingElementIn(nullCollection);
     
     // empty collections
     new Filter() {
@@ -101,7 +93,7 @@ public class TestFilter extends JutilTest {
       public boolean criterion(Object element) {
         return ((Integer) element).intValue() >= 20;
       }
-    }.discard(new Vector());
+    }.removeNonMatchingElementIn(new Vector());
     
     // collection containing only null references
     Vector stupidVector=new Vector();
@@ -121,7 +113,7 @@ public class TestFilter extends JutilTest {
       public boolean criterion(Object element) {
         return false;
       }
-    }.discard(stupidVector);
+    }.removeNonMatchingElementIn(stupidVector);
     assertTrue(stupidVector.size() == 100);
 
   }

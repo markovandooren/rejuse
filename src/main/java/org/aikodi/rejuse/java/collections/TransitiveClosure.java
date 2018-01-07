@@ -19,7 +19,7 @@ import java.util.ConcurrentModificationException;
  * @author  Jan Dockx
  * @author  Marko van Dooren
  */
-public abstract class TransitiveClosure<T> {
+public abstract class TransitiveClosure<T, E extends Exception> {
 
 	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";
@@ -41,7 +41,7 @@ public abstract class TransitiveClosure<T> {
    @ // Never contains null.
    @ post (\forall Object o; \result.contains(o); o != null);
    @*/
-  public abstract void addConnectedNodes(T node, Set<T> accumulator) throws Exception;
+  public abstract void addConnectedNodes(T node, Set<T> accumulator) throws E;
   
   /**
    * Transitive closure is a recursive definition. The recursive post condition below
@@ -61,7 +61,7 @@ public abstract class TransitiveClosure<T> {
     @                       (\exists Set ccn; isNaiveClosure(getConnectedNodes(o), ccn);
     @                             naiveClosureSet.containsAll(ccn))));
     @*/
-  public /*@ pure @*/ boolean isNaiveClosure(Set<T> startSet, Set<T> naiveClosureSet) throws Exception {
+  public /*@ pure @*/ boolean isNaiveClosure(Set<T> startSet, Set<T> naiveClosureSet) throws E {
     return naiveClosureSet.containsAll(closureFromAll(startSet));
   } 
 
@@ -96,7 +96,7 @@ public abstract class TransitiveClosure<T> {
 	 @ signals (ConcurrentModificationException)
 	 @         (* The collection was modified while calculating the transitive closure. *);
    @*/
-  public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) throws Exception {
+  public /*@ pure @*/ Set<T> closureFromAll(Set<T> startSet) throws E {
     Set<T> result = new HashSet<T>();
     Set<T> currentNodes = startSet;
     Set<T> newNodes = new HashSet<T>();
@@ -133,7 +133,7 @@ public abstract class TransitiveClosure<T> {
 	 @ signals (ConcurrentModificationException) 
 	 @         (* The collection was modified while calculating the transitive closure. *);
 	 @*/
-  public /*@ pure @*/ Set<T> closure(T startNode) throws ConcurrentModificationException, Exception {
+  public /*@ pure @*/ Set<T> closure(T startNode) throws ConcurrentModificationException, E {
     Set<T> singleton = new HashSet<T>();
     singleton.add(startNode);
     return closureFromAll(singleton);

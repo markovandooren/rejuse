@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public abstract class WeakTotalOrder<E> extends WeakPartialOrder<E> {
+public interface WeakTotalOrder<E> extends WeakPartialOrder<E> {
 
-  public E minimum(E first, E second) throws Exception {
+  default E minimum(E first, E second) throws Exception {
     if(contains(first,second)) {
       return first;
     } else {
@@ -14,7 +14,7 @@ public abstract class WeakTotalOrder<E> extends WeakPartialOrder<E> {
     }
   }
   
-  public E maximum(E first, E second) throws Exception {
+  default E maximum(E first, E second) throws Exception {
     if(contains(first,second)) {
       return second;
     } else {
@@ -22,7 +22,7 @@ public abstract class WeakTotalOrder<E> extends WeakPartialOrder<E> {
     }
   }
   
-  public E minimum(Collection<E> collection) throws Exception {
+  default E minimum(Collection<E> collection) throws Exception {
     Iterator<E> iter = collection.iterator();
     try {
       E result = iter.next();
@@ -37,7 +37,7 @@ public abstract class WeakTotalOrder<E> extends WeakPartialOrder<E> {
     }
   }
   
-  public E maximum(Collection<E> collection) throws Exception {
+  default E maximum(Collection<E> collection) throws Exception {
     Iterator<E> iter = collection.iterator();
     try {
       E result = iter.next();

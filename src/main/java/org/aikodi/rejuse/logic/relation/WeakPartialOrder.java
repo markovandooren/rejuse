@@ -17,7 +17,7 @@ package org.aikodi.rejuse.logic.relation;
  *
  * @param <E> The type of the elements in the relation.
  */
-public abstract class WeakPartialOrder<E> extends PartialOrder<E> {
+public interface WeakPartialOrder<E> extends PartialOrder<E> {
 
 	/**
 	 * Determine whether the two given objects are equal according to this
@@ -28,7 +28,7 @@ public abstract class WeakPartialOrder<E> extends PartialOrder<E> {
    @
    @ post \result == contains(first, second) && contains(second, first);
    @*/
-  public boolean equal(E first, E second) throws Exception {
+  default boolean equal(E first, E second) throws Exception {
     return contains(first, second) && contains(second, first);
   }
 
@@ -46,7 +46,7 @@ public abstract class WeakPartialOrder<E> extends PartialOrder<E> {
    * In terms of method invocations: result.contains(a,b) == contains(a,b) &&
    * ! contains(b,a).
    */
-  public StrictPartialOrder<E> strictOrder() {
+  default StrictPartialOrder<E> strictOrder() {
     return new StrictPartialOrder<E>() {
 
       @Override

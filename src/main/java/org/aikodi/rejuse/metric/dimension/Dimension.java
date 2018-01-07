@@ -1,13 +1,11 @@
 package org.aikodi.rejuse.metric.dimension;
 
-import java.util.Set;
-
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.predicate.SafePredicate;
-
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
+
+import org.aikodi.rejuse.predicate.SafePredicate;
 
 /**
  * A class of dimensions.
@@ -68,7 +66,7 @@ public abstract class Dimension {
    @
    @ post \result != null;
    @*/
-  public /*@ pure @*/ String getName() {
+  public /*@ pure @*/ String name() {
     return _name;
   }
 
@@ -95,7 +93,7 @@ public abstract class Dimension {
    @
    @ pre base != null;
    @*/
-  public abstract /*@ pure @*/ double getExponent(BaseDimension base);
+  public abstract /*@ pure @*/ int exponentOf(BaseDimension base);
 
   /**
    * Return the set of base dimensions this dimension is
@@ -111,7 +109,7 @@ public abstract class Dimension {
    @       (o instanceof BaseDimension) && 
    @       (getExponent((BaseDimension)o) != 0));
    @*/
-  public abstract /*@ pure @*/ Set getBaseDimensions();
+  public abstract /*@ pure @*/ Set<BaseDimension> baseDimensions();
 
   /**
    * See superclass
@@ -178,16 +176,11 @@ public abstract class Dimension {
    @ post \result.times(this).getBaseDimensions().isEmpty();
    @*/
   protected /*@ pure @*/ Dimension makeInverse() {
-    final Map inverseMap = new HashMap();
+    final Map<BaseDimension, Integer> inverseMap = new HashMap<>();
     // For every key in the key set (which only contains BaseDimensions)
     // get the double value, create a new double value that equals the inverse
     // and add it to the new map
-    new Visitor() {
-      public void visit(Object o) {
-        Double inverse = new Double(-getExponent((BaseDimension)o));
-        inverseMap.put(o, inverse);
-      }
-    }.applyTo(getBaseDimensions());
+    baseDimensions().forEach(dimension -> inverseMap.put(dimension, -exponentOf(dimension)));
     return new CompositeDimension(createName(inverseMap), inverseMap);
   }
 
@@ -203,13 +196,12 @@ public abstract class Dimension {
    @ post (\forall BaseDimension b; b != null;
    @       \result.getExponent(b) == exponent * getExponent(b));
    @*/
-  public /*@ pure @*/ Dimension pow(double exponent) {
+  public /*@ pure @*/ Dimension pow(int exponent) {
     // This is not very efficient
-    Double power = new Double(exponent);
-    Dimension result = (Dimension)_powerMap.get(power);
+    Dimension result = _powerMap.get(exponent);
     if(result == null) {
       result = getPrototype(makePower(exponent));
-      addPower(power, result);
+      addPower(exponent, result);
     }
     return result;
   }
@@ -232,12 +224,10 @@ public abstract class Dimension {
     // For every key in the key set (which only contains BaseDimensions)
     // get the double value, create a new double value that equals the inverse
     // and add it to the new map
-    new Visitor() {
-      public void visit(Object o) {
-        Double inverse = new Double(power * getExponent((BaseDimension)o));
+    baseDimensions().forEach(o -> {
+        Double inverse = new Double(power * exponentOf(o));
         powerMap.put(o, inverse);
-      }
-    }.applyTo(getBaseDimensions());
+      });
     return new CompositeDimension(createName(powerMap), powerMap);
   }
   
@@ -289,24 +279,16 @@ public abstract class Dimension {
    @*/
   protected /*@ pure @*/ Dimension makeProduct(final Dimension other) {
     final Map productMap = new HashMap();
-    Set allBase = new HashSet();
-    allBase.addAll(getBaseDimensions());
-//    System.out.println(getClass().getName());
-//    new Visitor() {
-//      public void visit(Object o) {
-//        System.out.println(o.getClass().getName());
-//      }
-//    }.applyTo(allBase);
-    allBase.addAll(other.getBaseDimensions());
-    new Visitor() {
-      public void visit(Object o) {
-        double sum = getExponent((BaseDimension)o) + other.getExponent((BaseDimension)o);
+    Set<BaseDimension> allBase = new HashSet<>();
+    allBase.addAll(baseDimensions());
+    allBase.addAll(other.baseDimensions());
+    allBase.forEach(o -> {
+        double sum = exponentOf(o) + other.exponentOf((BaseDimension)o);
         if(sum != 0) {
           Double objectSum = new Double(sum);
           productMap.put(o, objectSum);
         }
-      }
-    }.applyTo(allBase);
+      });
     return new CompositeDimension(createName(productMap), productMap);
   }
 
@@ -357,19 +339,17 @@ public abstract class Dimension {
    @*/
   protected /*@ pure @*/ Dimension makeQuotient(final Dimension other) {
     final Map divisionMap = new HashMap();
-    Set allBase = new HashSet();
+    Set<BaseDimension> allBase = new HashSet<>();
     // This is dirty
-    allBase.addAll(getBaseDimensions());
-    allBase.addAll(other.getBaseDimensions());
-    new Visitor() {
-      public void visit(Object o) {
-        double diff = getExponent((BaseDimension)o) - other.getExponent((BaseDimension)o);
+    allBase.addAll(baseDimensions());
+    allBase.addAll(other.baseDimensions());
+    allBase.forEach(o -> {
+        double diff = exponentOf(o) - other.exponentOf(o);
         if(diff != 0) {
           Double objectDiff = new Double(diff);
           divisionMap.put(o, objectDiff);
         }
-      }
-    }.applyTo(allBase);
+      });
     return new CompositeDimension(createName(divisionMap), divisionMap);
   }
 
@@ -466,7 +446,7 @@ public abstract class Dimension {
    @ post getPowerMap().containsKey(power);
    @ post getPowerMap().get(power) == result;
    @*/
-  void addPower(Double power, Dimension result) {
+  void addPower(int power, Dimension result) {
     _powerMap.put(power, result);
   }
 
@@ -478,7 +458,7 @@ public abstract class Dimension {
    @
    @ post \fresh(\result);
    @*/
-  /*@ pure @*/ Map getPowerMap() {
+  /*@ pure @*/ Map<Integer, Dimension> getPowerMap() {
     return new HashMap(_powerMap);
   }
 
@@ -496,11 +476,9 @@ public abstract class Dimension {
  /*@
    @ private invariant _productMap != null;
    @ private invariant (\forall Map.Entry e; _productMap.entrySet().contains(e);
-   @                     (e != null) &&
-   @                     (e.getKey() instanceof Dimension) &&
-   @                     (e.getValue() instanceof Dimension));
+   @                     (e != null));
    @*/
-  private HashMap _productMap;
+  private Map<Dimension, Dimension> _productMap;
   
   /**
    * A map containing the results of dividing this
@@ -511,11 +489,9 @@ public abstract class Dimension {
  /*@
    @ private invariant _divisionMap != null;
    @ private invariant (\forall Map.Entry e; _productMap.entrySet().contains(e);
-   @                     (e != null) &&
-   @                     (e.getKey() instanceof Dimension) &&
-   @                     (e.getValue() instanceof Dimension));
+   @                     (e != null));
    @*/
-  private HashMap _divisionMap;
+  private Map<Dimension, Dimension> _divisionMap;
 
   /**
    * A map containting the results of raising this Dimension
@@ -529,7 +505,7 @@ public abstract class Dimension {
    @                     (e.getKey() instanceof Double) &&
    @                     (e.getValue() instanceof Dimension));
    @*/
-  private HashMap _powerMap;
+  private Map<Integer, Dimension> _powerMap;
   
 /******************
  * STATIC METHODS *
@@ -550,16 +526,9 @@ public abstract class Dimension {
    @
    @ post \result != null;
    @*/
-  protected static /*@ pure @*/ String createName(Map map) {
-    final StringBuffer temp = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        Map.Entry entry = (Map.Entry)o;
-        BaseDimension base = (BaseDimension)entry.getKey();
-        Double exponent = (Double)entry.getValue();
-        temp.append(base.getName()+"^("+exponent+")");
-      }
-    }.applyTo(map.entrySet());
+  protected static /*@ pure @*/ String createName(Map<BaseDimension, Integer> map) {
+    StringBuilder temp = new StringBuilder();
+    map.entrySet().forEach(entry -> temp.append(entry.getKey().name()+"^("+entry.getValue()+")"));
     return temp.toString();
   }
 
@@ -693,7 +662,7 @@ public abstract class Dimension {
 
   {
     // Force classloading of Dimensionless
-    Dimensionless.getPrototype();
+    Dimensionless.instance();
   }
   
   static void initializeDimensions(Dimensionless singleton) {

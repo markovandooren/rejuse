@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.aikodi.rejuse.comparator.ComparableComparator;
 import org.aikodi.rejuse.java.collections.SkipList;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.java.comparator.ComparableComparator;
 
 public class WeightedGraph<V> extends Graph<V> {
 

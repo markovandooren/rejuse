@@ -1,14 +1,13 @@
 package org.aikodi.rejuse.predicate.test;
 import org.aikodi.rejuse.action.Nothing;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
-import org.aikodi.rejuse.predicate.AbstractPredicate;
 import org.aikodi.rejuse.predicate.Predicate;
 
-public class TestAnd extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestAnd extends TestCase {
 
   public TestAnd(String name) {
-    super(name, new CVSRevision("1.3"));
+    super(name);
   }
 
   public void setup() {

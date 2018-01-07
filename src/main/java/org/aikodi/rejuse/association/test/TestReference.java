@@ -1,12 +1,12 @@
 package org.aikodi.rejuse.association.test;
 import org.aikodi.rejuse.association.SingleAssociation;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 
-public class TestReference extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestReference extends TestCase {
 
   public TestReference(String name) {
-    super(name, new CVSRevision("1.6"));
+    super(name);
   }
 
   public void test() {

@@ -17,7 +17,7 @@ package org.aikodi.rejuse.logic.relation;
  *
  * @param <E>
  */
-public abstract class StrictPartialOrder<E> extends PartialOrder<E> {
+public interface StrictPartialOrder<E> extends PartialOrder<E> {
 
   /**
    * Return the weak partial order corresponding to this
@@ -33,7 +33,7 @@ public abstract class StrictPartialOrder<E> extends PartialOrder<E> {
    * In terms of method invocations: result.contains(a,b) == contains(a,b) &&
    * ! contains(b,a).
    */
-  public WeakPartialOrder<E> weakOrder() {
+  default WeakPartialOrder<E> weakOrder() {
     return new WeakPartialOrder<E>() {
 
       @Override

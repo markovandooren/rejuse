@@ -41,7 +41,7 @@ public class TransformedUnit extends SpecialUnit {
    @ post getOffset() == offset;
    @*/
   public TransformedUnit(NonCompositeUnit unit, String name, String symbol, double factor, double offset) {
-    super(name, symbol, unit.getDimension());
+    super(name, symbol, unit.dimension());
     _unit = unit;
     _offset = offset;
     _factor = factor;
@@ -56,8 +56,8 @@ public class TransformedUnit extends SpecialUnit {
    @
    @ post \result == getBaseUnit().getStandardUnit();
    @*/
-  public Unit getBaseUnit() {
-    return _unit.getBaseUnit();
+  public Unit baseUnit() {
+    return _unit.baseUnit();
   }
 
 /**************

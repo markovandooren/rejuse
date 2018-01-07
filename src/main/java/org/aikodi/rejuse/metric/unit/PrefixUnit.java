@@ -5,10 +5,10 @@ import org.aikodi.rejuse.metric.Prefix;
 /**
  * @author Marko van Dooren
  */
-public class PrefixUnit extends ScaledUnit {
+public class PrefixUnit extends TransformedUnit {
   
   /**
-   * Initialize a new scaled unit with the given base unit, name, symbol
+   * Initialize a new prefix unit with the given base unit, name, symbol
    * and factor.
    *
    * @param unit
@@ -30,7 +30,7 @@ public class PrefixUnit extends ScaledUnit {
    @ post getPrefix() == prefix;
    @*/
   PrefixUnit(NonCompositeUnit unit, Prefix prefix) {
-    super(unit, prefix.getName()+unit.getName(), prefix.getSymbol()+unit.getSymbol(), prefix.getFactor());
+    super(unit, prefix.getName() + unit.name(), prefix.getSymbol()+unit.symbol(), prefix.getFactor(), 0);
     _prefix = prefix;
   }
 
@@ -42,7 +42,7 @@ public class PrefixUnit extends ScaledUnit {
    @
    @ post \result != null;
    @*/
-  public Prefix getPrefix() {
+  public Prefix prefix() {
     return _prefix;
   }
 

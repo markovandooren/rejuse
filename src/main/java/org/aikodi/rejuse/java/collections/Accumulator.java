@@ -97,7 +97,7 @@ import java.util.ConcurrentModificationException;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public abstract class Accumulator<E,A> implements CollectionOperator {
+public abstract class Accumulator<E,A> {
   
 	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";

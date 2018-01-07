@@ -4,21 +4,16 @@ import java.util.HashSet;
 
 import org.aikodi.rejuse.java.collections.Collections;
 import org.aikodi.rejuse.java.collections.TypeFilter;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 
-/* 
- * @path    $Source$
- * @date    $Date$
- * @state   $State$
+import junit.framework.TestCase;
+
+/** 
  * @author  Marko van Dooren
- * @release $Name$
  */
-
-public class TestTypeFilter extends JutilTest {
+public class TestTypeFilter extends TestCase {
   
   public TestTypeFilter(String name) {
-    super(name, new CVSRevision("1.11"));
+    super(name);
   }
   
   Collection $col1;
@@ -38,24 +33,24 @@ public class TestTypeFilter extends JutilTest {
   
   public void testTypeFilter() {
     TypeFilter filter = new TypeFilter(Integer.class);
-    filter.discard($col1);
+    filter.removeNonMatchingElementIn($col1);
     //System.out.println($col1);
     assertTrue($col1.size() == 2);
     assertTrue($col1.contains(new Boolean(false)));
     assertTrue(! $col1.contains(new Integer(2)));
-    filter.discard($col1);
+    filter.removeNonMatchingElementIn($col1);
     filter.retain($col1);
     assertTrue($col1.size() == 0);
     // null as argument
     Collection nullCollection = null;
-    filter.discard(nullCollection);
+    filter.removeNonMatchingElementIn(nullCollection);
     filter.retain(nullCollection);
     setUp();
     filter = new TypeFilter(Object.class);
     Collection clone = new HashSet($col1);
     filter.retain($col1);
     assertTrue(Collections.identical($col1,clone));
-    filter.discard($col1);
+    filter.removeNonMatchingElementIn($col1);
     assertTrue($col1.size() == 0);
   }
 

@@ -10,7 +10,7 @@ import java.util.Iterator;
  *
  * @param <E>
  */
-public abstract class Relation<E> {
+public interface Relation<E> {
   
   /**
    * Check if the pair (first,second) is an element of this relation.
@@ -20,9 +20,9 @@ public abstract class Relation<E> {
    * @throws Exception
    *         An exception was thrown while checking for the presence of (first,second)
    */
-  public abstract boolean contains(E first, E second) throws Exception;
+  boolean contains(E first, E second) throws Exception;
   
-  public void removeLeftOperands(Collection<E> collection) throws Exception {
+  default void removeLeftOperands(Collection<E> collection) throws Exception {
   	if(collection != null) {
   		Iterator<E> iter = collection.iterator();
   		while(iter.hasNext()) {

@@ -1,10 +1,10 @@
 package org.aikodi.rejuse.math.matrix.test;
 
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 import org.aikodi.rejuse.math.matrix.HessenbergReduction;
 import org.aikodi.rejuse.math.matrix.HouseholderHessenbergReducer;
 import org.aikodi.rejuse.math.matrix.Matrix;
+
+import junit.framework.TestCase;
 
 /** 
  * @path    $Source$
@@ -13,10 +13,10 @@ import org.aikodi.rejuse.math.matrix.Matrix;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class TestHouseholderHessenbergReducer extends JutilTest{
+public class TestHouseholderHessenbergReducer extends TestCase {
 
   public TestHouseholderHessenbergReducer(String name) {
-    super(name, new CVSRevision("1.4"));
+    super(name);
   }
 
 	private Matrix A;  

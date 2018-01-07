@@ -233,7 +233,7 @@ public interface SI {
  * BASE UNITS *
  **************/
 
-  public final static One UNITY = One.PROTOTYPE;
+  public final static One UNITY = One.prototype();
 
  /*@
    @ public invariant RAD.getName().equals("radion");

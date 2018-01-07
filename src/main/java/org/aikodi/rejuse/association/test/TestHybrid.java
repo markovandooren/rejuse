@@ -1,18 +1,16 @@
 package org.aikodi.rejuse.association.test;
 import java.util.Collection;
-import java.util.List;
 
 import org.aikodi.rejuse.association.Association;
 import org.aikodi.rejuse.association.MultiAssociation;
 import org.aikodi.rejuse.association.SingleAssociation;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 
-public class TestHybrid extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestHybrid extends TestCase {
 
   public TestHybrid(String name) {
-    super(name, org.aikodi.rejuse.association.MultiAssociation.class, new CVSRevision("1.9"));
+    super(name);
   }
 
   public void test() {
@@ -106,7 +104,7 @@ private class C extends T {
     _c = new MultiAssociation(this);
   }
 
-  public Collection getB() {
+  public Collection<B> getB() {
     return _c.getOtherEnds();
   }
 
@@ -124,11 +122,7 @@ private class C extends T {
 
   public String toString() {
     final StringBuffer result = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        result.append(((B)o).getName());
-      }
-    }.applyTo(getB());
+    getB().forEach(o -> result.append(o.getName()));
     return result.toString();
   }
 
@@ -141,7 +135,7 @@ private class B {
     _name = name;
   }
 
-  public Collection getT() {
+  public Collection<T> getT() {
     return _b.getOtherEnds();
   }
 
@@ -163,11 +157,7 @@ private class B {
 
   public String toString() {
     final StringBuffer result = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        result.append(((T)o).getName());
-      }
-    }.applyTo(getT());
+    getT().forEach(o -> result.append(o.getName()));
     return result.toString();
   }
 

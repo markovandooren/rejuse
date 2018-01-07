@@ -54,12 +54,7 @@ import java.util.ConcurrentModificationException;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public abstract class Filter<T> implements CollectionOperator {
-  
- 	/* The revision of this class */
-	public final static String CVS_REVISION ="$Revision$";
-
- //MvDMvDMvD : change the names of the overloaded methods.
+public interface Filter<T> {
   
   /**
    * <p>The criterion to be applied to all elements of a collection.</p>
@@ -68,11 +63,11 @@ public abstract class Filter<T> implements CollectionOperator {
    *         The object the method gives a compliance verdict about.
    */
  /*@
-	 @ public behavior
-	 @
-	 @ pre isValidElement(element);
+   @ public behavior
+   @
+   @ pre isValidElement(element);
    @*/
-  public abstract /*@ pure @*/ boolean criterion(T element);
+  public /*@ pure @*/ boolean criterion(T element);
   
   /**
    * <p>Perform the filtering defined in <code>public boolean criterion(Object)</code>
@@ -85,64 +80,27 @@ public abstract class Filter<T> implements CollectionOperator {
    *         in which case nothing happens.
    */
  /*@
-	 @ public behavior
-	 @
+   @ public behavior
+   @
    @ pre (\forall Object o; collection.contains(o); isValidElement(o));
-	 @
+   @
    @ // All elements that do not meet the criterion are removed from the collection.
    @ post collection != null ==> (\forall Object o; (o!= null) && (! criterion(o)); ! \result.contains(o));
    @ // The given collection is changed and returned.
    @ post \result == collection;
-	 @
-	 @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
+   @
+   @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
    @*/
-  public final <C extends Collection<T>> C retain(C collection) throws ConcurrentModificationException {
+  public default void retain(Collection<? extends T> collection) throws ConcurrentModificationException {
     if (collection != null) {
-      Iterator<T> iter = collection.iterator();
+      Iterator<? extends T> iter = collection.iterator();
       while (iter.hasNext()) {
         if (! criterion(iter.next())) {
           iter.remove();
         }
       }
     }
-    return collection;
   }
-
-  //MvDMvDMvD : small performance penalty when not working with a static
-  //            type of Collection. Copy & paste the code ?
-  //            Actually a precompiler or smth could do lots of these
-  //            optimizations. The code works with a standard jdk, but
-  //            a precompiler could inline the code to prevent
-  //              A) loading the anonymous inner class
-  //              B) creating an object
-  //              C) an extra method call
-  //            We would get the elegance of jutil.org and the speed of
-  //            standard operations.
-  
-//   /**
-//    * @see retain(java.util.Collection).
-// 	 *
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final Set retainSet(Set collection) {
-//     return (Set)retain((Collection)collection);
-//   }
-//   
-//   /**
-//    * @see retain(Collection).
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final SortedSet retainSortedSet(SortedSet collection) {
-//     return (SortedSet)retain((Collection)collection);
-//   }
-//   
-//   /**
-//    * @see retain(Collection).
-//    * This method is supplied to do casting to the actual collection type of the result for you.
-//    */
-//   public final List retainList(List collection) {
-//     return (List)retain((Collection)collection);
-//   }
 
   /**
    * <p>Perform the filtering defined by the negation of
@@ -156,27 +114,26 @@ public abstract class Filter<T> implements CollectionOperator {
    *         nothing happens.
    */
  /*@
-	 @ public behavior
-	 @
+   @ public behavior
+   @
    @ pre (\forall Object o; collection.contains(o); isValidElement(o));
-	 @
+   @
    @ // All elements that meet the criterion are removed from the collection
    @ post collection != null ==> (\forall Object o; (o!= null) && (criterion(o)); ! \result.contains(o));
    @ // <collection> is changed and returned.
    @ post \result == collection;
-	 @
-	 @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
+   @
+   @ signals (ConcurrentModificationException) (* The collection was modified while filtering *);
    @*/
-  public final <C extends Collection<T>>C discard(C collection) throws ConcurrentModificationException {
+  public default void removeNonMatchingElementIn(Collection<? extends T> collection) throws ConcurrentModificationException {
     if (collection != null) {
-      Iterator<T> iter = collection.iterator();
+      Iterator<? extends T> iter = collection.iterator();
       while (iter.hasNext()) {
         if (criterion(iter.next())) {
           iter.remove();
         }
       }
     }
-    return collection;
   }
   
 }

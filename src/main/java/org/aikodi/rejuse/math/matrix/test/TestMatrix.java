@@ -1,10 +1,10 @@
 package org.aikodi.rejuse.math.matrix.test;
 
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 import org.aikodi.rejuse.math.matrix.HouseholderQRDecomposer;
 import org.aikodi.rejuse.math.matrix.Matrix;
 import org.aikodi.rejuse.math.matrix.QRDecomposition;
+
+import junit.framework.TestCase;
 
 /**
  * @path    $Source$
@@ -13,10 +13,10 @@ import org.aikodi.rejuse.math.matrix.QRDecomposition;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class TestMatrix extends JutilTest{
+public class TestMatrix extends TestCase {
 
   public TestMatrix(String name) {
-    super(name, new CVSRevision("1.19"));
+    super(name);
   }
 
 	private Matrix A;  

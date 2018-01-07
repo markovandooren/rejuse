@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.aikodi.rejuse.java.collections.SafeTransitiveClosure;
-
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -212,32 +210,6 @@ public class Node<V> {
    */
   private Set<Edge<V>> _incoming;
   
-//  /**
-//   * Check whether or not the given node is reachable when starting from this
-//   * node.
-//   *  
-//   * @param other
-//   *        The node to be reached.
-//   */
-// /*@
-//   @ public behavior
-//   @
-//   @ pre node != null;
-//   @*/ 
-//  public boolean canReach(Node<V> other) {
-//    //TODO inefficient, but it works
-//    return other == this || hasEdgesTo(other);
-//  }
-
-  private boolean hasEdgesTo(Node<V> other) {
-    return new SafeTransitiveClosure() {
-      public void addConnectedNodes(Object node, Set acc) {
-        acc.addAll(((Node)node).directSuccessorNodes());
-      }
-    }.closureFromAll(directSuccessorNodes()).contains(other);
-  }
-  
-
  /*@
    @ also public behavior
    @

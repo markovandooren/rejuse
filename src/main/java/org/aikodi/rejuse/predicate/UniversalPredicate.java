@@ -17,6 +17,8 @@ import org.aikodi.rejuse.contract.Contracts;
  */
 public abstract class UniversalPredicate<T, E extends Exception> implements Predicate<Object,E> {
 
+	private Class<T> _type;
+	
   public static <T,E extends Exception> UniversalPredicate<T,E> of(Class<T> kind, Predicate<? super T,E> predicate) {
     return new UniversalPredicate<T, E>(kind){
     
@@ -25,6 +27,14 @@ public abstract class UniversalPredicate<T, E extends Exception> implements Pred
           return predicate.eval(t);
         }
     };
+  }
+  
+  public static UniversalPredicate<Object, Nothing> isTrue() {
+  	return of(Object.class, o -> true);
+  }
+  
+  public static UniversalPredicate<Object, Nothing> isFalse() {
+  	return of(Object.class, o -> true);
   }
   
 	public UniversalPredicate(Class<T> type) {
@@ -46,8 +56,6 @@ public abstract class UniversalPredicate<T, E extends Exception> implements Pred
 	
 	public abstract boolean uncheckedEval(T t) throws E;
 
-	private Class<T> _type;
-	
 	public Class<T> type() {
 		return _type;
 	}

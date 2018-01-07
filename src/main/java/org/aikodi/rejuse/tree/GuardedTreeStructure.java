@@ -6,7 +6,7 @@ import java.util.List;
 import org.aikodi.rejuse.exception.Handler;
 import org.aikodi.rejuse.exception.Handler.Executor;
 
-public class GuardedTreeStructure<T, I extends Exception, O extends Exception> extends TreeStructure<T,O> {
+public class GuardedTreeStructure<T, I extends Exception, O extends Exception> implements TreeStructure<T,O> {
 
 	private TreeStructure<T, I> _original;
 	Handler<? super I,? extends O> _handler;

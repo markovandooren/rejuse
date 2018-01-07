@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.aikodi.rejuse.java.collections.Collections;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
+
+import junit.framework.TestCase;
 
 /* 
  * @path    $Source$
@@ -15,10 +15,10 @@ import org.aikodi.rejuse.junit.JutilTest;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class TestCollections extends JutilTest {
+public class TestCollections extends TestCase {
   
   public TestCollections(String name) {
-    super(name, new CVSRevision("1.18"));
+    super(name);
   }
   
   private Vector $integers;
@@ -52,15 +52,5 @@ public class TestCollections extends JutilTest {
     assertTrue(Collections.identical($integers,vek));
   }
   
-  public void testIdenticalMap() {
-    Map map = new HashMap($map);
-    Map nullMap = null;
-    assertTrue(! Collections.identical($map,$otherMap));
-    assertTrue(! Collections.identical($map,null));
-    assertTrue(! Collections.identical(null,$otherMap));
-    assertTrue(Collections.identical(nullMap,nullMap));
-    assertTrue(Collections.identical($map,$map));
-    assertTrue(Collections.identical($map,map));
-  }
 } 
 

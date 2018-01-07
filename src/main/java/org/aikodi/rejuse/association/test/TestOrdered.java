@@ -3,14 +3,13 @@ import java.util.List;
 
 import org.aikodi.rejuse.association.OrderedMultiAssociation;
 import org.aikodi.rejuse.association.SingleAssociation;
-import org.aikodi.rejuse.java.collections.Visitor;
-import org.aikodi.rejuse.junit.CVSRevision;
-import org.aikodi.rejuse.junit.JutilTest;
 
-public class TestOrdered extends JutilTest {
+import junit.framework.TestCase;
+
+public class TestOrdered extends TestCase {
 
   public TestOrdered(String name) {
-    super(name, org.aikodi.rejuse.association.MultiAssociation.class, new CVSRevision("1.9"));
+    super(name);
   }
 
   public void test() {
@@ -20,8 +19,6 @@ public class TestOrdered extends JutilTest {
     A a4 = new A("a4");
     B b1 = new B("b1");
     B b2 = new B("b2");
-    B b3 = new B("b3");
-    B b4 = new B("b4");
 
     a1.setB(b1);
     a2.setB(b1);
@@ -54,7 +51,7 @@ public class TestOrdered extends JutilTest {
 
 private class A {
   public A(String name) {
-    _a = new SingleAssociation(this);
+    _a = new SingleAssociation<>(this);
     _name = name;
   }
 
@@ -71,7 +68,7 @@ private class A {
     }
   }
 
-  SingleAssociation getBLink() {
+  SingleAssociation<A, B> getBLink() {
     return _a;
   }
 
@@ -80,20 +77,20 @@ private class A {
   }
 
   public String toString() {
-    return _name;
+    return getName();
   }
 
-  private SingleAssociation _a;
+  private SingleAssociation<A, B> _a;
   private String _name;
 }
 
 private class B {
   public B(String name) {
-    _b = new OrderedMultiAssociation(this);
+    _b = new OrderedMultiAssociation<>(this);
     _name = name;
   }
 
-  public List getA() {
+  public List<A> getA() {
     return _b.getOtherEnds();
   }
 
@@ -101,29 +98,19 @@ private class B {
     _b.add(other.getBLink());
   }
 
-  public void removeA(A other) {
-    _b.remove(other.getBLink());
-  }
-
-  OrderedMultiAssociation getALink() {
+  OrderedMultiAssociation<B, A> getALink() {
     return _b;
   }
 
-  public String getName() {
-    return _name;
-  }
-
   public String toString() {
-    final StringBuffer result = new StringBuffer();
-    new Visitor() {
-      public void visit(Object o) {
-        result.append(((A)o).getName());
-      }
-    }.applyTo(getA());
-    return result.toString();
+    return getName();
+  }
+  
+  public String getName() {
+  	return _name;
   }
 
-  private OrderedMultiAssociation _b;
+  private OrderedMultiAssociation<B, A> _b;
   private String _name;
 }
 }

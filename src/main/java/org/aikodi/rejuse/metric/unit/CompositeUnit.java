@@ -5,12 +5,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.aikodi.rejuse.InitializationException;
-import org.aikodi.rejuse.java.collections.DoubleAccumulator;
-import org.aikodi.rejuse.java.collections.MapAccumulator;
-import org.aikodi.rejuse.java.collections.SafeAccumulator;
-import org.aikodi.rejuse.java.collections.Visitor;
 import org.aikodi.rejuse.metric.Prefix;
 import org.aikodi.rejuse.metric.dimension.Dimension;
+import org.aikodi.rejuse.metric.dimension.Dimensionless;
 import org.aikodi.rejuse.predicate.SafePredicate;
 
 /**
@@ -20,6 +17,25 @@ import org.aikodi.rejuse.predicate.SafePredicate;
  * @author  Marko van Dooren
  */
 public class CompositeUnit extends Unit {
+
+   /**
+    * Compute the quantity of the unit represented by the given
+    * (SpecialUnit -> Double) map.
+    *
+    * @param map
+    *        The (SpecialUnit -> Double) map representing the unit
+    *        of which the quantity must be computed.
+    */
+  /*@
+    @ public behavior
+    @
+    @ pre validUnitMap(map);
+    @
+    @ post \result.equals(new BaseUnitMapConvertor().convert(map));
+    @*/
+   private static /*@ pure @*/ Dimension computeDimension(Map<SpecialUnit, Integer> map) {
+	  return map.entrySet().stream().map(e -> e.getKey().dimension().pow(e.getValue())).reduce(Dimensionless.instance(), (first, second) -> first.times(second));
+   }
 
   /**
    * Initialize a new CompositeUnit with the given name and
@@ -43,9 +59,9 @@ public class CompositeUnit extends Unit {
    @ post (\forall Map.Entry e; map.entrySet().contains(e);
    @        getExponent((SpecialUnit)e.getKey()) == ((Double)e.getValue()).doubleValue());
    @*/
-  public CompositeUnit(String name, String symbol, Map map) {
-    super(name, symbol, computeQuantity(map), getHashCode(map));
-    _map = new HashMap();
+  public CompositeUnit(String name, String symbol, Map<SpecialUnit, Integer> map) {
+    super(name, symbol, computeDimension(map), getHashCode(map));
+    _map = new HashMap<>();
     _map.putAll(map);
     Unit.ensureUnit(this);
   }
@@ -63,19 +79,8 @@ public class CompositeUnit extends Unit {
    @
    @ post true;
    @*/
-  private static int getHashCode(Map map) {
-    return ((Integer)new MapAccumulator() {
-      public Object initialAccumulator() {
-        return new Integer(0);
-      }
-
-      public Object accumulate(Object key, Object value, Object acc) {
-        return new Integer(
-          (key.hashCode() * ((Double)value).intValue()) +
-          ((Integer) acc).intValue()
-        );
-      }
-    }.accumulate(map)).intValue();
+  private static int getHashCode(Map<SpecialUnit, Integer> map) {
+  	return map.entrySet().stream().mapToInt(entry -> entry.getKey().hashCode() * entry.getValue()).sum();
   }
 
 
@@ -104,11 +109,11 @@ public class CompositeUnit extends Unit {
    @ post getExponent(baseUnit) == exponent;
    @ post getBaseUnits().size() == 2;
    @*/
-  public CompositeUnit(String name, String symbol, SpecialUnit baseUnit, double exponent) {
-    super(name, symbol, baseUnit.getDimension().pow(exponent),
+  public CompositeUnit(String name, String symbol, SpecialUnit baseUnit, int exponent) {
+    super(name, symbol, baseUnit.dimension().pow(exponent),
           baseUnit.hashCode() * ((int)exponent));
-    _map = new HashMap();
-    _map.put(baseUnit, new Double(exponent));
+    _map = new HashMap<>();
+    _map.put(baseUnit, exponent);
     Unit.ensureUnit(this);
   }
 
@@ -146,17 +151,17 @@ public class CompositeUnit extends Unit {
    @ post getBaseUnits().size() == 2;
    @*/
   public CompositeUnit(String name, String symbol, 
-                       SpecialUnit baseUnit1, double exponent1,
-                       SpecialUnit baseUnit2, double exponent2) {
+                       SpecialUnit baseUnit1, int exponent1,
+                       SpecialUnit baseUnit2, int exponent2) {
     super(name, symbol, 
-          baseUnit1.getDimension().pow(exponent1).times(
-          baseUnit2.getDimension().pow(exponent2)),
-          (baseUnit1.hashCode() * ((int)exponent1)) +
-          (baseUnit2.hashCode() * ((int)exponent2))
+          baseUnit1.dimension().pow(exponent1).times(
+          baseUnit2.dimension().pow(exponent2)),
+          (baseUnit1.hashCode() * exponent1) +
+          (baseUnit2.hashCode() * exponent2)
          );
-    _map = new HashMap();
-    _map.put(baseUnit1, new Double(exponent1));
-    _map.put(baseUnit2, new Double(exponent2));
+    _map = new HashMap<>();
+    _map.put(baseUnit1, exponent1);
+    _map.put(baseUnit2, exponent2);
     Unit.ensureUnit(this);
   }
 
@@ -203,21 +208,21 @@ public class CompositeUnit extends Unit {
    @ post getBaseUnits().size() == 3;
    @*/
   public CompositeUnit(String name, String symbol, 
-                       SpecialUnit baseUnit1, double exponent1,
-                       SpecialUnit baseUnit2, double exponent2,
-                       SpecialUnit baseUnit3, double exponent3) {
+                       SpecialUnit baseUnit1, int exponent1,
+                       SpecialUnit baseUnit2, int exponent2,
+                       SpecialUnit baseUnit3, int exponent3) {
     super(name, symbol, 
-          baseUnit1.getDimension().pow(exponent1).times(
-          baseUnit2.getDimension().pow(exponent2).times(
-          baseUnit3.getDimension().pow(exponent3))),
-          (baseUnit1.hashCode() * ((int)exponent1)) +
-          (baseUnit2.hashCode() * ((int)exponent2)) +
-          (baseUnit3.hashCode() * ((int)exponent3))
+          baseUnit1.dimension().pow(exponent1).times(
+          baseUnit2.dimension().pow(exponent2).times(
+          baseUnit3.dimension().pow(exponent3))),
+          (baseUnit1.hashCode() * exponent1) +
+          (baseUnit2.hashCode() * exponent2) +
+          (baseUnit3.hashCode() * exponent3)
          );
-    _map = new HashMap();
-    _map.put(baseUnit1, new Double(exponent1));
-    _map.put(baseUnit2, new Double(exponent2));
-    _map.put(baseUnit3, new Double(exponent3));
+    _map = new HashMap<>();
+    _map.put(baseUnit1, exponent1);
+    _map.put(baseUnit2, exponent2);
+    _map.put(baseUnit3, exponent3);
     Unit.ensureUnit(this);
   }
 
@@ -274,25 +279,25 @@ public class CompositeUnit extends Unit {
    @ post getBaseUnits().size() == 4;
    @*/
   public CompositeUnit(String name, String symbol, 
-                       SpecialUnit baseUnit1, double exponent1,
-                       SpecialUnit baseUnit2, double exponent2,
-                       SpecialUnit baseUnit3, double exponent3,
-                       SpecialUnit baseUnit4, double exponent4) {
+                       SpecialUnit baseUnit1, int exponent1,
+                       SpecialUnit baseUnit2, int exponent2,
+                       SpecialUnit baseUnit3, int exponent3,
+                       SpecialUnit baseUnit4, int exponent4) {
     super(name, symbol, 
-          baseUnit1.getDimension().pow(exponent1).times(
-          baseUnit2.getDimension().pow(exponent2).times(
-          baseUnit3.getDimension().pow(exponent3).times(
-          baseUnit4.getDimension().pow(exponent4)))),
-          (baseUnit1.hashCode() * ((int)exponent1)) +
-          (baseUnit2.hashCode() * ((int)exponent2)) +
-          (baseUnit3.hashCode() * ((int)exponent3)) +
-          (baseUnit4.hashCode() * ((int)exponent4))
+          baseUnit1.dimension().pow(exponent1).times(
+          baseUnit2.dimension().pow(exponent2).times(
+          baseUnit3.dimension().pow(exponent3).times(
+          baseUnit4.dimension().pow(exponent4)))),
+          (baseUnit1.hashCode() * exponent1) +
+          (baseUnit2.hashCode() * exponent2) +
+          (baseUnit3.hashCode() * exponent3) +
+          (baseUnit4.hashCode() * exponent4)
          );
-    _map = new HashMap();
-    _map.put(baseUnit1, new Double(exponent1));
-    _map.put(baseUnit2, new Double(exponent2));
-    _map.put(baseUnit3, new Double(exponent3));
-    _map.put(baseUnit4, new Double(exponent4));
+    _map = new HashMap<>();
+    _map.put(baseUnit1, exponent1);
+    _map.put(baseUnit2, exponent2);
+    _map.put(baseUnit3, exponent3);
+    _map.put(baseUnit4, exponent4);
     Unit.ensureUnit(this);
   }
 
@@ -320,9 +325,9 @@ public class CompositeUnit extends Unit {
    @ post (\forall Map.Entry e; map.entrySet().contains(e);
    @        getExponent((SpecialUnit)e.getKey()) == ((Double)e.getValue()).doubleValue());
    @*/
-  CompositeUnit(String name, String symbol, Dimension dimension, Map map) {
+  CompositeUnit(String name, String symbol, Dimension dimension, Map<SpecialUnit, Integer> map) {
     super(name, symbol, dimension, getHashCode(map));
-    _map = new HashMap();
+    _map = new HashMap<>();
     _map.putAll(map);
     Unit.ensureUnit(this);
   }
@@ -334,22 +339,16 @@ public class CompositeUnit extends Unit {
   /**
    * See superclass.
    */
-  public /*@ pure @*/ double getExponent(SpecialUnit baseUnit) {
-    Double result = (Double) _map.get(baseUnit);
-    if(result == null) {
-      // The given base unit is not in the map
-      // so it has exponent 0.
-      return 0;
-    }
-    else {
-      return result.doubleValue();
-    }
+  @Override
+  public /*@ pure @*/ int exponentOf(SpecialUnit baseUnit) {
+    Integer result = _map.get(baseUnit);
+    return result == null ? 0 : result;
   }
 
   /**
    * See superclass
    */
-  public /*@ pure @*/ Set getSpecialUnits() {
+  public /*@ pure @*/ Set<SpecialUnit> components() {
     return _map.keySet();
   }
 
@@ -357,14 +356,14 @@ public class CompositeUnit extends Unit {
    * See superclass
    */
   public /*@ pure @*/ boolean equals(final Object other) {
-    Set baseUnits = getSpecialUnits();
+    Set baseUnits = components();
     return (other == this) ||
            (
             (other instanceof Unit) &&
-            (baseUnits.size() == ((Unit)other).getSpecialUnits().size()) &&
+            (baseUnits.size() == ((Unit)other).components().size()) &&
             (new SafePredicate<SpecialUnit>() {
               public boolean eval(SpecialUnit base) {
-                return getExponent(base) == ((Unit)other).getExponent(base);
+                return exponentOf(base) == ((Unit)other).exponentOf(base);
               }
             }.forAll(baseUnits))
            );
@@ -373,7 +372,7 @@ public class CompositeUnit extends Unit {
   /*@
     @ private invariant _map != null;
     @*/
-  private HashMap _map;
+  private HashMap<SpecialUnit, Integer> _map;
 
 /**************
  * CONVERSION *
@@ -390,90 +389,42 @@ public class CompositeUnit extends Unit {
              public /*@ pure @*/ boolean eval(Unit o) {
                return ((Unit)o).convertsIsomorphToBaseUnit();
              }
-           }.forAll(getSpecialUnits());
+           }.forAll(components());
   }
 
   /**
    * FIXME : Specs
    */
   public /*@ pure @*/ double convertFromBase(final double value) throws ConversionException {
-    Set baseUnits = getSpecialUnits();
-    return new DoubleAccumulator() {
-           /*@
-             @ also public behavior
-             @
-             @ post \result == value;
-             @*/
-            public /*@ pure @*/ double initialAccumulator() {
-              return value;
-            }
-
-            public /*@ pure @*/ double accumulate(Object element, double acc) throws ConversionException {
-              //FIXME this accumulate method can throw exceptions
-              SpecialUnit baseUnit = (SpecialUnit)element;
-              return acc * baseUnit.convertFromBase(1);
-            }
-          }.in(baseUnits);
+    return value * components().stream().mapToDouble(su -> su.convertFromBase(1)).reduce((l,r) -> l * r).getAsDouble();
   }
 
   /**
    * FIXME : Specs
    */
   public /*@ pure @*/ double convertToBase(final double value) throws ConversionException {
-    Set baseUnits = getSpecialUnits();
-    return new DoubleAccumulator() {
-           /*@
-             @ also public behavior
-             @
-             @ post \result == value;
-             @*/
-            public /*@ pure @*/ double initialAccumulator() {
-              return value;
-            }
-
-            public /*@ pure @*/ double accumulate(Object element, double acc) throws ConversionException {
-              //FIXME this accumulate method can throw exceptions
-              SpecialUnit baseUnit = (SpecialUnit)element;
-              return acc * baseUnit.convertToBase(1);
-            }
-          }.in(baseUnits);
+    return value * components().stream().mapToDouble(su -> su.convertToBase(1)).reduce((l,r) -> l * r).getAsDouble();
   }
 
   /**
    * @see Unit.getStandardUnit()
    */
-  public /*@ pure @*/ Unit getBaseUnit() throws InitializationException {
-    return (Unit) new SafeAccumulator() {
-          /*@
-            @ also public behavior
-            @
-            @ post \result == One.getPrototype();
-            @*/
-           public /*@ pure @*/ Object initialAccumulator() {
-             return One.PROTOTYPE;
-           }
-
-           public /*@ pure @*/ Object accumulate(Object element, Object acc) {
-             return ((Unit)acc).times(((Unit)element).getBaseUnit());
-           }
-    }.accumulate(getSpecialUnits());
+  public /*@ pure @*/ Unit baseUnit() throws InitializationException {
+		return components().stream().map(s -> (Unit)s).reduce(One.prototype(), (l, r) -> (Unit)l.times(r.baseUnit()));
   }
 
   /*@
     @ also public behavior
     @*/
   public Unit prefix(final Prefix prefix) {
-    final Map map = new HashMap();
-    new Visitor() {
-      public void visit(Object o) {
-        SpecialUnit su = (SpecialUnit)o;
-        Unit prefixed = su.prefix(prefix);
-        map.put(prefixed, new Double(getExponent(su)));
-      }
-    }.applyTo(getSpecialUnits());
+    final Map<SpecialUnit, Integer> map = new HashMap<>();
+    components().forEach(su -> {
+        PrefixUnit prefixed = su.prefix(prefix);
+        map.put(prefixed, exponentOf(su));
+      });
 
-    Unit temp = new CompositeUnit(createName(map), createSymbol(map), getDimension().inverse(), map);
-    return getPrototype(temp);
+    Unit temp = new CompositeUnit(createName(map), createSymbol(map), dimension().inverse(), map);
+    return prototype(temp);
   }
 }
 

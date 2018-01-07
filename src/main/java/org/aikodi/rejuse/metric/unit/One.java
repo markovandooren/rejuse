@@ -1,7 +1,7 @@
 package org.aikodi.rejuse.metric.unit;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.aikodi.rejuse.metric.dimension.Dimensionless;
 
@@ -30,8 +30,7 @@ public final class One extends NonCompositeUnit {
    @ post hashCode() == 0;
    @*/
   private One() {
-    super("one", "1", Dimensionless.getPrototype(), 0);
-    Unit.init(this);
+    super("one", "1", Dimensionless.instance(), 0);
   }
 
 /**************
@@ -83,7 +82,8 @@ public final class One extends NonCompositeUnit {
    @
    @ post \result == 0;
    @*/
-  public /*@ pure @*/ double getExponent(SpecialUnit baseUnit) {
+  @Override
+  public /*@ pure @*/ int exponentOf(SpecialUnit baseUnit) {
     return 0;
   }
 
@@ -95,8 +95,8 @@ public final class One extends NonCompositeUnit {
    @
    @ post \result.isEmpty();
    @*/
-  public /*@ pure @*/ Set getSpecialUnits() {
-    return new TreeSet();
+  public /*@ pure @*/ Set<SpecialUnit> components() {
+    return new HashSet<>();
   }
 
   /**
@@ -119,7 +119,7 @@ public final class One extends NonCompositeUnit {
    @
    @ post \result == PROTOTYPE;
    @*/
-  public static /*@ pure @*/ One getPrototype() {
+  public static /*@ pure @*/ One prototype() {
     return PROTOTYPE;
   }
 
@@ -128,13 +128,13 @@ public final class One extends NonCompositeUnit {
    @
    @ post \result == this;
    @*/
-  public /*@ pure @*/ Unit getBaseUnit() {
+  public /*@ pure @*/ Unit baseUnit() {
     return this;
   }
 
   /*@
     @ public invariant PROTOTYPE != null;
     @*/
-  public final static One PROTOTYPE = new One();
+  private final static One PROTOTYPE = new One();
 }
 

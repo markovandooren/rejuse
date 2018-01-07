@@ -33,7 +33,7 @@ package org.aikodi.rejuse.java.collections;
  * @author  Marko van Dooren
  * @release $Name$
  */
-public class TypeFilter<T> extends Filter<T> {
+public class TypeFilter<T> implements Filter<Object> {
   
 	/* The revision of this class */
 	public final static String CVS_REVISION ="$Revision$";
@@ -58,46 +58,14 @@ public class TypeFilter<T> extends Filter<T> {
     _type = type;
   }
   
-//  /**
-//   * <p>A new Type Filter that filters objects based on the type with the
-//   * given name from the filtered collections.</p>
-//   *
-//   * @param name
-//   *        The name of the type to be filtered.
-//   */
-// /*@
-//	 @ public behavior
-//	 @
-//   @ // <name> may not be null
-//   @ pre name != null;
-//   @ // <name> must be a valid classname
-//   @ pre (* <name> must be a valid classname *);
-//   @
-//   @ // The type of this TypeFilter is set to the type
-//   @ // with the given name.
-//   @ post getType() == Class.forName(name);
-//	 @
-//	 @ signals (LinkageError) (* something went wrong *);
-//	 @ signals (ExceptionInInitializerError) (* something went wrong *);
-//	 @ signals (IllegalArgumentException) (* Illegal Class Name *);
-//   @*/
-//  public TypeFilter(String name) throws LinkageError,ExceptionInInitializerError, IllegalArgumentException {
-//    try {
-//      _type = Class.forName(name);
-//    }
-//    catch(ClassNotFoundException exc) {
-//      throw new IllegalArgumentException("Illegal class name : "+name);
-//    }
-//  }
-  
-	/**
-	 * Return the type of this TypeFilter.
-	 */
+  /**
+   * Return the type of this TypeFilter.
+   */
  /*@
-	 @ public behavior
-	 @
-	 @ post \result != null;
-	 @*/
+   @ public behavior
+   @
+   @ post \result != null;
+   @*/
   public final /*@ pure @*/ Class<T> getType() {
     return _type;
   }
@@ -119,7 +87,7 @@ public class TypeFilter<T> extends Filter<T> {
    @ // <element> is of the desired type.
    @ post \result == getType().isInstance(element);
    @*/
-  public final /*@ pure @*/ boolean criterion(T element) {
+  public final /*@ pure @*/ boolean criterion(Object element) {
     return getType().isInstance(element);
   }
 }

@@ -1,9 +1,10 @@
 package org.aikodi.rejuse.metric.dimension;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.aikodi.rejuse.java.collections.Sets;
 
 /**
  * <p>This is a class of base dimensions. Base dimensions are 'composed' of only
@@ -15,13 +16,6 @@ import java.util.HashMap;
  * that composite unit manually; the framework tries to keep only a single object
  * for each dimension.</p>
  *
- * <p><b>Only create object of classes BaseDimension and CompositeDimension (or 
- * subclasses of these classes) !</b> The framework has not been developed to
- * support other dimensions because I feel they are not needed, and I want
- * to keep things as efficient as possible.</p>
- *
- * @version $Revision$
- * @date    $Date$
  * @author  Marko van Dooren
  */
 public class BaseDimension extends BasicDimension {
@@ -45,15 +39,15 @@ public class BaseDimension extends BasicDimension {
   }
 
   /**
-   * See superclass
+   * {@inheritDoc}
    */
   public final /*@ pure @*/ boolean equals(Object other) {
     return (other == this) || 
            (
              (other instanceof Dimension) && 
              (! (other instanceof BaseDimension)) &&
-             (((Dimension)other).getBaseDimensions().size() == 1) &&
-             (((Dimension)other).getExponent(this) == 1)
+             (((Dimension)other).baseDimensions().size() == 1) &&
+             (((Dimension)other).exponentOf(this) == 1)
            );
   }
 
@@ -66,30 +60,23 @@ public class BaseDimension extends BasicDimension {
    @ post (this.equals(base)) ==> \result == 1;
    @ post (! this.equals(base)) ==> \result == 0;
    @*/
-  public /*@ pure @*/ double getExponent(BaseDimension base) {
-    if(this.equals(base)) {
-      return 1.0;
-    }
-    else {
-      return 0;
-    }
+  public /*@ pure @*/ int exponentOf(BaseDimension base) {
+    return this.equals(base) ? 1 : 0;
   }
 
   /**
    * See superclass
    */
-  public /*@ pure @*/ Set getBaseDimensions() {
-    Set result = new HashSet();
-    result.add(this);
-    return result;
+  public /*@ pure @*/ Set<BaseDimension> baseDimensions() {
+    return Sets.of(this); 
   }
 
   /**
    * See superclass
    */
   protected /*@ pure @*/ Dimension makeInverse() {
-    Map map = new HashMap();
-    map.put(this, new Double(-1));
+    Map<BaseDimension, Integer> map = new HashMap<>();
+    map.put(this, -1);
     return new CompositeDimension(createName(map), map);
   }
 }
