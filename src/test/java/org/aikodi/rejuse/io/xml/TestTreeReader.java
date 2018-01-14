@@ -104,7 +104,7 @@ public class TestTreeReader {
 	}
 
 	@Test
-	public void testSingleRootNodeFirstInputOneNodeWithAttributes() throws XMLStreamException {
+	public void testSingleRootNodeFirstInputOneNodeWithAttribute() throws XMLStreamException {
 		// GIVEN
 		//   a tree reader that read 'a' nodes and set their names to the 
 		//   'name' attribute of the tag.
@@ -125,9 +125,49 @@ public class TestTreeReader {
 	}
 
 	@Test
+	public void testSingleRootNodeFirstInputOneNodeWithManyAttributes() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to the 
+		//   'name' attribute of the tag.
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.open("a", n -> new A(n.attribute("name")))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads an 'a' node with name 'b'.
+	    A output = first.read(reader("<a firstAttribute=\"something\" name=\"b\"></a>"));
+	    
+	    // THEN
+	    //   the result is not null
+	    assertNotNull(output);
+	    //   the result has the attribute value of the 'name' attribute: 'b'.
+	    assertEquals("b", output.name());
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testSingleRootNodeFirstInputOneNodeWithWrongAttribute() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to the 
+		//   'name' attribute of the tag.
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.open("a", n -> new A(n.attribute("name")))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads an 'a' node with attribute 'namee' set to 'b' .
+	    A output = first.read(reader("<a namee=\"b\"></a>"));
+	    
+	    // THEN
+	    //   the reader throws an exception
+	}
+
+	@Test
 	public void testSingleRootNodeFirstWithChildInputSingleChild() throws XMLStreamException {
 		// GIVEN
-		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
+		//   and reads child nodes 'b' and sets their names to 'bee'.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
 				.open("a", () -> new A("A name"))
 					.open("b", () -> new B("bee"))
@@ -136,7 +176,8 @@ public class TestTreeReader {
 				.build();
 
 		// WHEN
-		//   it reads an input that does not contain 'a' tags.
+		//   it reads an input that contain a single 'a' tag with 
+		//   a single nested 'b' tag.
 		A output = first.read(reader("<a><b></b></a>"));
 		
 		// THEN
@@ -146,14 +187,48 @@ public class TestTreeReader {
 	    assertEquals("A name", output.name());
 	    //   the output has one child b.
 	    assertEquals(1, output.bs().size());
-	    //   with name 'bee'.
+		//   which is not null.
+	    assertNotNull(output.bs().get(0));
+	    //   and has name 'bee'.
 	    assertEquals("bee", output.bs().get(0).name());
 	}
 	
 	@Test
+	public void testSingleRootNodeFirstWithChildInputMultipleChildren() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
+		//   and reads child nodes 'b' and sets their names to 'bee'.
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+					.open("b", () -> new B("bee"))
+					.close((a,b) -> a.add(b))
+				.close()
+				.build();
+
+		// WHEN
+		//   it reads an input that does not contain 'a' tags.
+		A output = first.read(reader("<a><b></b><b></b><b></b><b></b><b></b><b></b><b></b></a>"));
+		
+		// THEN
+		//   the output is not null.
+	    assertNotNull(output);
+	    //   the output has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the output has 7 b children.
+	    assertEquals(7, output.bs().size());
+	    for (int i = 0; i < 7; i++) {
+	    	//   that are not null
+	    	assertNotNull(output.bs().get(i));
+		    //   and have name 'bee'.
+	    	assertEquals("bee", output.bs().get(i).name());
+	    }
+	}
+
+	@Test
 	public void testSingleRootNodeFirstWithChildInputNoDirectChild() throws XMLStreamException {
 		// GIVEN
-		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
+		//   and reads child nodes 'b' and sets their names to 'bee'.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
 				.open("a", () -> new A("A name"))
 					.open("b", () -> new B("bee"))
@@ -173,6 +248,38 @@ public class TestTreeReader {
 	    //   the output has one child b.
 	    assertEquals(0, output.bs().size());
 	}
+	
+	@Test
+	public void testSingleRootNodeFirstWithChildInputSingleChildWithAttribute() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
+		//   and reads children of node 'b' and sets their name to the 'name' attribute. 
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+					.open("b", n -> new B(n.attribute("name")))
+					.close((a,b) -> a.add(b))
+				.close()
+				.build();
+
+		// WHEN
+		//   it reads an input that contain a single 'a' tag with 
+		//   a single nested 'b' tag with attribute 'name' set to 'qubie'.
+		A output = first.read(reader("<a><b name=\"qubie\"></b></a>"));
+		
+		// THEN
+		//   the output is not null.
+	    assertNotNull(output);
+	    //   the output has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the output has one child b.
+	    assertEquals(1, output.bs().size());
+		//   which is not null.
+	    assertNotNull(output.bs().get(0));
+	    //   and has name 'qubie'.
+	    assertEquals("qubie", output.bs().get(0).name());
+	}
+	
+	
 	
 //	@Test
 //	public void testSingleRootNodeFirstInputMultipleNodes() throws XMLStreamException {

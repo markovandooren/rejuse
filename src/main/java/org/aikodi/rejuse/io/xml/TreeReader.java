@@ -27,11 +27,39 @@ import org.aikodi.rejuse.map.StringMap;
 import static org.aikodi.contract.Contract.requireNotNull;
 import static org.aikodi.contract.Contract.require;
 
-public abstract class TreeReader<C, E extends Exception> {
+/**
+ * A class of tree readers that can be constructor using a builder pattern.
+ * 
+ * @author Marko van Dooren
+ *
+ * @param <T> The type of the element that is parsed by the tree reader.
+ * @param <E> The type of checked exceptions that can be thrown by the construction code.
+ *            Use {@link Nothing} if the custom construction code cannot throw checked exceptions.
+ */
+public abstract class TreeReader<T, E extends Exception> {
 
-
-	public abstract C read(XMLStreamReader reader) throws E, XMLStreamException;
+	/**
+	 * Read the element defined by the input in the given reader.
+	 * 
+	 * @param reader The reader from which the element will be parsed.
+	 *               The reader cannot be null.
+	 * @return A non-null element if the input contained a definition according
+	 *         to the configuration of the reader. Null if no such element could be parsed.
+	 *         
+	 * @throws E An exception occurred in the custom construction code.
+	 * @throws XMLStreamException An exception occurred while parsing the XML data.
+	 */
+	public abstract T read(XMLStreamReader reader) throws E, XMLStreamException;
 	
+	/**
+	 * An internal tree reader.
+	 * 
+	 * @author Marko van Dooren
+	 *
+	 * @param <TYPE>
+	 * @param <PARENTTYPE>
+	 * @param <E>
+	 */
 	private static class GenericTreeReader<TYPE, PARENTTYPE, E extends Exception> {
 		
 		private Map<String, GenericTreeReader<?, ? super TYPE, ? extends E>> childReaders;
@@ -46,6 +74,7 @@ public abstract class TreeReader<C, E extends Exception> {
 		 * 
 		 */
 		private Producer<TYPE, E> defaultConstructor;
+		
 		/**
 		 * The function to constructor the child (C) given the parent (P) and the attributes.
 		 */
@@ -83,37 +112,6 @@ public abstract class TreeReader<C, E extends Exception> {
 			this.closerWithParent = closerWithParent;
 		}
 
-
-//		/**
-//		 * Create a generic tree reader the create the node before adding it to the parent.
-//		 * 
-//		 * @param configurator The configuration of the reader.
-//		 *                     The configuration cannot be null.
-//		 * @param descend Determines if this reader is a leaf reader or not.
-//		 *                If true, the reader will process descendants.
-//		 *                If false, the reader will not process descendants.
-//		 */
-//		GenericTreeReader(NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E, ?> configurator, boolean descend) {
-//			requireNotNull(configurator);
-//			
-//			tagName = configurator.tagName();
-//			this.descend = descend;
-//			
-//			defaultConstructor = configurator.defaultConstructor();
-//			constructorWithAttributes = configurator.constructorWithNode();
-//			closerWithParent = configurator.closer();
-//		}
-//		
-//		
-//		GenericTreeReader(RootNodeFirstConfigurator<TYPE, E> configurator, boolean descend) {
-//			requireNotNull(configurator);
-//			
-//			tagName = configurator.tagName();
-//			this.descend = descend;
-//			defaultConstructor = configurator.defaultConstructor();
-//			constructorWithAttributes = configurator.constructorWithNode();
-//		}
-
 		protected String tagName() {
 			return tagName;
 		}
@@ -127,10 +125,6 @@ public abstract class TreeReader<C, E extends Exception> {
 			return new TreeNode(name, builder.build());
 		}
 
-		protected void read(XMLStreamReader reader) throws E, XMLStreamException {
-			
-		}
-		
 		protected void read(XMLStreamReader reader, PARENTTYPE parent) throws E, XMLStreamException {
 			// Open
 			String tagName = reader.getLocalName();
@@ -156,9 +150,12 @@ public abstract class TreeReader<C, E extends Exception> {
 		}
 
 		/**
-		 * Reader the root for this tree reader.
+		 * Read the children of the given element.
 		 * 
-		 * @param reader
+		 * @param reader The reader from which the children are read.
+		 *               The reader is not null.
+		 *               The reader is set directly after the starting tag
+		 *               of the current element.
 		 * @throws XMLStreamException
 		 * @throws E
 		 */
@@ -448,65 +445,6 @@ public abstract class TreeReader<C, E extends Exception> {
 		}
 
 	}
-
-//	public static class ActionNodeConfigurator<T, PT, E extends Exception, P extends NodeFirstConfigurator<PT, ?, E, ?, ?>>
-//			extends NodeFirstConfigurator<T, PT, E, P, NodeFirstAddOnCloseConfigurator<T, PT, E, P>> {
-//
-//		private ActionNodeConfigurator(P parent, String tagName) {
-//			super(parent, tagName);
-//		}
-//
-//		public P close() {
-//			return parent();
-//		}
-//
-//	}
-
-	// public static class ParentLastNodeConfigurator<T, PT, E extends Exception,
-	// P extends NodeConfigurator<PT, ?, E, ?, R, ?>, R> {
-	//
-	// private Producer<TreeReader<R, E>, Nothing> builder;
-	// private P parent;
-	//
-	// private ParentLastNodeConfigurator(P parent, Producer<TreeReader<R, E>,
-	// Nothing> builder) {
-	// this.parent = parent;
-	// this.builder = builder;
-	// }
-	//
-	// public <X> ParentFirstNodeConfigurator<X, P, E, T, R> open(String tagName,
-	// Producer<X, E> type) {
-	// return null;
-	// }
-	//
-	// public <X> ParentFirstNodeConfigurator<X, P, E, T, R> open(String tagName,
-	// Function<StringMap, X, E> type) {
-	// return null;
-	// }
-	//
-	// public ParentFirstNodeConfigurator<T, P, E, T, R> open(String tagName) {
-	// return null;
-	// }
-	//
-	// public ParentFirstNodeConfigurator<T, P, E, PT, R> create(Consumer<PT, E>
-	// function) {
-	// return null;
-	// }
-	//
-	// public ParentFirstNodeConfigurator<T, P, E, PT, R> create(BiConsumer<PT,
-	// StringMap, E> function) {
-	// return null;
-	// }
-	//
-	// public TreeReader<R, E> build() {
-	// return builder.produce();
-	// }
-	//
-	// public P close(BiConsumer<PT, T, E> collector) {
-	// return parent;
-	// }
-	//
-	// }
 
 	public static void main(String[] args) throws UnsupportedEncodingException, XMLStreamException, FactoryConfigurationError {
 		TreeReader<Package, Nothing> first = TreeReader.<Package, Nothing>builder()
