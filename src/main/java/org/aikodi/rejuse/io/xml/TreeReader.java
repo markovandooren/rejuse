@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -24,20 +25,16 @@ import org.aikodi.rejuse.function.Function;
 import org.aikodi.rejuse.function.Producer;
 import org.aikodi.rejuse.map.StringMap;
 import static org.aikodi.contract.Contract.requireNotNull;
+import static org.aikodi.contract.Contract.require;
 
 public abstract class TreeReader<C, E extends Exception> {
 
-	/**
-	 * The tag of the elements that are read by this reader.
-	 * 
-	 * @return The result is not null.
-	 *         The result is not the empty string.
-	 */
-	protected abstract String tagName();
 
+	
+	
 	private static class GenericTreeReader<TYPE, PARENTTYPE, E extends Exception> extends TreeReader<TYPE, E> {
 		
-		private Map<String, GenericTreeReader<?, TYPE, ? extends E>> childReaders;
+		private Map<String, GenericTreeReader<?, ? super TYPE, ? extends E>> childReaders;
 		
 		private boolean descend = true;
 		
@@ -65,26 +62,56 @@ public abstract class TreeReader<C, E extends Exception> {
 		
 		private BiConsumer<PARENTTYPE, TYPE, E> closerWithParent;
 		
+		
 
-		/**
-		 * Create a generic tree reader the create the node before adding it to the parent.
-		 * 
-		 * @param configurator The configuration of the reader.
-		 *                     The configuration cannot be null.
-		 * @param descend Determines if this reader is a leaf reader or not.
-		 *                If true, the reader will process descendants.
-		 *                If false, the reader will not process descendants.
-		 */
-		GenericTreeReader(NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E, ?> configurator, boolean descend) {
-			requireNotNull(configurator);
-			
-			tagName = configurator.tagName();
+		public GenericTreeReader(String tagName, 
+				Producer<TYPE, E> defaultConstructor,
+				Function<TreeNode, ? extends TYPE, ? extends E> constructorWithAttributes, 
+				BiFunction<PARENTTYPE, TreeNode, ? extends TYPE, ? extends E> constructorWithParent,
+				BiConsumer<TYPE, String, E> textProcessor,
+				BiConsumer<PARENTTYPE, TYPE, E> closerWithParent,
+				boolean descend, List<GenericTreeReader<?, ? super TYPE, ? extends E>> childReaders) {
+			super();
+			childReaders.forEach(reader -> this.childReaders.put(reader.tagName(), reader));
 			this.descend = descend;
-			
-			defaultConstructor = configurator.defaultConstructor();
-			constructorWithAttributes = configurator.constructorWithNode();
-			closerWithParent = configurator.closer();
+			this.tagName = tagName;
+			this.defaultConstructor = defaultConstructor;
+			this.constructorWithParent = constructorWithParent;
+			this.constructorWithAttributes = constructorWithAttributes;
+			this.textProcessor = textProcessor;
+			this.closerWithParent = closerWithParent;
 		}
+
+
+//		/**
+//		 * Create a generic tree reader the create the node before adding it to the parent.
+//		 * 
+//		 * @param configurator The configuration of the reader.
+//		 *                     The configuration cannot be null.
+//		 * @param descend Determines if this reader is a leaf reader or not.
+//		 *                If true, the reader will process descendants.
+//		 *                If false, the reader will not process descendants.
+//		 */
+//		GenericTreeReader(NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E, ?> configurator, boolean descend) {
+//			requireNotNull(configurator);
+//			
+//			tagName = configurator.tagName();
+//			this.descend = descend;
+//			
+//			defaultConstructor = configurator.defaultConstructor();
+//			constructorWithAttributes = configurator.constructorWithNode();
+//			closerWithParent = configurator.closer();
+//		}
+//		
+//		
+//		GenericTreeReader(RootNodeFirstConfigurator<TYPE, E> configurator, boolean descend) {
+//			requireNotNull(configurator);
+//			
+//			tagName = configurator.tagName();
+//			this.descend = descend;
+//			defaultConstructor = configurator.defaultConstructor();
+//			constructorWithAttributes = configurator.constructorWithNode();
+//		}
 
 		protected String tagName() {
 			return tagName;
@@ -99,6 +126,10 @@ public abstract class TreeReader<C, E extends Exception> {
 			return new TreeNode(name, builder.build());
 		}
 
+		protected void read(XMLStreamReader reader) throws E, XMLStreamException {
+			
+		}
+		
 		protected void read(XMLStreamReader reader, PARENTTYPE parent) throws E, XMLStreamException {
 			// Open
 			String tagName = reader.getLocalName();
@@ -115,7 +146,7 @@ public abstract class TreeReader<C, E extends Exception> {
 			}
 
 			// Content
-			readChildren(reader, currentElement, parent);
+			readChildren(reader, currentElement);
 
 			// Close
 			if (closerWithParent != null) {
@@ -130,7 +161,7 @@ public abstract class TreeReader<C, E extends Exception> {
 		 * @throws XMLStreamException
 		 * @throws E
 		 */
-		private void readChildren(XMLStreamReader reader, TYPE currentElement, PARENTTYPE parentOfCurrentElement)
+		protected void readChildren(XMLStreamReader reader, TYPE currentElement)
 				throws XMLStreamException, E {
 
 			int nestingCounter = 0;
@@ -142,7 +173,7 @@ public abstract class TreeReader<C, E extends Exception> {
 						nestingCounter++;
 					} else {
 						{
-							GenericTreeReader<?, TYPE, ? extends E> childReader = childReaders.get(reader.getLocalName());
+							GenericTreeReader<?, ? super TYPE, ? extends E> childReader = childReaders.get(reader.getLocalName());
 							if (childReader != null) {
 								childReader.read(reader, currentElement);
 							} else {
@@ -170,7 +201,122 @@ public abstract class TreeReader<C, E extends Exception> {
 			}
 
 		}
-	}
+		
+//		private static class RootTreeReader<TYPE, E extends Exception> extends GenericTreeReader<TYPE, List<Object>, E> {
+//			
+//			public List<>
+//			
+//		}
+
+	
+//		protected TYPE weadNode(XMLStreamReader reader, PARENTTYPE parent) throws E, XMLStreamException {
+//			// Open
+//			String tagName = reader.getLocalName();
+//			TYPE currentElement;
+//			if (defaultConstructor != null) {
+//				currentElement = defaultConstructor.produce();
+//			} else if (constructorWithParent != null) {
+//				requireNotNull(parent, "The constructor for " + tagName + " expects a parent object, but received null.");
+//				currentElement = constructorWithParent.apply(parent, attributes(tagName, reader));
+//			} else if (constructorWithAttributes != null) {
+//				currentElement = constructorWithAttributes.apply(attributes(tagName, reader));
+//			} else {
+//				throw new IllegalStateException("No element could be constructed.");
+//			}
+//
+////			// Content
+////			readChildren(reader, currentElement);
+////
+////			// Close
+////			if (closerWithParent != null) {
+////				closerWithParent.accept(parent, currentElement);
+////			}
+//			return currentElement;
+//		}
+
+//		protected void weadChildren(XMLStreamReader reader, TYPE currentElement)
+//				throws XMLStreamException, E {
+//
+//			int nestingCounter = 0;
+//			while (reader.hasNext()) {
+//				int eventCode = reader.next();
+//				switch (eventCode) {
+//				case XMLStreamConstants.START_ELEMENT:
+//					if (descend == false) {
+//						nestingCounter++;
+//					} else {
+//						{
+//							GenericTreeReader<?, TYPE, ? extends E> childReader = childReaders.get(reader.getLocalName());
+//							if (childReader != null) {
+//								childReader.read(reader, currentElement);
+//							} else {
+//								nestingCounter++;
+//							}
+//						}
+//					}
+//					break;
+//				case XMLStreamConstants.CHARACTERS:
+//					String text = reader.getText();
+//					if (textProcessor != null) {
+//						textProcessor.accept(currentElement, text);
+//					}
+//					break;
+//				case XMLStreamConstants.END_ELEMENT:
+//					if (nestingCounter != 0) {
+//						nestingCounter--;
+//					} else {
+//						return;
+//					}
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//
+//		}
+
+//		protected void wead(XMLStreamReader reader, PARENTTYPE pawent)
+//				throws XMLStreamException, E {
+//
+//			int nestingCounter = 0;
+//			while (reader.hasNext()) {
+//				int eventCode = reader.next();
+//				switch (eventCode) {
+//				case XMLStreamConstants.START_ELEMENT:
+//					if (descend == false) {
+//						nestingCounter++;
+//					} else {
+//						TYPE currentElement = weadNode(reader, pawent);
+//						{
+//							GenericTreeReader<?, TYPE, ? extends E> childReader = childReaders.get(reader.getLocalName());
+//							if (childReader != null) {
+//								childReader.readNode(reader, currentElement);
+//							} else {
+//								nestingCounter++;
+//							}
+//						}
+//					}
+//					break;
+//				case XMLStreamConstants.CHARACTERS:
+//					String text = reader.getText();
+//					if (textProcessor != null) {
+//						textProcessor.accept(currentElement, text);
+//					}
+//					break;
+//				case XMLStreamConstants.END_ELEMENT:
+//					if (nestingCounter != 0) {
+//						nestingCounter--;
+//					} else {
+//						return;
+//					}
+//					break;
+//				default:
+//					break;
+//				}
+//			}
+//
+//		}
+}
 
 	/**
 	 * TreeReader.<T1>build() .child("T1") .create((name,attributes) -> new T1(...))
@@ -214,44 +360,44 @@ public abstract class TreeReader<C, E extends Exception> {
 		return new Builder<T, E>();
 	}
 
-	public static class Builder<T, E extends Exception> {
-		public RootNodeFirstConfigurator<T, E> open(String tagName, Producer<T, E> type) {
-			return new RootNodeFirstConfigurator<>(tagName);
-		}
-	}
-
-	public static class RootNodeFirstConfigurator<R, E extends Exception> // implements Consumer<TreeReader<?, E>,
-																			// Nothing> {
-			extends NodeConfigurator<R, E, RootNodeFirstConfigurator<R, E>> {
-
-		protected RootNodeFirstConfigurator(String tagName) {
-			super(tagName);
-		}
-
-		public TreeReader<R, E> close() {
-			return null;
-		}
-
-	}
-
-	public static abstract class NodeConfigurator<TYPE, E extends Exception, SELF extends NodeConfigurator<TYPE, E, SELF>>
-			implements Consumer<TreeReader<?, E>, Nothing> {
-
-		private String tagName;
-		private List<TreeReader<?, E>> childReaders = new ArrayList<>();
-
-		protected NodeConfigurator(String tagName) {
-			this.tagName = tagName;
-		}
-
-		protected String tagName() {
-			return tagName;
+	public static class Builder<TYPE, E extends Exception> implements Consumer<GenericTreeReader<?, ? super List<Object>, ? extends E>, Nothing> {
+		
+		private List<GenericTreeReader<?, ? super List<Object>, ? extends E>> _childReaders = new ArrayList<>();
+		
+		public RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>> open(String tagName, Producer<TYPE, E> producer) {
+			return new RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>>(this, tagName, producer);
 		}
 
 		@Override
-		public void accept(TreeReader<?, E> reader) {
+		public void accept(GenericTreeReader<?, ? super List<Object>, ? extends E> reader) throws Nothing {
+			_childReaders.add(reader);
+		}
+		
+		public TreeReader<TYPE, E> build() {
+			return null;
+		}
+	}
+
+	
+	
+	public static abstract class NodeConfigurator<TYPE, E extends Exception, SELF extends NodeConfigurator<TYPE, E, SELF>>
+			implements Consumer<GenericTreeReader<?, ? super TYPE, ? extends E>, Nothing> {
+
+		private String _tagName;
+		private List<GenericTreeReader<?, ? super TYPE, ? extends E>> _childReaders = new ArrayList<>();
+
+		protected NodeConfigurator(String tagName) {
+			this._tagName = tagName;
+		}
+
+		protected String tagName() {
+			return _tagName;
+		}
+
+		@Override
+		public void accept(GenericTreeReader<?, ? super TYPE, ? extends E> reader) {
 			Contract.requireNotNull(reader);
-			childReaders.add(reader);
+			_childReaders.add(reader);
 		}
 
 		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> open(TreeReader<X, E> type) {
@@ -265,6 +411,10 @@ public abstract class TreeReader<C, E extends Exception> {
 		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> open(String tagName,
 				Function<StringMap, X, E> type) {
 			return null;
+		}
+		
+		protected  List<GenericTreeReader<?, ? super TYPE, ? extends E>> childReaders() {
+			return new ArrayList<>(_childReaders);
 		}
 
 	}
@@ -290,7 +440,41 @@ public abstract class TreeReader<C, E extends Exception> {
 		
 	}
 
-	public static class NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E extends Exception, P extends Consumer<TreeReader<?, E>, Nothing>>
+	public static class RootNodeFirstConfigurator<TYPE, E extends Exception, P extends Consumer<GenericTreeReader<?, ? super List<Object>, ? extends E>, Nothing>> // implements Consumer<TreeReader<?, E>,
+			extends NodeFirstConfigurator<TYPE, List<Object>, E, P, RootNodeFirstConfigurator<TYPE, E, P>> {
+
+		private Producer<TYPE, E> defaultConstructor;
+		
+		private Function<TreeNode, TYPE, E> constructorWithNode;
+
+		protected RootNodeFirstConfigurator(P parent, String tagName, Producer<TYPE, E> defaultConstructor) {
+			super(parent, tagName);
+			requireNotNull(defaultConstructor);
+			this.defaultConstructor = defaultConstructor;
+		}
+
+		protected RootNodeFirstConfigurator(P parent, String tagName, Function<TreeNode, TYPE, E> constructorWithNode) {
+			super(parent, tagName);
+			requireNotNull(constructorWithNode);
+			this.constructorWithNode = constructorWithNode;
+		}
+
+		
+		public Producer<TYPE, E> defaultConstructor() {
+			return defaultConstructor;
+		}
+
+		public Function<TreeNode, TYPE, E> constructorWithNode() {
+			return constructorWithNode;
+		}
+
+		public P close() {
+			return parent();
+		}
+
+	}
+
+	public static class NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E extends Exception, P extends Consumer<GenericTreeReader<?, ? super PARENTTYPE, ? extends E>, Nothing>>
 			extends NodeFirstConfigurator<TYPE, PARENTTYPE, E, P, NodeFirstAddOnCloseConfigurator<TYPE, PARENTTYPE, E, P>> {
 
 		private BiConsumer<PARENTTYPE, TYPE, E> _closer;
@@ -317,7 +501,8 @@ public abstract class TreeReader<C, E extends Exception> {
 			requireNotNull(closer);
 			
 			_closer = closer;
-			parent().accept(new GenericTreeReader<TYPE, PARENTTYPE, E>(this, true));
+			List<GenericTreeReader<?, ? super TYPE, ? extends E>> childReaders = childReaders();
+			parent().accept(new GenericTreeReader<TYPE, PARENTTYPE, E>(tagName(), defaultConstructor, constructorWithNode, null, null, closer(), true, childReaders)); //childReaders()
 			return parent();
 		}
 		
@@ -335,7 +520,7 @@ public abstract class TreeReader<C, E extends Exception> {
 
 	}
 
-	public static class NodeFirstAddOnOpenConfigurator<TYPE, PARENTTYPE, E extends Exception, PARENT extends Consumer<TreeReader<?, E>, Nothing>>
+	public static class NodeFirstAddOnOpenConfigurator<TYPE, PARENTTYPE, E extends Exception, PARENT extends Consumer<GenericTreeReader<?, ? super PARENTTYPE, ? extends E>, Nothing>>
 			extends NodeFirstConfigurator<TYPE, PARENTTYPE, E, PARENT, NodeFirstAddOnOpenConfigurator<TYPE, PARENTTYPE, E, PARENT>> {
 
 		private NodeFirstAddOnOpenConfigurator(PARENT parent, String tagName) {
@@ -348,18 +533,18 @@ public abstract class TreeReader<C, E extends Exception> {
 
 	}
 
-	public static class ActionNodeConfigurator<T, PT, E extends Exception, P extends NodeFirstConfigurator<PT, ?, E, ?, ?>>
-			extends NodeFirstConfigurator<T, PT, E, P, NodeFirstAddOnCloseConfigurator<T, PT, E, P>> {
-
-		private ActionNodeConfigurator(P parent, String tagName) {
-			super(parent, tagName);
-		}
-
-		public P close() {
-			return parent();
-		}
-
-	}
+//	public static class ActionNodeConfigurator<T, PT, E extends Exception, P extends NodeFirstConfigurator<PT, ?, E, ?, ?>>
+//			extends NodeFirstConfigurator<T, PT, E, P, NodeFirstAddOnCloseConfigurator<T, PT, E, P>> {
+//
+//		private ActionNodeConfigurator(P parent, String tagName) {
+//			super(parent, tagName);
+//		}
+//
+//		public P close() {
+//			return parent();
+//		}
+//
+//	}
 
 	// public static class ParentLastNodeConfigurator<T, PT, E extends Exception,
 	// P extends NodeConfigurator<PT, ?, E, ?, R, ?>, R> {
@@ -414,7 +599,8 @@ public abstract class TreeReader<C, E extends Exception> {
 						.open("method", () -> new Integer(3))
 						.close((p, c) -> p.add(c))
 					.close((p, c) -> p.add(c))
-				.close();
+				.close()
+				.build();
 
 		TreeReader<Package, Nothing> other = TreeReader.<Package, Nothing>builder()
 				.open("package", () -> new Package("name"))
@@ -424,10 +610,13 @@ public abstract class TreeReader<C, E extends Exception> {
 				    .close((p, c) -> p.add(c))
 				    .open(first)
 				    .close((p, c) -> p.add(c))
-				.close();
+				.close()
+				.build();
+		
 		String test = "<package><class><method></method></class></package>";
 		InputStream stream = new ByteArrayInputStream(test.getBytes(StandardCharsets.UTF_8.name()));
 		XMLStreamReader reader = javax.xml.stream.XMLInputFactory.newInstance().createXMLStreamReader(stream);
+		
 		
 	}
 
