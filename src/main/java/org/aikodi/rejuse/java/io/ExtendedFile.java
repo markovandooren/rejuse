@@ -51,16 +51,6 @@ public class ExtendedFile extends java.io.File {
 		super( child);
 	}
 
-// TODO: JDK 1.4
-//	/**
-//	 * Initialize a new ExtendedFile 
-//	 *
-//	 * See <a href="http://java.sun.com/j2se/1.4/docs/api/java/io/File.html#File(java.io.File, java.lang.String)">java.io.File.File(File, String)</a>.
-//	 */
-//	public ExtendedFile(URI uri) {
-//		super(uri);
-//	}
-
 	/**
 	 * Copies the given source file to the given destination file.
 	 * If an exception occurs, the possibly incomplete destination file is
