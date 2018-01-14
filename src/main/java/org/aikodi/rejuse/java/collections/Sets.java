@@ -14,7 +14,10 @@ import static org.aikodi.contract.Contract.requireNotNull;
  */
 public class Sets {
 
-	
+	/**
+	 * Return an operator that creates the union of two sets.
+	 * @return A non-null binary operator that retursn the union of its operands.
+	 */
 	public static <T> BinaryOperator<Set<T>> union() {
 		return (l,r) -> ImmutableSet.<T>builder().addAll(l).addAll(r).build();
 	}

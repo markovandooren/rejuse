@@ -9,13 +9,10 @@ package org.aikodi.rejuse.comparator;
  */
 public class ComparableComparator<T extends Comparable<T>> extends ExtendedComparator<T> {
 
-  /* The revision of this class */
-    public final static String CVS_REVISION ="$Revision$";
-
 	/**
 	 * See <a href="http://java.sun.com/j2se/1.4/docs/api/java/util/Comparator.html#compare(java.lang.Object, java.lang.Object)">superclass</a>.
 	 */
- /*@
+   /*@
 	 @ also public behavior
 	 @
 	 @ pre o1 instanceof Comparable;

@@ -5,18 +5,10 @@ import java.util.Comparator;
 /**
  * <p>A Comparator with more convenient methods than <code>java.util.Comparator</code>.</p>
  *
- * @path    $Source$
- * @version $Revision$
- * @date    $Date$
- * @state   $State$
  * @author  Tom Schrijvers
  * @author  Marko van Dooren
- * @release $Name$
  */
 public abstract class ExtendedComparator<T> implements Comparator<T> {
-
-  /* The revision of this class */
-    public final static String CVS_REVISION ="$Revision$";
 
 	/**
 	 * <p>Return the maximum of both objects. In case of a tie, any
@@ -179,8 +171,7 @@ public abstract class ExtendedComparator<T> implements Comparator<T> {
 	public static /*@ pure @*/ <T> ExtendedComparator<T> ensureExtended(Comparator<T> comparator) {
 		if (comparator instanceof ExtendedComparator) {
 			return (ExtendedComparator<T>) comparator;
-		}
-		else {
+		} else {
 			return new ExtendedComparatorWrapper<>(comparator);
 		}
 	}
