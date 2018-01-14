@@ -58,7 +58,7 @@ public class TreeNode {
 	 * @return The value of the attribute with the given name.
 	 *         The result is not null. 
 	 */
-	public String attributes(String name) {
+	public String attribute(String name) {
 		requireNotNull(name != null);
 		require(_attributes.containsKey(name), "The node does not contain an attribute with name " + name);
 		
