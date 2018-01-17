@@ -51,13 +51,13 @@ public abstract class TreeReader<T, E extends Exception> {
 	 */
 	public abstract T read(XMLStreamReader reader) throws E, XMLStreamException;
 	
-	protected abstract void readAsChild(XMLStreamReader reader, Consumer<? super T, E> closer) throws E, XMLStreamException;
+	protected abstract void readAsChild(XMLStreamReader reader, Consumer<? super T, Nothing> closer) throws E, XMLStreamException;
 	
 	protected abstract String tagName();
 	
 	private static abstract class InternalTreeReader<TYPE, PARENTTYPE, E extends Exception> {
 		
-		protected abstract void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, E> closer) throws E, XMLStreamException;
+		protected abstract void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, Nothing> closer) throws E, XMLStreamException;
 
 		protected abstract void read(XMLStreamReader reader, PARENTTYPE parent) throws E, XMLStreamException;
 
@@ -143,11 +143,11 @@ public abstract class TreeReader<T, E extends Exception> {
 			read(reader, parent, null);
 		}
 		
-		protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, E> closer) throws E, XMLStreamException {
+		protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, Nothing> closer) throws E, XMLStreamException {
 			read(reader, null, closer);
 		}
 		
-		protected void read(XMLStreamReader reader, PARENTTYPE parent, Consumer<? super TYPE, E> closer) throws E, XMLStreamException {
+		protected void read(XMLStreamReader reader, PARENTTYPE parent, Consumer<? super TYPE, Nothing> closer) throws E, XMLStreamException {
 			// Open
 			String tagName = reader.getLocalName();
 			TYPE currentElement;
@@ -166,11 +166,10 @@ public abstract class TreeReader<T, E extends Exception> {
 			readChildren(reader, currentElement);
 
 			// Close
-			if (_closerWithParent != null) {
-				_closerWithParent.accept(parent, currentElement);
-			}
 			if (closer != null) {
 				closer.accept(currentElement);
+			} else if (_closerWithParent != null) {
+				_closerWithParent.accept(parent, currentElement);
 			}
 		}
 
@@ -317,8 +316,13 @@ public abstract class TreeReader<T, E extends Exception> {
 				}
 
 				@Override
-				protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, E> closer) throws E, XMLStreamException {
-					_childReaders.get(0).readAsChild(reader, closer);
+				protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, Nothing> closer) throws E, XMLStreamException {
+//					InternalTreeReader<?, ? super List<? super TYPE>, ? extends E> in = _childReaders.get(0);
+//					in.readAsChild(reader, null);
+//					internalReader.readAsChild(reader, l -> {
+//						System.out.println(l);
+//					});
+					_childReaders.get(0).readAsChild(reader, l -> closer.accept((TYPE)l));
 				}
 				
 			};
@@ -452,7 +456,7 @@ public abstract class TreeReader<T, E extends Exception> {
 				}
 
 				@Override
-				protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, E> closer)
+				protected void readAsChild(XMLStreamReader reader, Consumer<? super TYPE, Nothing> closer)
 						throws E, XMLStreamException {
 					throw new Error();
 				}
