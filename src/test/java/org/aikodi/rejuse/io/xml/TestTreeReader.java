@@ -3,6 +3,7 @@ package org.aikodi.rejuse.io.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,9 @@ public class TestTreeReader {
 		}
 		
 		public void add(B b) {
+			if (b == null) {
+				throw new IllegalArgumentException();
+			}
 			_b.add(b);
 		}
 		
@@ -279,7 +283,41 @@ public class TestTreeReader {
 	    assertEquals("qubie", output.bs().get(0).name());
 	}
 	
-	
+	@Test
+	public void testPredefinedTreeReader() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
+		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
+				.open("b", () -> new B("bee"))
+				.close()
+				.build();
+		// AND
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
+		//   and reads children of node 'b' using the reader for 'b' nodes. 
+		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+					.open(bReader)
+					.close((a,b) -> a.add(b))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads an input that contain a single 'a' tag with 
+		//   a single nested 'b' tag.
+		A output = aReader.read(reader("<a><b></b></a>"));
+		
+		// THEN
+		//   the output is not null.
+	    assertNotNull(output);
+	    //   the output has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the output has one child b.
+	    assertEquals(1, output.bs().size());
+		//   which is not null.
+	    assertNotNull(output.bs().get(0));
+	    //   and has name 'bee'.
+	    assertEquals("bee", output.bs().get(0).name());
+	}
 	
 //	@Test
 //	public void testSingleRootNodeFirstInputMultipleNodes() throws XMLStreamException {
