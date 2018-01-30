@@ -318,7 +318,77 @@ public class TestTreeReader {
 	    //   and has name 'bee'.
 	    assertEquals("bee", output.bs().get(0).name());
 	}
-	
+
+	@Test
+	public void testPredefinedTreeReaderNoDirectMatch() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
+		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
+				.open("b", () -> new B("bee"))
+				.close()
+				.build();
+		// AND
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
+		//   and reads children of node 'b' using the reader for 'b' nodes. 
+		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+					.open(bReader)
+					.close((a,b) -> a.add(b))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads an input that contain a single 'a' tag but no 
+		//   directly nested 'b' tag.
+		A output = aReader.read(reader("<a><c><b></b></c></a>"));
+		
+		// THEN
+		//   the output is not null.
+	    assertNotNull(output);
+	    //   the output has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the output has one child b.
+	    assertEquals(0, output.bs().size());
+	}
+
+	@Test
+	public void testPredefinedTreeReaderWithMultipleMatchingChildren() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
+		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
+				.open("b", () -> new B("bee"))
+				.close()
+				.build();
+		// AND
+		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
+		//   and reads children of node 'b' using the reader for 'b' nodes. 
+		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+					.open(bReader)
+					.close((a,b) -> a.add(b))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads an input that contain a single 'a' tag with 
+		//   4 nested 'b' tags.
+		A output = aReader.read(reader("<a><b></b><b></b><b></b><b></b></a>"));
+		
+		// THEN
+		//   the output is not null.
+	    assertNotNull(output);
+	    //   the output has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the output has 4 children of type b.
+	    assertEquals(4, output.bs().size());
+		for (int i = 0; i < 4; i++) {
+			// which are not null.
+			assertNotNull(output.bs().get(i));
+			// and have name 'bee'.
+			assertEquals("bee", output.bs().get(i).name());
+		}
+	}
+
 //	@Test
 //	public void testSingleRootNodeFirstInputMultipleNodes() throws XMLStreamException {
 //		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
