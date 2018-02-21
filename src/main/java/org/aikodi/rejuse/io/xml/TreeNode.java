@@ -66,6 +66,40 @@ public class TreeNode {
 	}
 	
 	/**
+	 * Return the integer value of the attribute with the given name.
+	 * 
+	 * @param name The name of the attribute.
+	 *             The name cannot be null.
+	 *             The node must contain an integer attribute with the given name.
+	 *             
+	 * @throws NumberFormatException The given string cannot be parsed as an integer
+	 *                               according to {@link Integer#parseInt(String)}.
+	 *                               
+	 * @return The integer value of the attribute with the given name according to
+	 *         {@link Integer#parseInt(String)}.
+	 */
+	public int parseInt(String name) {
+		return Integer.parseInt(attribute(name));
+	}
+	
+	/**
+	 * Return the integer value of the attribute with the given name.
+	 * 
+	 * @param name The name of the attribute.
+	 *             The name cannot be null.
+	 *             The node must contain an integer attribute with the given name.
+	 *             
+	 * @throws NumberFormatException The given string cannot be parsed as an integer
+	 *                               according to {@link Integer#parseInt(String)}.
+	 *                               
+	 * @return The integer value of the attribute with the given name according to
+	 *         {@link Integer#parseInt(String)}.
+	 */
+	public boolean parseBoolean(String name) {
+		return Boolean.parseBoolean(attribute(name));
+	}
+	
+	/**
 	 * Check if this node contains an attribute with the given name.
 	 * 
 	 * @param name The name of the attribute.
