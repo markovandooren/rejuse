@@ -5,16 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.aikodi.rejuse.graph.BidiEdgeFactory;
-import org.aikodi.rejuse.graph.DefaultNodeFactory;
-import org.aikodi.rejuse.graph.Edge;
-import org.aikodi.rejuse.graph.Graph;
-import org.aikodi.rejuse.graph.Node;
-import org.aikodi.rejuse.graph.Path;
-import org.aikodi.rejuse.graph.UniEdgeFactory;
-import org.aikodi.rejuse.graph.Weight;
-import org.aikodi.rejuse.graph.WeightedEdgeFactory;
-import org.aikodi.rejuse.graph.WeightedGraph;
 import org.junit.Test;
 
 /**
@@ -61,13 +51,13 @@ public class TestGraph {
     assertTrue(edge.endsIn(graph.node(a)));
     assertTrue(edge.endsIn(graph.node(b)));
     assertTrue(edge.get(Weight.class).weight() == 1);
-    assertTrue(nodeA.nbOutgoingEdges() == 1);
-    assertTrue(nodeA.nbIncomingEdges() == 1);
-    assertTrue(nodeB.nbOutgoingEdges() == 1);
-    assertTrue(nodeB.nbIncomingEdges() == 1);
-    assertTrue(nodeC.nbOutgoingEdges() == 0);
-    assertTrue(nodeC.nbIncomingEdges() == 0);
-    assertTrue(graph.node(a).canReach(graph.node(b)));
+    assertTrue(nodeA.numberOfSuccessorEdges() == 1);
+    assertTrue(nodeA.numberOfPredecessorEdges() == 1);
+    assertTrue(nodeB.numberOfSuccessorEdges() == 1);
+    assertTrue(nodeB.numberOfPredecessorEdges() == 1);
+    assertTrue(nodeC.numberOfSuccessorEdges() == 0);
+    assertTrue(nodeC.numberOfPredecessorEdges() == 0);
+    assertTrue(graph.node(a).canReachNode(graph.node(b)));
     graph.addEdge(b,c,1);
     graph.addEdge(a,c,1.8);
     //Path shortest = nodeA.dijkstra(nodeC);
@@ -88,7 +78,7 @@ public class TestGraph {
   }
   
   private <O> void print(WeightedGraph<O> g, O from, O to) {
-    System.out.println(g.distance(from,to));
+    System.out.println(g.shortestPath(from,to));
   }
 
   private WeightedGraph<String> getBigGraph() {
