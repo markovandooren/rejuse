@@ -388,6 +388,29 @@ public class TestTreeReader {
 			assertEquals("bee", output.bs().get(i).name());
 		}
 	}
+	
+	@Test
+	public void testMap() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		//   and we create a mapping reader that transforms it into a B whose 
+		//   name is "B with " plus the name of the a element. 
+		TreeReader<B, Nothing> first = TreeReader.<A, Nothing>builder()
+				.open("a", () -> new A("A name"))
+				.close()
+				.build()
+				.map(a -> new B("B with " + a.name()));
+		
+		// WHEN
+		//   it reads the input '<a></a>'
+	    B output = first.read(reader("<a></a>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result is has name 'B with A name'
+	    assertEquals("B with A name", output.name());
+	}
 
 //	@Test
 //	public void testSingleRootNodeFirstInputMultipleNodes() throws XMLStreamException {
