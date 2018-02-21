@@ -2,7 +2,7 @@ package org.aikodi.rejuse.graph;
 
 import java.util.Set;
 
-public abstract class Edge<V> {
+public abstract class Edge<V> implements IEdge<Edge<V>, Node<V>, V>{
 
 	/*@
 	 @ post ! \old(getFirst()).contains(this);

@@ -294,7 +294,7 @@ public class Graph<V> {
 		for(Map.Entry<V, Node<V>> entry: entrySet) {
 			Node<V> originalNode = entry.getValue();
 			Node<V> clonedNode = cloneMap.get(originalNode);
-			for(Edge<V> edge: originalNode.outgoingEdges()) {
+			for(Edge<V> edge: originalNode.successorEdges()) {
 				if(! done.contains(edge)) {
 					Node<V> originalTarget = edge.endFor(originalNode);
 					Node<V> clonedTarget = cloneMap.get(originalTarget);
@@ -314,7 +314,7 @@ public class Graph<V> {
 			if(source == null) {
 				addNode(sourceObject);
 			}
-			for(Edge<V> edge: node.outgoingEdges()) {
+			for(Edge<V> edge: node.successorEdges()) {
 				V targetObject = edge.endFor(node).object();
 				Node<V> target = node(targetObject);
 				if(target == null) {
@@ -350,7 +350,7 @@ public class Graph<V> {
 			Node<V> current = todo.removeFirst();
 			nodeAction.perform(current.object());
 			traversedNodes.add(current);
-			for(Edge<V> edge: current.outgoingEdges()) {
+			for(Edge<V> edge: current.successorEdges()) {
 				if(! traversedEdges.contains(edge)) {
 					Node<V> otherNode = edge.endFor(current);
 					if(! traversedNodes.contains(otherNode)) {
@@ -374,7 +374,7 @@ public class Graph<V> {
 		while(! todo.isEmpty()) {
 			Node<V> current = todo.removeFirst();
 			nodeAction.accept(current.object());
-			for(Edge<V> edge: current.outgoingEdges()) {
+			for(Edge<V> edge: current.successorEdges()) {
 				if(! traversedEdges.contains(edge)) {
 					edgeAction.accept(edge);
 					traversedEdges.add(edge);
@@ -387,7 +387,7 @@ public class Graph<V> {
 	public Set<Edge<V>> edges() {
 		Set<Edge<V>> result = new HashSet<>();
 		for(Node<V> node: nodes()) {
-			result.addAll(node.outgoingEdges());
+			result.addAll(node.successorEdges());
 		}
 		return result;
 	}
@@ -395,7 +395,7 @@ public class Graph<V> {
 	public int nbEdges() {
 		int result = 0;
 		for(Node<V> node: nodes()) {
-			result += node.nbOutgoingEdges();
+			result += node.numberOfSuccessorEdges();
 		}
 		return result;
 	}
@@ -408,7 +408,7 @@ public class Graph<V> {
 		}
 	}
 
-	public void remoteEdgesNotInvolvedInCycles() {
+	public void removeEdgesNotInvolvedInCycles() {
 		Set<Node<V>> todo = nodes();
 		boolean prune = true;
 		while(prune) {
@@ -417,7 +417,7 @@ public class Graph<V> {
 			while(todoIterator.hasNext()) {
 				Node<V> node = todoIterator.next();
 				todoIterator.remove();
-				if(node.nbIncomingEdges() == 0 || node.nbOutgoingEdges() == 0) {
+				if(node.numberOfPredecessorEdges() == 0 || node.numberOfSuccessorEdges() == 0) {
 					toPrune = node;
 					break;
 				}
@@ -503,7 +503,7 @@ public class Graph<V> {
 		});
 		nodes.forEach(c -> {
 			List<EdgeNode<V>> edgeNodes = new ArrayList<>();
-			c.outgoingEdges().forEach(e -> {
+			c.successorEdges().forEach(e -> {
 				EdgeNode<V> edgeNode = new EdgeNode<>(e);
 				edgeNodes.add(edgeNode);
 				List<GCycleNode<V>> next = new ArrayList<>();
@@ -826,8 +826,8 @@ public class Graph<V> {
 	}
 
 	private void accumulate(List<Path<V>> paths, Path<V> current, Set<Node<V>> done,Set<Node<V>> cannotIntroduceCycle, Set<Node<V>> introduceCycle) {
-		Node<V> last = current.getEnd();
-		for(Edge<V> edge: last.outgoingEdges()) {
+		Node<V> last = current.end();
+		for(Edge<V> edge: last.successorEdges()) {
 			Node<V> destination = edge.endFor(last);
 			if(! (done.contains(destination) || cannotIntroduceCycle.contains(destination))) { 
 				Path<V> newPath = current.clone();

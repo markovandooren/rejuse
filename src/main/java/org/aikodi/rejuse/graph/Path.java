@@ -16,7 +16,7 @@ import java.util.Set;
  * 
  * @author Marko van Dooren
  */
-public class Path<V> implements Comparable<Path<V>> {
+public class Path<V> implements Comparable<Path<V>>, IWalk<Node<V>, Edge<V>, V> {
   
   /**
    * Initialize a new path with the given start node.
@@ -80,13 +80,6 @@ public class Path<V> implements Comparable<Path<V>> {
   }
   
   public boolean visits(Node<V> node) {
-//  	boolean result = false;
-//  	Node<V> current = _start;
-//  	for(int i=0; ! result && i < _edges.size(); i++) {
-//  		result = current.equals(node);
-//  		current = _edges.get(i).endFor(current);
-//  	}
-//  	return result;
   	return _nodes.contains(node);
   }
   
@@ -101,22 +94,10 @@ public class Path<V> implements Comparable<Path<V>> {
   public Node<V> start() {
     return _start;
   }
-  
+
   /**
-   * Return the list of nodes that define this path.
+   * {@inheritDoc}
    */
- /*@
-   @ public behavior
-   @
-   @ post \result != null;
-   @ post ! \result.contains(null);
-   @ post (\forall Object o; \result.contains(o);
-   @        o instanceof Node);
-   @ post \result.size() == getNbEdges() + 1;
-   @ post \result.get(0) == getStart();
-   @ post (\forall int i; i > 0 && i <= \result.size();
-   @         \result.get(i) == getEdges().get(i-1).getEndFor(\result.get(i-1)))
-   @*/
   public List<Node<V>> nodes() {
     final ArrayList<Node<V>> result = new ArrayList<>();
     result.add(_start);
@@ -128,20 +109,22 @@ public class Path<V> implements Comparable<Path<V>> {
     }
     return result;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Node<V> node(int index) {
+	  Node<V> result = start();
+	  for (int i = 1; i <= _edges.size(); i++) {
+		  result = _edges.get(i - 1).endFor(result);
+	  }
+	  return result;
+  }
   
   /**
-   * Return the list of edges that define this path.
+   * {@inheritDoc}
    */
- /*@
-   @ public behavior
-   @
-   @ post \result != null;
-   @ post ! \result.contains(null);
-   @ post (\forall Object o; \result.contains(o);
-   @        o instanceof Edge);
-   @ TODO consistency
-   @*/
-  public List<Edge<V>> getEdges() {
+  public List<Edge<V>> edges() {
     return new ArrayList<>(_edges);
   }
   
@@ -166,15 +149,11 @@ public class Path<V> implements Comparable<Path<V>> {
     }
     _nodes.add(_end);
   }
-  
+
   /**
-   * Return the last node of this path.
+   * {@inheritDoc}
    */
- /*@
-   @ public behavior
-   @
-   @*/
-  public Node<V> getEnd() {
+  public Node<V> end() {
     return _end;
   }
   
@@ -213,7 +192,7 @@ public class Path<V> implements Comparable<Path<V>> {
   /**
    * @return the length of this path.
    */
-  public double length() {
+  public int length() {
     return _edges.size();
   }
   
@@ -286,5 +265,17 @@ public class Path<V> implements Comparable<Path<V>> {
 		}
 		result.append(" : " + length());
     return result.toString();
+  }
+
+  @Override
+  public int indexOf(V object) {
+	  Node<V> current = _start;
+	  for (int i = 0; i < length(); i++) {
+		if (current.object().equals(object)) {
+			return i;
+		}
+		current = _edges.get(i).endFor(current);
+	  }
+	  return -1;
   }
 }

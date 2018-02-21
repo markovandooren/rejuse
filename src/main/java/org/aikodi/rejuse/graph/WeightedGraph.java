@@ -22,18 +22,11 @@ public class WeightedGraph<V> extends Graph<V> {
   /**
    * Return the shortest path to the given node.
    *  
-   * @param other
-   *        The destination.
+   * @param start The start node.
+   * @param end The end node.
    */
- /*@
-   @ public behavior
-   @
-   @ pre node != null;
-   @*/
-  public Path<V> distance(V start, V end) {
+  public Path<V> shortestPath(V start, V end) {
   	Node<V> endNode = node(end);
-  	//TODO first version only uses the weight of the edges, no
-  	// weightfunction
 
   	// The list of nodes we have already calculated, together with their
   	// shortest path from this node.
@@ -47,18 +40,18 @@ public class WeightedGraph<V> extends Graph<V> {
   	while((! done.containsKey(endNode)) && (! adjacent.isEmpty())) {
   		// search the node closest to the 'done' nodes
   		final Path<V> closest = adjacent.first();
-  		final Node<V> latest = closest.getEnd();
+  		final Node<V> latest = closest.end();
   		// Move its shortest path from 'adjacent' to 'done'      
   		adjacent.remove(closest);
-  		done.put(closest.getEnd(), closest);
+  		done.put(closest.end(), closest);
 
-  		Set<Edge<V>> startingFromLatest = closest.getEnd().outgoingEdges();
+  		Set<Edge<V>> startingFromLatest = closest.end().successorEdges();
 
   		for(Edge<V> edge: startingFromLatest) {
 				if(! done.containsKey(edge.endFor(latest))) {
 					Path<V> path = closest.clone();
 					path.addEdge(edge);
-					temp.put(path.getEnd(), path);
+					temp.put(path.end(), path);
 				}
   		}
   		// 1) add the paths adjacent to the path we just added.
@@ -71,7 +64,7 @@ public class WeightedGraph<V> extends Graph<V> {
   			Path<V> path = iter.next();
   			// If the destination can also be reached using a path in temp,
   			// remove the longest path.
-  			Node<V> destination = path.getEnd(); 
+  			Node<V> destination = path.end(); 
   			if(temp.containsKey(destination)) {
   				Path<V> alternative = temp.get(destination);
   				if(alternative.compareTo(path) < 0) {
