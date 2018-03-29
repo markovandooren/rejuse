@@ -5,6 +5,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.aikodi.rejuse.data.graph.BidiEdgeFactory;
+import org.aikodi.rejuse.data.graph.DefaultNodeFactory;
+import org.aikodi.rejuse.data.graph.Edge;
+import org.aikodi.rejuse.data.graph.Graph;
+import org.aikodi.rejuse.data.graph.Node;
+import org.aikodi.rejuse.data.graph.Path;
+import org.aikodi.rejuse.data.graph.UniEdgeFactory;
+import org.aikodi.rejuse.data.graph.Weight;
+import org.aikodi.rejuse.data.graph.WeightedEdgeFactory;
+import org.aikodi.rejuse.data.graph.WeightedGraph;
 import org.junit.Test;
 
 /**
