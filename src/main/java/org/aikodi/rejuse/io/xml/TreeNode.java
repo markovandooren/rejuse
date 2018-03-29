@@ -3,6 +3,9 @@ package org.aikodi.rejuse.io.xml;
 import static org.aikodi.contract.Contract.require;
 import static org.aikodi.contract.Contract.requireNotNull;
 
+import org.aikodi.rejuse.action.Nothing;
+import org.aikodi.rejuse.function.BiConsumer;
+import org.aikodi.rejuse.function.Consumer;
 import org.aikodi.rejuse.map.StringMap;
 
 public class TreeNode {
@@ -63,6 +66,59 @@ public class TreeNode {
 		require(_attributes.containsKey(name), "The node does not contain an attribute with name " + name);
 		
 		return _attributes.get(name);
+	}
+	
+	public <T> Mapper<T> map(T value) {
+		return new Mapper<>(value);
+	}
+	
+	public class Mapper<T> {
+		private T _value;
+		
+		public Mapper(T value) {
+			requireNotNull(value);
+			
+			_value = value;
+		}
+		
+		public T value() {
+			return _value;
+		}
+		
+		public AttributeMapper use(String name) {
+			return new AttributeMapper(name);
+		}
+		
+		public class AttributeMapper {
+			private String _name;
+			
+			public AttributeMapper(String name) {
+				requireNotNull(name);
+				
+				_name = name;
+			}
+			
+			public Mapper<T> with(BiConsumer<T, String, Nothing> action) {
+				if (contains(_name)) {
+					action.accept(_value, attribute(_name));
+				}
+				return Mapper.this;
+			}
+			
+			public Mapper<T> withInt(BiConsumer<T, Integer, Nothing> action) {
+				if (contains(_name)) {
+					action.accept(_value, parseInt(_name));
+				}
+				return Mapper.this;
+			}
+		}
+	}
+	
+	public <E extends Exception> TreeNode with(String name, Consumer<String, E> consumer) throws E {
+		if (contains(name)) {
+			consumer.accept(attribute(name));
+		}
+		return this;
 	}
 	
 	/**
