@@ -166,4 +166,9 @@ public class TreeNode {
 	public boolean contains(String name) {
 		return _attributes.containsKey(name);
 	}
+	
+	@Override
+	public String toString() {
+		return name();
+	}
 }
