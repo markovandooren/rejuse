@@ -412,18 +412,25 @@ public class TestTreeReader {
 	    assertEquals("B with A name", output.name());
 	}
 
-//	@Test
-//	public void testSingleRootNodeFirstInputMultipleNodes() throws XMLStreamException {
-//		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-//				.open("a", () -> new A("A name"))
-//				.close()
-//				.build();
-//	    List<A> read = first.read(reader("<a></a><a></a><a></a><a></a><a></a><a></a><a></a>"));
-//	    assertNotNull(read);
-//	    assertEquals(7, read.size());
-//	    for (int i = 0; i < 7; i++) {
-//	    	assertEquals("A name", read.get(i).name());
-//	    }
-//	}
+	@Test
+	public void testDescendantSingleRootNodeFirstInputOneNode() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.descendant("a").construct(() -> new A("A name"))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads the input '<a></a>'
+	    A output = first.read(reader("<a></a>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result has name 'A name'
+	    assertEquals("A name", output.name());
+	}
+
 
 }
