@@ -157,7 +157,7 @@ public abstract class TreeReader<T, E extends Exception> {
 		}
 	}
 	
-	private static class GlobPredicate implements PathMatcher {
+	private static class GlobMatcher implements PathMatcher {
 
 		@Override
 		public boolean matches(List<TreeNode> path, int start, int stop) {
@@ -198,7 +198,7 @@ public abstract class TreeReader<T, E extends Exception> {
 		
 		@Override
 		public boolean matches(List<TreeNode> path, int startInclusive, int stopExclusive) {
-			boolean result = (path != null && stopExclusive - startInclusive > 1);
+			boolean result = (path != null);
 			if (! result) {
 				for (int endOfFirstExclusive = startInclusive + 1; ! result && endOfFirstExclusive < stopExclusive; endOfFirstExclusive++) {
 					result = _first.matches(path, startInclusive, endOfFirstExclusive) &&
@@ -481,6 +481,10 @@ public abstract class TreeReader<T, E extends Exception> {
 			return new RootConstructorSelector<>(new ChildMatcher(tagName), this);
 		}
 		
+		public RootConstructorSelector<TYPE, E> descendant(String tagName) {
+			return new RootConstructorSelector<>(new Sequence(new GlobMatcher(),new ChildMatcher(tagName)), this);
+		}
+		
 		@Override
 		public void addChildReader(InternalTreeReader<?, ? super List<? super TYPE>, ? extends E> reader) throws Nothing {
 			_descendantReaders.add(reader);
@@ -564,7 +568,7 @@ public abstract class TreeReader<T, E extends Exception> {
 		}
 		
 		public ConstructorSelector<TYPE, E, SELF> descendant(String tagName) {
-			return new ConstructorSelector<>(new Sequence(new GlobPredicate(), new ChildMatcher(tagName)), (SELF)this);
+			return new ConstructorSelector<>(new Sequence(new GlobMatcher(), new ChildMatcher(tagName)), (SELF)this);
 		}
 		
 		public <X> PredefinedAddOnCloseConfigurator<X, TYPE, E, SELF> open(TreeReader<X, E> reader) {
