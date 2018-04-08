@@ -450,23 +450,37 @@ public abstract class TreeReader<T, E extends Exception> {
 		return new Builder<T, E>();
 	}
 
+	public static class RootConstructorSelector<TYPE, E extends Exception> {
+		
+		private Builder<TYPE,E> _self;
+		private PathMatcher _matcher;
+		
+		public RootConstructorSelector(PathMatcher matcher, Builder<TYPE,E> self) {
+			requireNotNull(matcher);
+			requireNotNull(self);
+
+			_self = self;
+			_matcher = matcher;
+		}
+		
+		public RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>> construct(Producer<TYPE, E> defaultConstructor) {
+			return new RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>>(_self, _matcher, defaultConstructor);
+		}
+
+		public RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>> construct(Function<TreeNode, TYPE, E> constructorWithNode) {
+			return new RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>>(_self, _matcher, constructorWithNode);
+		}
+
+	}
+	
 	public static class Builder<TYPE, E extends Exception> implements TreeConsumer<List<? super TYPE>, E> {
 		
-//		private List<InternalTreeReader<?, ? super List<? super TYPE>, ? extends E>> _childReaders = new ArrayList<>();
 		private List<InternalTreeReader<?, ? super List<? super TYPE>, ? extends E>> _descendantReaders = new ArrayList<>();
 
-		public RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>> open(String tagName, Producer<TYPE, E> producer) {
-			return new RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>>(this, new ChildMatcher(tagName), producer);
+		public RootConstructorSelector<TYPE, E> child(String tagName) {
+			return new RootConstructorSelector<>(new ChildMatcher(tagName), this);
 		}
 		
-		public RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>> open(String tagName, Function<TreeNode, TYPE, E> producer) {
-			return new RootNodeFirstConfigurator<TYPE, E, Builder<TYPE,E>>(this, new ChildMatcher(tagName), producer);
-		}
-		
-		public <X> void open(String tagName, Function<TreeNode, X, E> producer, Function<X, TYPE, E> transformer) {
-			
-		}
-
 		@Override
 		public void addChildReader(InternalTreeReader<?, ? super List<? super TYPE>, ? extends E> reader) throws Nothing {
 			_descendantReaders.add(reader);
@@ -476,18 +490,10 @@ public abstract class TreeReader<T, E extends Exception> {
 			GenericTreeReader<? super List<? super TYPE>, Object, E> internalReader = new GenericTreeReader<>(null, null, null, null, null, (p,c) -> {}, true, _descendantReaders);
 			return new TreeReader<TYPE, E>() {
 
-				protected List<TreeNode> initialPath(XMLStreamReader reader) throws XMLStreamException {
-					reader.next();
-					List<TreeNode> result = new ArrayList<>();
-					result.add(internalReader.treeNode(reader));
-					return result;
-				}
-				
 				@Override
 				public TYPE read(XMLStreamReader reader) throws E, XMLStreamException {
 					List<TYPE> result = new ArrayList<TYPE>();
 					internalReader.readChildren(reader, result);
-//					_descendantReaders.get(0).read(reader, result, c -> result.add((TYPE)c), initialPath(reader));
 					if (! result.isEmpty()) {
 					    return result.get(0);
 					} else {
@@ -509,13 +515,33 @@ public abstract class TreeReader<T, E extends Exception> {
 		}
 	}
 
-	
+	public static class ConstructorSelector<TYPE, E extends Exception, SELF extends NodeConfigurator<TYPE, E, SELF>> {
+		
+		private SELF _self;
+		private PathMatcher _matcher;
+		
+		public ConstructorSelector(PathMatcher matcher, SELF self) {
+			requireNotNull(matcher);
+			requireNotNull(self);
+
+			_self = self;
+			_matcher = matcher;
+		}
+		
+		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> construct(Producer<X, E> defaultConstructor) {
+			return new NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF>(_self, _matcher, defaultConstructor);
+		}
+
+		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> construct(Function<TreeNode, X, E> constructorWithNode) {
+			return new NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF>(_self, _matcher, constructorWithNode);
+		}
+
+	}
 	
 	public static abstract class NodeConfigurator<TYPE, E extends Exception, SELF extends NodeConfigurator<TYPE, E, SELF>>
 			implements TreeConsumer<TYPE, E> {
 
 		private PathMatcher _matcher;
-//		private List<InternalTreeReader<?, ? super TYPE, ? extends E>> _childReaders = new ArrayList<>();
 		private List<InternalTreeReader<?, ? super TYPE, ? extends E>> _descendantReaders = new ArrayList<>();
 		private BiConsumer<TYPE, String, E> _textProcessor;
 
@@ -533,22 +559,17 @@ public abstract class TreeReader<T, E extends Exception> {
 			_descendantReaders.add(reader);
 		}
 
+		public ConstructorSelector<TYPE, E, SELF> child(String tagName) {
+			return new ConstructorSelector<>(new ChildMatcher(tagName), (SELF)this);
+		}
+		
+		public ConstructorSelector<TYPE, E, SELF> descendant(String tagName) {
+			return new ConstructorSelector<>(new Sequence(new GlobPredicate(), new ChildMatcher(tagName)), (SELF)this);
+		}
+		
 		public <X> PredefinedAddOnCloseConfigurator<X, TYPE, E, SELF> open(TreeReader<X, E> reader) {
 			return new PredefinedAddOnCloseConfigurator<X, TYPE, E, SELF>((SELF) this, reader);
 		}
-
-		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> open(String tagName, Producer<X, E> defaultConstructor) {
-			return new NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF>((SELF) this, new ChildMatcher(tagName), defaultConstructor);
-		}
-
-		public <X> NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF> open(String tagName,
-				Function<TreeNode, X, E> constructorWithNode) {
-			return new NodeFirstAddOnCloseConfigurator<X, TYPE, E, SELF>((SELF) this, new ChildMatcher(tagName), constructorWithNode);
-		}
-		
-//		protected  List<InternalTreeReader<?, ? super TYPE, ? extends E>> childReaders() {
-//			return new ArrayList<>(_childReaders);
-//		}
 
 		protected  List<InternalTreeReader<?, ? super TYPE, ? extends E>> descendantReaders() {
 			return new ArrayList<>(_descendantReaders);
@@ -574,11 +595,6 @@ public abstract class TreeReader<T, E extends Exception> {
 			this.parent = parent;
 		}
 		
-//		public <X> NodeFirstAddOnOpenConfigurator<X, TYPE, E, SELF> open(String tagName,
-//				BiFunction<PARENTTYPE, TreeNode, X, E> constructor) {
-//			return null;
-//		}
-
 		public PARENTCONFIGURATOR parent() {
 			return parent;
 		}
@@ -618,10 +634,6 @@ public abstract class TreeReader<T, E extends Exception> {
 			return parent();
 		}
 		
-//		public P close(Function<TYPE>) {
-//			parent().addChildReader(new GenericTreeReader<TYPE, List<? super TYPE>, E>(tagName(), defaultConstructor, constructorWithNode, null, null, (p,c) -> {p.add(c);}, true, childReaders(), descendantReaders()));
-//			return parent();
-//		}
 	}
 
 	public static class PredefinedAddOnCloseConfigurator<TYPE, PARENTTYPE, E extends Exception, P extends TreeConsumer<PARENTTYPE, E>>
