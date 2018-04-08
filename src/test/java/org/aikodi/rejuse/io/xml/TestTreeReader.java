@@ -74,7 +74,7 @@ public class TestTreeReader {
 		// GIVEN
 		//   a tree reader that read 'a' nodes and set their names to 'A name'
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 				.close()
 				.build();
 		
@@ -94,7 +94,7 @@ public class TestTreeReader {
 		// GIVEN
 		//   a tree reader that read 'a' nodes and set their names to 'A name'
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 				.close()
 				.build();
 
@@ -113,7 +113,7 @@ public class TestTreeReader {
 		//   a tree reader that read 'a' nodes and set their names to the 
 		//   'name' attribute of the tag.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", n -> new A(n.attribute("name")))
+				.child("a").construct(n -> new A(n.attribute("name")))
 				.close()
 				.build();
 		
@@ -134,7 +134,7 @@ public class TestTreeReader {
 		//   a tree reader that read 'a' nodes and set their names to the 
 		//   'name' attribute of the tag.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", n -> new A(n.attribute("name")))
+				.child("a").construct(n -> new A(n.attribute("name")))
 				.close()
 				.build();
 		
@@ -155,7 +155,7 @@ public class TestTreeReader {
 		//   a tree reader that read 'a' nodes and set their names to the 
 		//   'name' attribute of the tag.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", n -> new A(n.attribute("name")))
+				.child("a").construct(n -> new A(n.attribute("name")))
 				.close()
 				.build();
 		
@@ -173,8 +173,8 @@ public class TestTreeReader {
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
 		//   and reads child nodes 'b' and sets their names to 'bee'.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
-					.open("b", () -> new B("bee"))
+				.child("a").construct(() -> new A("A name"))
+					.child("b").construct(() -> new B("bee"))
 					.close((a,b) -> a.add(b))
 				.close()
 				.build();
@@ -203,8 +203,8 @@ public class TestTreeReader {
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
 		//   and reads child nodes 'b' and sets their names to 'bee'.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
-					.open("b", () -> new B("bee"))
+				.child("a").construct(() -> new A("A name"))
+					.child("b").construct(() -> new B("bee"))
 					.close((a,b) -> a.add(b))
 				.close()
 				.build();
@@ -234,8 +234,8 @@ public class TestTreeReader {
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'.
 		//   and reads child nodes 'b' and sets their names to 'bee'.
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
-					.open("b", () -> new B("bee"))
+				.child("a").construct(() -> new A("A name"))
+					.child("b").construct(() -> new B("bee"))
 					.close((a,b) -> a.add(b))
 				.close()
 				.build();
@@ -259,8 +259,8 @@ public class TestTreeReader {
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
 		//   and reads children of node 'b' and sets their name to the 'name' attribute. 
 		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
-					.open("b", n -> new B(n.attribute("name")))
+				.child("a").construct(() -> new A("A name"))
+					.child("b").construct(n -> new B(n.attribute("name")))
 					.close((a,b) -> a.add(b))
 				.close()
 				.build();
@@ -288,14 +288,14 @@ public class TestTreeReader {
 		// GIVEN
 		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
 		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
-				.open("b", () -> new B("bee"))
+				.child("b").construct(() -> new B("bee"))
 				.close()
 				.build();
 		// AND
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
 		//   and reads children of node 'b' using the reader for 'b' nodes. 
 		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 					.open(bReader)
 					.close((a,b) -> a.add(b))
 				.close()
@@ -324,14 +324,14 @@ public class TestTreeReader {
 		// GIVEN
 		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
 		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
-				.open("b", () -> new B("bee"))
+				.child("b").construct(() -> new B("bee"))
 				.close()
 				.build();
 		// AND
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
 		//   and reads children of node 'b' using the reader for 'b' nodes. 
 		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 					.open(bReader)
 					.close((a,b) -> a.add(b))
 				.close()
@@ -356,14 +356,14 @@ public class TestTreeReader {
 		// GIVEN
 		//   a tree reader that reads 'v' nodes and sets their names to 'bee'. 
 		TreeReader<B, Nothing> bReader = TreeReader.<B, Nothing>builder()
-				.open("b", () -> new B("bee"))
+				.child("b").construct(() -> new B("bee"))
 				.close()
 				.build();
 		// AND
 		//   a tree reader that reads 'a' nodes and sets their names to 'A name'
 		//   and reads children of node 'b' using the reader for 'b' nodes. 
 		TreeReader<A, Nothing> aReader = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 					.open(bReader)
 					.close((a,b) -> a.add(b))
 				.close()
@@ -396,7 +396,7 @@ public class TestTreeReader {
 		//   and we create a mapping reader that transforms it into a B whose 
 		//   name is "B with " plus the name of the a element. 
 		TreeReader<B, Nothing> first = TreeReader.<A, Nothing>builder()
-				.open("a", () -> new A("A name"))
+				.child("a").construct(() -> new A("A name"))
 				.close()
 				.build()
 				.map(a -> new B("B with " + a.name()));
