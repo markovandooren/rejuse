@@ -155,6 +155,11 @@ public abstract class TreeReader<T, E extends Exception> {
 		public boolean canMatchExtensionOf(List<TreeNode> path) {
 			return path.size() == 0;
 		}
+		
+		@Override
+		public String toString() {
+			return _name;
+		}
 	}
 	
 	private static class GlobMatcher implements PathMatcher {
@@ -167,6 +172,11 @@ public abstract class TreeReader<T, E extends Exception> {
 		@Override
 		public boolean canMatchExtensionOf(List<TreeNode> path) {
 			return true;
+		}
+		
+		@Override
+		public String toString() {
+			return "**";
 		}
 	}
 	
@@ -181,10 +191,17 @@ public abstract class TreeReader<T, E extends Exception> {
 		public boolean canMatchExtensionOf(List<TreeNode> path) {
 			return path.size() == 0;
 		}
+		
+		@Override
+		public String toString() {
+			return "*";
+		}
 	}
 	
  
-	
+	/**
+	 * A matcher that matches a sequences of paths matcher by two given matchers.
+	 */
 	private static class Sequence implements PathMatcher {
 		private PathMatcher _first;
 		private PathMatcher _second;
@@ -198,9 +215,9 @@ public abstract class TreeReader<T, E extends Exception> {
 		
 		@Override
 		public boolean matches(List<TreeNode> path, int startInclusive, int stopExclusive) {
-			boolean result = (path != null);
-			if (! result) {
-				for (int endOfFirstExclusive = startInclusive + 1; ! result && endOfFirstExclusive < stopExclusive; endOfFirstExclusive++) {
+			boolean result = false;
+			if (path != null) {
+				for (int endOfFirstExclusive = startInclusive; ! result && endOfFirstExclusive < stopExclusive; endOfFirstExclusive++) {
 					result = _first.matches(path, startInclusive, endOfFirstExclusive) &&
 							_second.matches(path, endOfFirstExclusive, stopExclusive);
 				}
@@ -211,6 +228,11 @@ public abstract class TreeReader<T, E extends Exception> {
 		@Override
 		public boolean canMatchExtensionOf(List<TreeNode> path) {
 			return true;
+		}
+		
+		@Override
+		public String toString() {
+			return _first + "/" + _second;
 		}
 		
 	}
