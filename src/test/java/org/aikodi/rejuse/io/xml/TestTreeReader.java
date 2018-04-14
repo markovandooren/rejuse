@@ -25,6 +25,7 @@ public class TestTreeReader {
 	private static class A {
 		private String _name;
 		private List<B> _b = new ArrayList<>();
+		private List<A> _a = new ArrayList<>();
 		public A(String name) {
 			_name = name;
 		}
@@ -40,8 +41,19 @@ public class TestTreeReader {
 			_b.add(b);
 		}
 		
+		public void addA(A a) {
+			if (a == null) {
+				throw new IllegalArgumentException();
+			}
+			_a.add(a);
+		}
+		
 		public List<B> bs() {
 			return new ArrayList<>(_b);
+		}
+
+		public List<A> as() {
+			return new ArrayList<>(_a);
 		}
 	}
 	
@@ -433,4 +445,100 @@ public class TestTreeReader {
 	}
 
 
+	@Test
+	public void testDescendantSingleRootNodeFirstInputOneNestedNode() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.descendant("a").construct(() -> new A("A name"))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads the input '<a></a>'
+	    A output = first.read(reader("<b><a></a></b>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result has name 'A name'
+	    assertEquals("A name", output.name());
+	}
+
+	@Test
+	public void testDescendantNodeFirstInputTwoNestedNodes() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to the value of the attribute 'name'
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.descendant("a").construct(n -> new A(n.attribute("name")))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads nested a nodes of which the outer node has name 'outer', and the other nodes have different names.
+	    A output = first.read(reader("<a name=\"outer\"><a name=\"inner\"><a name=\"inner2\"></a></a></a>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result has the name 'outer'
+	    assertEquals("outer", output.name());
+	}
+
+	@Test
+	public void testDescendantNodeFirstInputTwoNestedNodesInRootNode() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to the value of the attribute 'name'
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.descendant("a").construct(n -> new A(n.attribute("name")))
+				.close()
+				.build();
+		
+		// WHEN
+		//   it reads nested 'a' nodes inside a 'b' node, of which the outer node has name 'outer'
+		//   , and the other nodes have different names.
+	    A output = first.read(reader("<b><a name=\"outer\"><a name=\"inner\"><a name=\"inner2\"></a></a></a></b>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result has the name 'outer'
+	    assertEquals("outer", output.name());
+	}
+
+	@Test
+	public void testDescendantNodeFirstInputPredefined() throws XMLStreamException {
+		// GIVEN
+		//   a tree reader that read 'a' nodes and set their names to 'A name'
+		TreeReader<A, Nothing> first = TreeReader.<A, Nothing>builder()
+				.descendant("a").construct(n -> new A(n.attribute("name")))
+				.close()
+				.build();
+		
+		// AND
+		TreeReader<A, Nothing> second = TreeReader.<A, Nothing>builder()
+				.child("a").construct(() -> new A("A name"))
+					.open(first)
+					.close((a,b) -> a.addA(b))
+				.close()
+				.build();
+		
+	
+		// WHEN
+		//   it reads the input '<a></a>'
+	    A output = second.read(reader("<a name=\"outer\"><a name=\"inner\"><a name=\"inner3\"></a></a><a name=\"inner2\"></a></a>"));
+	    
+	    // THEN
+	    //   the result is not null.
+	    assertNotNull(output);
+	    //   the result has name 'A name'
+	    assertEquals("A name", output.name());
+	    //   the result has two nested A objects.
+	    assertEquals(2, output.as().size());
+	    //   the first one of which has name 'inner'
+	    assertEquals("inner", output.as().get(0).name());
+	    //   the second one of which has name 'inner2'
+	    assertEquals("inner2", output.as().get(1).name());
+	    
+	}
 }
