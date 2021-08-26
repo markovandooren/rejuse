@@ -4,7 +4,16 @@ import org.aikodi.rejuse.action.Nothing;
 import org.aikodi.rejuse.predicate.Predicate;
 import org.aikodi.rejuse.predicate.UniversalPredicate;
 
-
+/**
+ * A predicate with additional support for tree structures.
+ * In addition to computing if a given element satisfies the predicate,
+ * it can also compute if one of the descendants of an element can still
+ * match the predicate. This can be used to efficiently traverse a
+ * tree structure by skipping subtrees in which no match can be found.
+ *
+ * @param <D>
+ * @param <E> The type of exception that can be thrown by the predicate.
+ */
 public abstract class TreePredicate<D, E extends Exception> extends UniversalPredicate<D,E>{
 
 	public TreePredicate(Class<D> type) {

@@ -21,8 +21,7 @@ import org.aikodi.rejuse.action.Nothing;
  *          The type of the nodes in the tree structure.
  * @author Marko van Dooren
  */
-public class PrunedTreeStructure<T, N extends Exception>
-		implements TreeStructure<T, N> {
+public class PrunedTreeStructure<T, N extends Exception> implements TreeStructure<T, N> {
 
 	/**
 	 * The tree structure that determines the nodes that are potentially in this
@@ -46,8 +45,7 @@ public class PrunedTreeStructure<T, N extends Exception>
 	 *          tree are part of the pruned tree structure. The predicate cannot
 	 *          be null.
 	 */
-	public PrunedTreeStructure(TreeStructure<T, N> underLying,
-			TreePredicate<T, Nothing> predicate) {
+	public PrunedTreeStructure(TreeStructure<T, N> underLying, TreePredicate<T, Nothing> predicate) {
 		requireNotNull(underLying);
 		requireNotNull(predicate);
 
@@ -94,9 +92,8 @@ public class PrunedTreeStructure<T, N extends Exception>
 	 */
 	@Override
 	public PrunedTreeStructure<T, N> tree(T element) {
-		if (element == null) {
-			throw new IllegalArgumentException("The element cannot be null.");
-		}
+		requireNotNull(element);
+
 		return new PrunedTreeStructure<>(_underLying.tree(element), _predicate);
 	}
 

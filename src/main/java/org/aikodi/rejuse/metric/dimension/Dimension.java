@@ -219,13 +219,13 @@ public abstract class Dimension {
    @ post (\forall BaseDimension q;;
    @        \result.getExponent(q) == power * getExponent(q));
    @*/
-  protected /*@ pure @*/ Dimension makePower(final double power) {
-    final Map powerMap = new HashMap();
+  protected /*@ pure @*/ Dimension makePower(final int power) {
+    final Map<BaseDimension, Integer> powerMap = new HashMap<>();
     // For every key in the key set (which only contains BaseDimensions)
     // get the double value, create a new double value that equals the inverse
     // and add it to the new map
     baseDimensions().forEach(o -> {
-        Double inverse = new Double(power * exponentOf(o));
+        int inverse = power * exponentOf(o);
         powerMap.put(o, inverse);
       });
     return new CompositeDimension(createName(powerMap), powerMap);
@@ -278,15 +278,14 @@ public abstract class Dimension {
    @        \result.getExponent(q) == getExponent(q) + other.getExponent(q));
    @*/
   protected /*@ pure @*/ Dimension makeProduct(final Dimension other) {
-    final Map productMap = new HashMap();
+    final Map<BaseDimension, Integer> productMap = new HashMap<>();
     Set<BaseDimension> allBase = new HashSet<>();
     allBase.addAll(baseDimensions());
     allBase.addAll(other.baseDimensions());
     allBase.forEach(o -> {
-        double sum = exponentOf(o) + other.exponentOf((BaseDimension)o);
+        int sum = exponentOf(o) + other.exponentOf((BaseDimension)o);
         if(sum != 0) {
-          Double objectSum = new Double(sum);
-          productMap.put(o, objectSum);
+          productMap.put(o, sum);
         }
       });
     return new CompositeDimension(createName(productMap), productMap);
@@ -338,16 +337,15 @@ public abstract class Dimension {
    @        \result.getExponent(q) == getExponent(q) + other.getExponent(q));
    @*/
   protected /*@ pure @*/ Dimension makeQuotient(final Dimension other) {
-    final Map divisionMap = new HashMap();
+    final Map<BaseDimension, Integer> divisionMap = new HashMap<>();
     Set<BaseDimension> allBase = new HashSet<>();
     // This is dirty
     allBase.addAll(baseDimensions());
     allBase.addAll(other.baseDimensions());
     allBase.forEach(o -> {
-        double diff = exponentOf(o) - other.exponentOf(o);
+        int diff = exponentOf(o) - other.exponentOf(o);
         if(diff != 0) {
-          Double objectDiff = new Double(diff);
-          divisionMap.put(o, objectDiff);
+          divisionMap.put(o, diff);
         }
       });
     return new CompositeDimension(createName(divisionMap), divisionMap);

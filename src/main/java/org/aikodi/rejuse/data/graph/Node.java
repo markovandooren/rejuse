@@ -132,7 +132,7 @@ public class Node<V> implements INode<Node<V>, Edge<V>, V> {
    @ post (\forall Edge e; e != null; \result.contains(e) == e.endsIn(this)); 
    @*/
     public Set<Edge<V>> predecessorEdges() {
-        return new HashSet<>(_outgoing);
+        return ImmutableSet.copyOf(_incoming);
     }
 
     /**

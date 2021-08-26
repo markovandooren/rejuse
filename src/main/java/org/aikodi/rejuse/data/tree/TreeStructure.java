@@ -1,11 +1,13 @@
 package org.aikodi.rejuse.data.tree;
 
+import static java.util.stream.Collectors.toList;
 import static org.aikodi.rejuse.collection.CollectionOperations.exists;
 import static org.aikodi.rejuse.collection.CollectionOperations.filter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.aikodi.rejuse.action.UniversalConsumer;
 import org.aikodi.rejuse.function.Consumer;
@@ -504,9 +506,7 @@ public interface TreeStructure<T, N extends Exception> {
 	 @ post (\forall Element e; ; \result.contains(e) <==> children().contains(e) && c.isInstance(e));
 	 @*/
   default <X> List<X> children(Class<X> type) throws N {
-    List<T> result = children();
-    filter(result, child -> type.isInstance(child));
-    return (List)result;
+      return children().stream().filter(type::isInstance).map(type::cast).collect(toList());
   }
 
   /**
@@ -757,7 +757,7 @@ public interface TreeStructure<T, N extends Exception> {
    * 
    * @param action The action to apply.
    */
-  default <X, E extends Exception>  void apply(UniversalConsumer<X,E> action) throws E, N {
+  default <X, E extends Exception> void apply(UniversalConsumer<X,E> action) throws E, N {
     T node = node();
     if(action.type().isInstance(node)) {
       action.perform((T)node);
@@ -777,13 +777,29 @@ public interface TreeStructure<T, N extends Exception> {
    * @param consumer The consumer to which the elements must be provided.
    */
   default <X extends T, E extends Exception> void apply(Class<X> kind, Consumer<X,E> consumer) throws E, N {
-	  if(kind.isInstance(this)) {
-	     consumer.accept((X)this);
+	  if(kind.isInstance(node())) {
+	     consumer.accept((X)node());
 	  }
     for (T e : children()) {
        tree(e).apply(kind, consumer);
     }
   }
 
+	/**
+	 * Recursively pass this element and all of its descendants to the given
+	 * consumer if their type conforms to T.
+	 * 
+	 * @param kind
+	 *            A class object representing the type of elements to be passed to
+	 *            the consumer.
+	 * @param consumer
+	 *            The consumer to which the elements must be provided.
+	 */
+	default <E extends Exception> void apply(Consumer<? super T, E> consumer) throws E, N {
+		consumer.accept(node());
+		for (T e : children()) {
+			tree(e).apply(consumer);
+		}
+	}
 
 }

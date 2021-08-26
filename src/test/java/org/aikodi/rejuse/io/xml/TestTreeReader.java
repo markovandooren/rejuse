@@ -515,7 +515,8 @@ public class TestTreeReader {
 				.close()
 				.build();
 		
-		// AND
+		// AND a tree reader that constructs A object from 'a' nodes,
+		//     and uses the first reader to read its children.
 		TreeReader<A, Nothing> second = TreeReader.<A, Nothing>builder()
 				.child("a").construct(() -> new A("A name"))
 					.open(first)
@@ -525,7 +526,8 @@ public class TestTreeReader {
 		
 	
 		// WHEN
-		//   it reads the input '<a></a>'
+		//   it reads the input an a node with two nested a nodes with names inner and inner2
+		//   and inner has yet another nested 'a' node.
 	    A output = second.read(reader("<a name=\"outer\"><a name=\"inner\"><a name=\"inner3\"></a></a><a name=\"inner2\"></a></a>"));
 	    
 	    // THEN
@@ -537,6 +539,8 @@ public class TestTreeReader {
 	    assertEquals(2, output.as().size());
 	    //   the first one of which has name 'inner'
 	    assertEquals("inner", output.as().get(0).name());
+	    //   and no children (inner3)
+	    assertEquals(0, output.as().get(0).as().size());
 	    //   the second one of which has name 'inner2'
 	    assertEquals("inner2", output.as().get(1).name());
 	    
